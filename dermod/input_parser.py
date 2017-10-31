@@ -1,5 +1,4 @@
 from settings_file import *
-# Модуль, включающий в себя все используемые в данной программе фильтры
 
 
 def parser(string):
@@ -85,9 +84,9 @@ def name_tag_parser(fname):
     return parsed
 
 
-def web_arg_parser(bytes):
-    bytes = bytes.split()[1]
-    stroke = bytes.decode()
+def web_arg_parser(btes):
+    btes = btes.split()[1]
+    stroke = btes.decode()
     stroke = stroke.split("?")[1]
     stroke = stroke.split("&")
     s_query = final = {}

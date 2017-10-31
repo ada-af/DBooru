@@ -10,8 +10,6 @@ from threading import Thread
 from datetime import datetime
 import os
 import time
-import sys
-import traceback
 
 
 class ThreadController(Thread):
@@ -170,10 +168,12 @@ class Handler(Thread):
         elif self.request['path'] == '/' and self.request['query'] is not None:
             try:
                 s = datetime.now()
-                results = list(sorted(db.search(self.request["query"]['search'], self.request["query"]['remove'])[int(self.request['params']['page'])-1]))
+                results = list(sorted(db.search(self.request["query"]['search'],
+                                                self.request["query"]['remove'])
+                                      [int(self.request['params']['page'])-1]))
                 n = datetime.now()
                 self.log_debug("Query time: " + str(n-s))
-            except Exception as e:
+            except Exception:
                 self.send_header(404)
             else:
                 pictures = []

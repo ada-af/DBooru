@@ -153,7 +153,6 @@ class ThreadController(Thread):
                     self.threads.remove(i)
                     del i
                     p = p + 1
-            #self.log_debug(f"Running threads {len(self.threads)} ({p} threads destroyed)")
 
 
 def run(file):
@@ -178,7 +177,13 @@ def run(file):
         try:
             open(images_path+parsed[i][0]+'.'+parsed[i][1], 'rb')
         except FileNotFoundError:
-            t = Loader(parsed[i][2], parsed[i][0], parsed[i][1], derpicdn_enable_proxy, socks5_proxy_ip, socks5_proxy_port, k)
+            t = Loader(parsed[i][2],
+                       parsed[i][0],
+                       parsed[i][1],
+                       derpicdn_enable_proxy,
+                       socks5_proxy_ip,
+                       socks5_proxy_port,
+                       k)
             t.start()
             tc.threads.append(t)
         else:

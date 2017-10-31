@@ -9,7 +9,6 @@ from dermod import derpiload_v3 as derpiload_v3
 from dermod import input_parser as ip
 
 
-# Начало функции справки
 def show_help(case):
     tags_msg = """\nSearch syntax:
     Tags are not case-sensitive
@@ -28,40 +27,38 @@ def show_help(case):
         print(tags_msg)
     elif str(case) == '2':
         print("<any tags, split, by comma> to search in DB")
-        print("<filter <tag>> to remove pictures that tagged by <tag>")
-        print("<add <tag>> to remove pictures that not tagged by <tag>")
         print("<any number bigger than 0> to show search output")
-        print("<show <filename>> opens image in default image viewer")
+        print("<show <id>> opens image in default image viewer")
         print("<back> to return to main menu")
         print("<quit> or <exit> to exit")
         print("<help> shows this message again")
         print(tags_msg)
-# Конец
 
 
 def query_cycle(results):
-    if len(results) == 0:  # Обработка случая, при котором картинок не было найдено
+    if len(results) == 0:  
         print("Nothing found.")
         main_cycle()
     else:
         print("Found {} pages".format(len(results.keys())))
         while True:
-            inp = input("\nSearch@DB> ")  # Получение команд пользователя
+            inp = input("\nSearch@DB> ")  
             inp = inp.lower()
             if inp == "back":
                 main_cycle()
 
-            elif inp.isnumeric():  # Обрабатывает номера страниц, и показывает их содержимое
+            elif inp.isnumeric():  
                 try:
                     for i in results[(int(inp)-1)]:
-                        #i = tuple(filter('None'.__ne__(), i))
+                        
                         i = [x for x in i if x != "None"][:-3]
                         print(str(i[0]) + " "*(15 - len(i[0])) + " => " + str(i[1:showing_tags]).strip("()"))
                 except KeyError:
                     print('There is no page named {}'.format(inp))
 
-            elif "show" in inp:  # Показ картинки с указанным именем. Использует средства ОС
+            elif "show" in inp:  
                 inp = inp.split("show")[1]
+                inp = db.search_by_id(inp.strip())[0][0]
                 try:
                     if os.name != "nt":
                         webbrowser.open(str(images_path + inp.strip()))
@@ -70,7 +67,7 @@ def query_cycle(results):
                 except FileNotFoundError:
                     print("File doesn't exist.")
 
-            elif "export" in inp:  # Копирует картинку с заданным именем в папку указанную в export_path
+            elif "export" in inp:  
                 for i in results.keys():
                     for k in results[i]:
                         try:
@@ -80,40 +77,25 @@ def query_cycle(results):
                         else:
                             pass
 
-            elif inp == '':  # Обрабатывает пустую строку, во избежание "аварийного закрытия" программы
+            elif inp == '':  
                 pass
 
-            elif inp == "help":  # Показ страницы помощи
+            elif inp == "help":  
                 show_help(2)
 
-            elif inp == 'quit' or inp == 'exit':  # Обработка выхода из программы
+            elif inp == 'quit' or inp == 'exit':  
                 os._exit(0)
 
-            elif 'add' in inp:  # Добавляет тэги к уже существуюещму запросу и ищет картинки заного (используется для уточнения поиска)
-                inp = inp.strip().split("add ", 1)[1:]
-                inp = inp[0].split(",")
-                for i in inp:
-                    results = db.add_query(results, i)
-                query_cycle(results)
-
-            elif 'filter' in inp:  # Добавляет теги, которые убирают картинки из поиска и ищет картинки заного
-                inp = inp.strip().split("filter ", 1)[1:]
-                inp = inp[0].split(",")
-                results = db.filter_query(results, inp)
-                query_cycle(results)
-
-            else:  # Остальные случаи расцениваются как теги и с их использованием будет выполнен поиск картинок
+            else:  
                 query = ip.parser(inp)
                 results = db.search(query['search'], query['remove'])
                 query_cycle(results)
 
 
-# Цикл главного меню
-# Обрабатывает команды не связанные с поиском картинок
 def main_cycle():
-    inp = input("\nDB> ")  # Получение команд пользователя
+    inp = input("\nDB> ")  
     inp = inp.lower()
-    if inp == "get images":  # Получает картинки и создаёт базу данных, а также добавляет новые картинки, если будет запущена в следующий раз
+    if inp == "get images":  
         derpilist_v2.run()
         db.fill_db()
         derpiload_v3.run(ids_file)
@@ -121,15 +103,16 @@ def main_cycle():
         shutil.rmtree('tmp')
         os.remove(ids_file)
         print("Image index is up-to-date")
-    elif inp == "total":  # Показывает общее кол-во картинок в базе данных
+    elif inp == "total":  
         db.total_found()
-    elif "count" in inp:  # Показывает кол-во картинок для определенного тэга
+    elif "count" in inp:  
         counttag = inp.strip().split("count")[1].strip()
         db.count_tag(counttag)
-    elif inp == '':  # Обрабатывает пустую строку, во избежание "аварийного закрытия" программы
+    elif inp == '':  
         main_cycle()
-    elif "show" in inp:  # Показ картинки с указанным именем. Использует средства ОС
+    elif "show" in inp:  
         inp = inp.split("show")[1]
+        inp = db.search_by_id(inp.strip())[0][0]
         try:
             if os.name != "nt":
                 webbrowser.open(str(images_path + inp.strip()))
@@ -137,11 +120,11 @@ def main_cycle():
                 os.system(str("explorer.exe " + images_path + inp.strip()))
         except FileNotFoundError:
             print("File doesn't exist.")
-    elif inp == 'quit' or inp == 'exit':  # Обработка выхода из программы
+    elif inp == 'quit' or inp == 'exit':  
         os._exit(0)
-    elif inp == "help":  # Показ страницы помощи
+    elif inp == "help":  
         show_help(1)
-    else:  # Остальные случаи расцениваются как теги и с их использованием будет выполнен поиск картинок
+    else:  
         query = ip.parser(inp)
         results = db.search(query['search'], query['remove'])
         query_cycle(results)
