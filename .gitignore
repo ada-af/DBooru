@@ -1,0 +1,9 @@
+images/**
+exported/**
+tmp/**
+img_ids.txt
+dermod/__pycache__/**
+__pycache__/**
+images1/**
+__pycache__/settings_file.cpython-36.pyc
+sqlite.db

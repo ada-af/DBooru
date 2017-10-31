@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>Local DB</title>
+    <link rel='stylesheet' href="/extra/bootstrap.min.css">
+    <script href="/extra/bootstrap.min.js"></script>
+</head>
+<body>
+    <div class="container-fluid">
+        <div align="center" style="margin-top: 22%">
+            <form action="/">
+                <div class="form-group">
+                    <input type="text" class="form-control form-control-lg" id="inp" name="query" placeholder="Search something">
+                </div>
+                <input name="page" value="1" style="visibility: hidden; width: 0; height: 0">
+                <button type="submit" class="btn btn-submit btn-info">Search</button><button type="button" class="btn btn-submit btn-danger" onclick="window.location.href = '/panic'">Panic Button</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

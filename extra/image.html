@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>DBooru > {}</title>
+    <link rel='stylesheet' href="/extra/bootstrap.min.css">
+    <script href="/extra/bootstrap.min.js"></script>
+    <style>
+        @media screen and (max-width: 640px){{
+            .g-item {{
+            object-fit: contain;
+            margin: 0 auto;
+            margin-left: 3%;
+            display: inline-block;
+            position: relative;
+            height: 35vw;
+            width: auto;
+            max-width: 25vw;
+            }}
+        }}
+        @media screen and (min-width: 640px){{
+            .g-item {{
+            margin: 0 auto;
+            margin-left: 3%;
+            object-fit: contain;
+            display: inline-block;
+            position: relative;
+            height: 35vh;
+            width: auto;
+            max-width: 25vh;
+            }}
+        }}
+    </style>
+    <script type="text/javascript">
+        function dbclick(id){{
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/export?id='+id, true);
+        xhr.send();
+        xhr.timeout = 1000;
+        xhr.onreadystatechange = function () {{
+            console.log(this.status);
+            if (this.status === 200 | this.status === 0){{
+                document.getElementById('export').innerHTML = "Done";
+                document.getElementById('export').classList.remove('btn-info');
+                document.getElementById('export').classList.add('btn-success');
+                }}
+            if (this.status !== 200) {{
+                document.getElementById('export').innerHTML = "Error";
+                document.getElementById('export').classList.remove('btn-info');
+                document.getElementById('export').classList.add('btn-danger')
+                }}
+            }}
+        }}
+    function dl(id){{
+        var req = new XMLHttpRequest();
+        req.open('GET', '/dl?id='+id, true);
+        req.responseType = 'blob';
+        req.send();
+        req.timeout = 1000;
+        req.onload = function (e) {{
+            if (req.status == 200) {{
+                var blob = new Blob([this.response], {{'type': this.getResponseHeader('content-type')}})
+                var a = document.createElement('a');
+                a.style = 'display: none';
+                document.body.appendChild(a);
+                var url = URL.createObjectURL(blob);
+                a.href = url;
+                a.download = id;
+                a.click();
+            }}
+        }}
+    }}
+    </script>
+</head>
+<body style="background-color: #faffd5">
+    <div class="container-fluid">
+        <div align="center">{}<br></div>
+        <div align="center"><button class="btn btn-info" onclick="dl('{}')">Download</button><button class="btn btn-info" id="export" onclick="dbclick('{}')">Export</button></div>
+        <div><h3>Tags: {}</h3></div>
+    </div>
+</body>
+</html>

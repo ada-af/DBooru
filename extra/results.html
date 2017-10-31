@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>Local DB</title>
+    <link rel='stylesheet' href="/extra/bootstrap.min.css">
+    <script href="/extra/bootstrap.min.js"></script>
+    <style>
+        @media screen and (max-width: 640px){{
+            .g-item {{
+            object-fit: contain;
+            margin: 0 auto;
+            margin-left: 3%;
+            display: inline-block;
+            position: relative;
+            height: 35vw;
+            width: auto;
+            max-width: 25vw;
+            }}
+        .vid {{
+            height: 25vw;
+            width: auto;
+            max-width: 25vw;
+        }}
+        }}
+        @media screen and (min-width: 640px){{
+            .g-item {{
+            margin: 0 auto;
+            margin-left: 3%;
+            object-fit: contain;
+            display: inline-block;
+            position: relative;
+            height: 35vh;
+            width: auto;
+            max-width: 25vh;
+            }}
+            .vid {{
+            height: 25vh;
+            width: auto;
+            max-width: 25vh;
+        }}
+        }}
+    </style>
+</head>
+<body class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+        <form action="/">
+            <div class="input-group">
+                    <span class="input-group-btn">
+                            <button type="button" class="btn btn-primary" onclick="window.location = '/'">Home</button>
+                        </span>
+                <input type="text" name="query" class="form-control" value="{}">
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </span>
+            </div>
+            <input name="page" value="1" style="visibility: hidden; width: 0; height: 0">
+        </form>
+        </div>
+    </div>
+        <div class="page" id="content">
+            <div class="row">
+                <div class="col-lg-12">
+                {}
+                </div>
+            </div>
+        </div>
+        <div style="margin-top: 1%;" align="center">
+            <form action="/" style="z-index: 9000">
+                <button type="submit" class="btn btn-primary" name='page' value="{}">Prev page</button><input type="text" name="query" value="{}" style="width: 0; height: 0; border: hidden; visibility: hidden"><button type="submit" class="btn btn-primary" name=page value="{}">Next page</button>
+            </form>
+        </div>
+    <script type="text/javascript">
+    var mouse = false
+    document.onkeypress = function (e) {{
+        if (e.keyCode === 39 && e.target.className != "form-control") {{
+            window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])+1)
+        }}
+        if (e.keyCode === 37 && e.target.className != "form-control") {{
+        window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])-1)
+    }}
+    }}
+    function dbclick(id){{
+        myWindow = window.open("/export?id="+id, "myWindow", "width=200, height=100");
+        setTimeout(function(){{myWindow.close()}}, 1000);
+    }}
+    function sclick(id) {{
+        win = window.open("/image/"+id, '_blank');
+        win.focus()//
+    }}
+    </script>
+</body>
+</html>
