@@ -95,7 +95,7 @@ def search(list_search, list_remove):  # Обработчик поиска по 
     init_db()
     special_fields = []
     for i in list_search:
-        if '$' in i:
+        if '=' in i or '<' in i or '>' in i:
             special_fields.append(i)
             list_search.remove(i)
 
@@ -145,9 +145,9 @@ def search(list_search, list_remove):  # Обработчик поиска по 
 
 def special_f(specials):
 
-    def src(value, field):
+    def src(value, field, sym):
         mkdb('temp')
-        smp = "INSERT INTO temp SELECT * FROM temp1 where {} like '{}'".format(field, value)
+        smp = "INSERT INTO temp SELECT * FROM temp1 where cast({} as int) {} {}".format(field, sym, value)
         cursor.execute(smp)
         conn.commit()
         mkdb('temp1')
@@ -158,15 +158,21 @@ def special_f(specials):
 
     for i in specials:
         i = i.replace("*", '%')
-        i = i.split("$")
+        splitter = ""
+        for k in i:
+            if k == "=" or k == "<" or k == ">":
+                splitter += str(k)
+            else:
+                pass
+        i = i.split(splitter)
         if i[0] == 'height':
-            results = src(i[1], i[0])
+            results = src(i[1], i[0], splitter)
             conn.commit()
         elif i[0] == 'width':
-            results = src(i[1], i[0])
+            results = src(i[1], i[0], splitter)
             conn.commit()
         elif i[0] == 'ratio' or i[0] == 'aspect_ratio':
-            results = src(i[1], 'ratio')
+            results = src(i[1][:10], 'ratio', splitter)
             conn.commit()
     if len(results) == 0:
         results = []

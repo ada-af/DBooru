@@ -109,6 +109,8 @@ def web_arg_parser_v2(params):
         .replace("%25", "%")\
         .replace("%2A", "*")\
         .replace("%3A", ":")\
+        .replace("%3C", "<")\
+        .replace("%3E", ">")\
         .replace("%20", " ")\
         .split("&")
     temp = {}
@@ -117,7 +119,8 @@ def web_arg_parser_v2(params):
         temp = dict(temp, **{i[0]: i[1]})
     params = temp
     del temp
-    query = parser(params['query'])
+    params['query'] = params['query'].replace("%3D", "=")
+    query = parser(params['query'].repl)
     return params, query
 
 
