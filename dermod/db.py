@@ -147,7 +147,7 @@ def special_f(specials):
 
     def src(value, field, sym):
         mkdb('temp')
-        smp = "INSERT INTO temp SELECT * FROM temp1 where cast({} as int) {} {}".format(field, sym, value)
+        smp = "INSERT INTO temp SELECT * FROM temp1 where cast({} as REAL) {} {}".format(field, sym, value)
         cursor.execute(smp)
         conn.commit()
         mkdb('temp1')
