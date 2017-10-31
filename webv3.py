@@ -3,8 +3,8 @@ from settings_file import *
 from dermod import db
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
-from dermod import derpiload
-from dermod import derpilist
+from dermod import derpiload_v3 as derpiload
+from dermod import derpilist_v2 as derpilist
 import socket
 from threading import Thread
 from datetime import datetime

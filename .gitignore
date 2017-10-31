@@ -7,3 +7,4 @@ __pycache__/**
 images1/**
 __pycache__/settings_file.cpython-36.pyc
 sqlite.db
+.idea/**
