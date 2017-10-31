@@ -8,6 +8,7 @@
 - idna
 - cryptography
 #### AFTER INSTALLING DEPENDENCIES DELETE PyOpenSSL ###
+Or you can launch extra/linux\_deps.sh or extra/windows\_deps.bat and wait for magic
 
 ### Configuration ###
 Edit settings\_file.py
