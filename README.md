@@ -1,7 +1,7 @@
 ## How do I get set up? ##
 
 ### Dependencies ###
-- Python 3.4+
+- Python 3.6+
 - requests
 - requests[security]
 - pysocks
