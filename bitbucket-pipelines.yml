@@ -10,8 +10,7 @@ pipelines:
     - step:
         caches:
           - pip
-          - ~/.local/lib/python3.6/site-packages
         script: # Modify the commands below to build your repository.
-          - pip install --user requests pysocks idna cryptography requests[security] cx_Freeze
+          - pip install requests pysocks idna cryptography requests[security] cx_Freeze
           - pip uninstall pyopenssl
-          - ls ~/.local/lib/python3.6/site-packages
+          - pip freeze
