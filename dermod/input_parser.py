@@ -119,7 +119,7 @@ def web_arg_parser_v2(params):
     params = temp
     del temp
     params['query'] = params['query'].replace("%3D", "=")
-    query = parser(params['query'].repl)
+    query = parser(params['query'])
     return params, query
 
 

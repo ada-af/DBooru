@@ -101,14 +101,14 @@ def search(list_search, list_remove):
         sample = "INSERT INTO temp1 SELECT * FROM {} WHERE '{}' in ({})".format(table_name, list_search[0], tag_col)
         cursor.execute(sample)
         cursor.execute("delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
-        results = list(cursor.execute("SELECT * FROM temp1"))
+        results = list(cursor.execute("SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
     else:
         mkdb('temp1')
         sample = "INSERT INTO temp1 SELECT * FROM {}".format(table_name)
         cursor.execute(sample)
         cursor.execute("delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
-        results = list(cursor.execute("SELECT * FROM temp1"))
+        results = list(cursor.execute("SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
 
     for i in list_search[1:]:
@@ -118,7 +118,7 @@ def search(list_search, list_remove):
         conn.commit()
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute("select * from temp1"))
+        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
     results = ip.results_parser(results)
 
@@ -128,7 +128,7 @@ def search(list_search, list_remove):
         for i in list_remove:
             cursor.execute("DELETE FROM temp1 WHERE '{}' in ({})".format(i, tag_col))
             conn.commit()
-        results = list(cursor.execute("select * from temp1"))
+        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
         results = ip.results_parser(results)
         conn.commit()
 
@@ -149,7 +149,7 @@ def special_f(specials):
         conn.commit()
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute("select * from temp1"))
+        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
         return results
 

@@ -168,9 +168,9 @@ class Handler(Thread):
         elif self.request['path'] == '/' and self.request['query'] is not None:
             try:
                 s = datetime.now()
-                results = list(sorted(db.search(self.request["query"]['search'],
+                results = list(db.search(self.request["query"]['search'],
                                                 self.request["query"]['remove'])
-                                      [int(self.request['params']['page'])-1]))
+                                      [int(self.request['params']['page'])-1])
                 n = datetime.now()
                 self.log_debug("Query time: " + str(n-s))
             except Exception:
