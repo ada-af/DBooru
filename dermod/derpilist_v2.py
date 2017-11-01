@@ -180,7 +180,7 @@ def run():
                 vote,
                 pages_num,
                 user_api_key), verify=False)
-        if len(dat.content) < 100:
+        if re.match('{"search":\[\]', dat.content.decode()).group() == '{"search":[]':
             k = True
     k = False
     while k is False:

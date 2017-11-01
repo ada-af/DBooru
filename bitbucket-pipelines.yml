@@ -7,7 +7,7 @@ pipelines:
           caches:
             - pip
           script:
-            - pip install requests pysocks idna cryptography requests[security] cx_Freeze
+            - pip install requests pysocks idna cryptography requests[security] cx_Freeze netifaces
             - git clone https://bitbucket.org/anon_a/dbooru.git
             - cd dbooru
             - git fetch

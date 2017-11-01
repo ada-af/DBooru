@@ -1,4 +1,4 @@
-import gc
+import netifaces
 from threading import Thread
 import os
 import sys
@@ -104,7 +104,15 @@ def udp_check():
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     p = socket.gethostname()
     h = str.encode(p)
-    sock.sendto(h, ('192.168.1.255', 29888))
+    broadcast_ip = ''
+    for i in netifaces.interfaces():
+        if 2 in netifaces.ifaddresses(i):
+            if 'broadcast' in netifaces.ifaddresses(i)[2][0]:
+                broadcast_ip = netifaces.ifaddresses(i)[2][0]['broadcast']
+                break
+    if broadcast_ip == '':
+        broadcast_ip = '192.168.1.255'
+    sock.sendto(h, (broadcast_ip, 29888))
     sock1 = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
     sock1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock1.bind(('', 29889))
@@ -169,8 +177,7 @@ def run(file):
     chk = len(parsed)
     print("\rLoading Images" + " "*16, flush=True, end='')
     for i in range(chk):
-        gc.collect()
-        print(f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done)" + " "*16, flush=True, end='')
+        print(f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " "*16, flush=True, end='')
         try:
             open(images_path+parsed[i][0]+'.'+parsed[i][1], 'rb')
         except FileNotFoundError:
