@@ -17,7 +17,7 @@ pipelines:
           - git clone https://bitbucket.org/anon_a/dbooru.git
           - cd dbooru
           - git fetch
-          - git checkout next
+          - git checkout master
           - git pull
     - step:
         script:
