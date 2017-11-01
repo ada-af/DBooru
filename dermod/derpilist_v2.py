@@ -180,7 +180,7 @@ def run():
                 vote,
                 pages_num,
                 user_api_key), verify=False)
-        if re.match('{"search":\[\]', dat.content.decode()).group() == '{"search":[]':
+        if re.match('{"search":\[\]', dat.content.decode()) is not None:
             k = True
     k = False
     while k is False:
