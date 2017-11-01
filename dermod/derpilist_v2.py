@@ -5,11 +5,7 @@ import time
 import os
 import re
 from settings_file import *
-try:
-    import requests
-except ImportError:
-    print("This app requires python-requests")
-    input()
+import requests
 
 
 class Error(Exception):

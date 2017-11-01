@@ -15,13 +15,16 @@ def show_help(case):
     Tags must be separated by comma ','
     Example: <ta1, TAg2> ('TAg2' will be the same as 'tag2')
     Excluding tag from search made by adding '-' before tag
-    Example: <tag1, -tag3> (In this case tag3 will be excluded from search output)"""
+    Example: <tag1, -tag3> (In this case tag3 will be excluded from search output)
+    Special tags: height, width, ratio
+    Use Special tags to filter images by size
+    Example: height>=100 (Will find images with height of 100 and more)"""
     if str(case) == "1":
         print("<any tags, split, by comma> to search in DB")
         print("<get images> loads every picture you faved/upvoted (may be changed in settings_file.py)")
         print("<total> prints amount of pictures you have in DB")
         print("<count <tag>> prints amount of pictures tagged by <tag>")
-        print("<show <filename>> opens image in default image viewer")
+        print("<show <id>> opens image in default image viewer")
         print("<quit> or <exit> to exit")
         print("<help> shows this message again")
         print(tags_msg)

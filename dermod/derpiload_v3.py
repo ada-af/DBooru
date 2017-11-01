@@ -6,10 +6,7 @@ from . import input_parser as ip
 from settings_file import *
 import socket
 import time
-try:
-    import requests
-except Exception:
-    print("This app requires python-requests")
+import requests
 
 
 class Error(Exception):
