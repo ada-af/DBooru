@@ -6,11 +6,20 @@
 image: python:3.6
 
 pipelines:
-  default:
+  branches:
+    next:
     - step:
         caches:
           - pip
         script: # Modify the commands below to build your repository.
           - pip install requests pysocks idna cryptography requests[security] cx_Freeze
-          - pip uninstall pyopenssl
-          - pip freeze
+    - step:
+        script:
+          - git clone https://bitbucket.org/anon_a/dbooru.git
+          - cd dbooru
+          - git fetch
+          - git checkout next
+          - git pull
+    - step:
+        script:
+          - python setup.py build
