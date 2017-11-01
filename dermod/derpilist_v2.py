@@ -5,11 +5,7 @@ import time
 import os
 import re
 from settings_file import *
-try:
-    import requests
-except Exception:
-    print("This app requires python-requests")
-    input()
+import requests
 
 
 class Error(Exception):
@@ -161,7 +157,8 @@ class Checker(Thread):
         except Exception:
             pass
         del timer
-        if len(open(f'tmp/{self.page}.txt', 'r').read()) == 0 and re.match('{"search":\[\]', self.raw_data).group() != '{"search":[]':
+        if len(open(f'tmp/{self.page}.txt', 'r').read()) == 0 and re.match('{"search":\[\]',
+                                                                           self.raw_data).group() != '{"search":[]':
             self.run()
         else:
             pass
@@ -198,7 +195,8 @@ def run():
     tc = ThreadController()
     tc.start()
     for i in range(pages_num+1):
-        print(f"\rChecking page {i} of {pages_num} ({format((i/pages_num)*100, '.4g')}% done) (Running threads {len(tc.threads)})          ", flush=True, end='')
+        print(f"\rChecking page {i} of {pages_num} ({format((i/pages_num)*100, '.4g')}% done)"
+              f" (Running threads {len(tc.threads)})          ", flush=True, end='')
         t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
         t.start()
         tc.threads.append(t)
