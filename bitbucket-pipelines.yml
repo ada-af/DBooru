@@ -12,13 +12,11 @@ pipelines:
           - pip
         script: # Modify the commands below to build your repository.
           - pip install requests pysocks idna cryptography requests[security] cx_Freeze
-    - step:
-        script:
           - git clone https://bitbucket.org/anon_a/dbooru.git
           - cd dbooru
           - git fetch
           - git checkout master
           - git pull
-    - step:
-        script:
           - python setup.py build
+          - cd build/*
+          - ls
