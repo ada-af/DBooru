@@ -17,5 +17,5 @@ pipelines:
             - python setup.py build
             - cp settings_file.py.1 build/exe.linux-x86_64-3.6/settings_file.py
             - cd build/exe.linux-x86_64-3.6
-            - tar -cvf DBooru.tar *
+            - tar -cvf DBooru(linux_x86_64).tar *
             - curl -X POST --user "${BB_AUTH_STRING}" "https://api.bitbucket.org/2.0/repositories/${BITBUCKET_REPO_OWNER}/${BITBUCKET_REPO_SLUG}/downloads" --form files=@"DBooru(linux_x86_64).tar"
