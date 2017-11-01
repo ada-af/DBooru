@@ -178,7 +178,7 @@ def special_f(specials):
 
 def search_by_id(img_id):
     init_db()
-    result = list(cursor.execute(f"SELECT fname FROM {table_name} WHERE fname like '{img_id}.%'"))
+    result = list(cursor.execute(f"SELECT * FROM {table_name} WHERE fname like '{img_id}.%'"))
 
     return result
 
