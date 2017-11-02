@@ -107,14 +107,17 @@ def udp_check():
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         p = socket.gethostname()
         h = str.encode(p)
-        broadcast_ip = ''
-        for i in netifaces.interfaces():
-            if 2 in netifaces.ifaddresses(i):
-                if 'broadcast' in netifaces.ifaddresses(i)[2][0]:
-                    broadcast_ip = netifaces.ifaddresses(i)[2][0]['broadcast']
-                    break
-        if broadcast_ip == '':
-            broadcast_ip = '192.168.1.255'
+        if br_ip is False:
+            broadcast_ip = ''
+            for i in netifaces.interfaces():
+                if 2 in netifaces.ifaddresses(i):
+                    if 'broadcast' in netifaces.ifaddresses(i)[2][0]:
+                        broadcast_ip = netifaces.ifaddresses(i)[2][0]['broadcast']
+                        break
+            if broadcast_ip == '':
+                broadcast_ip = '192.168.1.255'
+        else:
+            broadcast_ip = br_ip
         sock.sendto(h, (broadcast_ip, 29888))
         sock1 = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
