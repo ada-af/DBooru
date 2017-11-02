@@ -5,7 +5,7 @@ import shutil
 from settings_file import *
 from dermod import db
 from dermod import derpilist_v2
-from dermod import derpiload_v3 as derpiload_v3
+from dermod import derpiload_v3
 from dermod import input_parser as ip
 
 
@@ -100,8 +100,8 @@ def main_cycle():
     inp = inp.lower()
     if inp == "get images":  
         derpilist_v2.run()
-        db.fill_db()
         derpiload_v3.run(ids_file)
+        db.fill_db()
         print("DB configured successfully")
         shutil.rmtree('tmp')
         os.remove(ids_file)

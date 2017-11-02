@@ -1,3 +1,4 @@
+import gc
 import netifaces
 from threading import Thread
 import os
@@ -177,6 +178,7 @@ def run(file):
     chk = len(parsed)
     print("\rLoading Images" + " "*16, flush=True, end='')
     for i in range(chk):
+        gc.collect()
         print(f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " "*16, flush=True, end='')
         try:
             open(images_path+parsed[i][0]+'.'+parsed[i][1], 'rb')
