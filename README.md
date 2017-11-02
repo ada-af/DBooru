@@ -51,7 +51,7 @@
 >
 >Or you can launch extra/linux\_deps.sh or extra/windows\_deps.bat and wait for magic
     
-You can download frozen package [here](https://bitbucket.org/anon_a/dbooru/downloads/DBooru(linux_x86_64).tar) (64-bit linux only)
+You can download frozen package [here](https://bitbucket.org/anon_a/dbooru/downloads/) (64-bit linux only)
 + No need to install dependencies and/or python
 + Needs configuration anyway
 
