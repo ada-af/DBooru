@@ -101,38 +101,43 @@ class Loader(Thread):
 
 
 def udp_check():
-    sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
-    sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-    p = socket.gethostname()
-    h = str.encode(p)
-    broadcast_ip = ''
-    for i in netifaces.interfaces():
-        if 2 in netifaces.ifaddresses(i):
-            if 'broadcast' in netifaces.ifaddresses(i)[2][0]:
-                broadcast_ip = netifaces.ifaddresses(i)[2][0]['broadcast']
-                break
-    if broadcast_ip == '':
-        broadcast_ip = '192.168.1.255'
-    sock.sendto(h, (broadcast_ip, 29888))
-    sock1 = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
-    sock1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock1.bind(('', 29889))
-    sock1.settimeout(2)
-    k = ''
-    try:
-        k = sock1.recv(1024)
-        if k is not '' and k is not b'':
-            k = k.decode()
-            k = (socket.gethostbyname(k.split(":")[0]), int(k.split(":")[1]))
-    except socket.timeout:
-        pass
-    del sock, sock1
-    if k == '':
-        print("\rNo servers found                 ", flush=True, end='')
-        k = False
+    if discover_servers == 'on':
+        print("\rChecking for local servers..." + " "*16, flush=True, end='')
+        sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        p = socket.gethostname()
+        h = str.encode(p)
+        broadcast_ip = ''
+        for i in netifaces.interfaces():
+            if 2 in netifaces.ifaddresses(i):
+                if 'broadcast' in netifaces.ifaddresses(i)[2][0]:
+                    broadcast_ip = netifaces.ifaddresses(i)[2][0]['broadcast']
+                    break
+        if broadcast_ip == '':
+            broadcast_ip = '192.168.1.255'
+        sock.sendto(h, (broadcast_ip, 29888))
+        sock1 = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
+        sock1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock1.bind(('', 29889))
+        sock1.settimeout(2)
+        k = ''
+        try:
+            k = sock1.recv(1024)
+            if k is not '' and k is not b'':
+                k = k.decode()
+                k = (socket.gethostbyname(k.split(":")[0]), int(k.split(":")[1]))
+        except socket.timeout:
+            pass
+        del sock, sock1
+        if k == '':
+            print("\rNo servers found                 ", flush=True, end='')
+            k = False
+        else:
+            print("\rServer found                     ", flush=True, end='')
+        return k
     else:
-        print("\rServer found                     ", flush=True, end='')
-    return k
+        k = False
+        return k
 
 
 class ThreadController(Thread):
@@ -172,7 +177,6 @@ def run(file):
         os.mkdir(images_path)
     except FileExistsError:
         pass
-    print("\rChecking for local servers..." + " "*16, flush=True, end='')
     k = udp_check()
     parsed = ip.name_tag_parser(file)
     chk = len(parsed)

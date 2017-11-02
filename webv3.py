@@ -206,16 +206,19 @@ class Handler(Thread):
                 else:
                     self.send_header(200)
                     self.send_data(p)
-        elif self.request['path'] == '/update':
-            self.send_header(200)
-            self.send_data("started")
-            derpilist.run()
-            derpiload.run(ids_file)
-            db.mkdb(table_name, columns, tag_amount)
-            db.fill_db()
-            print("DB configured successfully")
-            os.remove(ids_file)
-            print("Image index is up-to-date")
+        # TODO: Update database from web
+        # TODO: Use websockets for status output
+        # TODO: Use JSON for status (implies changes in download code)
+        # elif self.request['path'] == '/update':
+        #     self.send_header(200)
+        #     self.send_data("started")
+        #     derpilist.run()
+        #     derpiload.run(ids_file)
+        #     db.mkdb(table_name, columns, tag_amount)
+        #     db.fill_db()
+        #     print("DB configured successfully")
+        #     os.remove(ids_file)
+        #     print("Image index is up-to-date")
         elif "/image/" in self.request['path']:
             img_id = self.request['path'].split("/")[-1]
             tags = db.search_by_id(img_id)
@@ -274,8 +277,11 @@ try:
     print("Server started at http://{}:{}".format(web_ip, web_port))
     tc = ThreadController()
     tc.start()
-    UDPsrv = UDPHandler()
-    UDPsrv.start()
+    if share_images == 'on':
+        UDPsrv = UDPHandler()
+        UDPsrv.start()
+    else:
+        pass
     sock = socket.socket()
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((web_ip, web_port))

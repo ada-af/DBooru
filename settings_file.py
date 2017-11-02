@@ -112,6 +112,16 @@ db_name = "sqlite.db"
 # Example: (table_name = 'images')
 table_name = 'images'
 
+# Turns on/off local servers discovery
+# Format: discover_servers = string
+# Example: (discover_servers = 'off')
+discover_servers = 'on'
+
+# Turns on/off sharing images in lan
+# Format: discover_servers = string
+# Example: (share_images = 'off')
+share_images = 'on'
+
 # NOT IMPLEMENTED {
 #
 # Defines name (or path and name) for temporary follow file
