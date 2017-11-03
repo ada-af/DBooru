@@ -106,6 +106,14 @@ def main_cycle():
         shutil.rmtree('tmp')
         os.remove(ids_file)
         print("Image index is up-to-date")
+    if inp == "get images --force" or inp == "get images -f":  
+        derpilist_v2.run()
+        derpiload_v3.run(ids_file, check_files=False)
+        db.fill_db()
+        print("DB configured successfully")
+        shutil.rmtree('tmp')
+        os.remove(ids_file)
+        print("Image index is up-to-date")
     elif inp == "total":  
         db.total_found()
     elif "count" in inp:  
@@ -132,7 +140,8 @@ def main_cycle():
         results = db.search(query['search'], query['remove'])
         query_cycle(results)
     main_cycle()
-show_help(1)
+    
+    
 try:
     main_cycle()
 except KeyboardInterrupt:

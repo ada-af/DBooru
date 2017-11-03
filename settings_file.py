@@ -126,14 +126,14 @@ br_ip = False
 
 
 # Turns on/off local servers discovery
-# Format: discover_servers = string
-# Example: (discover_servers = 'off')
-discover_servers = 'on'
+# Format: discover_servers = bool
+# Example: (discover_servers = False)
+discover_servers = True
 
 # Turns on/off sharing images in lan
-# Format: discover_servers = string
-# Example: (share_images = 'off')
-share_images = 'on'
+# Format: discover_servers = bool
+# Example: (share_images = False)
+share_images = True
 
 # NOT IMPLEMENTED {
 #

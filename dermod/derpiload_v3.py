@@ -101,7 +101,7 @@ class Loader(Thread):
 
 
 def udp_check():
-    if discover_servers == 'on':
+    if discover_servers is True:
         print("\rChecking for local servers..." + " "*16, flush=True, end='')
         sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -169,7 +169,7 @@ class ThreadController(Thread):
                     p = p + 1
 
 
-def run(file):
+def run(file, check_files=True):
     tc = ThreadController()
     tc.start()
     global suppressor, images_path, derpicdn_enable_proxy, socks5_proxy_ip, socks5_proxy_port
@@ -184,23 +184,40 @@ def run(file):
     parsed = ip.name_tag_parser(file)
     chk = len(parsed)
     print("\rLoading Images" + " "*16, flush=True, end='')
+    c = 0
     for i in range(chk):
         gc.collect()
         print(f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " "*16, flush=True, end='')
-        try:
-            open(images_path+parsed[i][0]+'.'+parsed[i][1], 'rb')
-        except FileNotFoundError:
-            t = Loader(parsed[i][2],
-                       parsed[i][0],
-                       parsed[i][1],
-                       derpicdn_enable_proxy,
-                       socks5_proxy_ip,
-                       socks5_proxy_port,
-                       k)
-            t.start()
-            tc.threads.append(t)
-        else:
-            pass
+        if check_files is True:
+            try:
+                open(images_path+parsed[i][0]+'.'+parsed[i][1], 'rb')
+            except FileNotFoundError:
+                t = Loader(parsed[i][2],
+                           parsed[i][0],
+                           parsed[i][1],
+                           derpicdn_enable_proxy,
+                           socks5_proxy_ip,
+                           socks5_proxy_port,
+                           k)
+                t.start()
+                tc.threads.append(t)
+                time.sleep(0.1)
+            else:
+                t = Loader(parsed[i][2],
+                           parsed[i][0],
+                           parsed[i][1],
+                           derpicdn_enable_proxy,
+                           socks5_proxy_ip,
+                           socks5_proxy_port,
+                           k)
+                t.start()
+                tc.threads.append(t)
+                time.sleep(0.1)
     while len(tc.threads) > 0:
         print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " "*16, flush=True, end='')
+        if c >= 5 and len(tc.threads) < 10:
+            tc.threads = []
+        else:
+            time.sleep(1)
+            c += 1
     del tc

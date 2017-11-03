@@ -273,11 +273,11 @@ class Handler(Thread):
                 self.send_header(200, f_type)
                 self.send_data(data)
 
-try:
+def run():
     print("Server started at http://{}:{}".format(web_ip, web_port))
     tc = ThreadController()
     tc.start()
-    if share_images == 'on':
+    if share_images is True:
         UDPsrv = UDPHandler()
         UDPsrv.start()
     else:
@@ -294,5 +294,10 @@ try:
             tc.threads.append(newT)
         except ConnectionResetError:
             pass
-except KeyboardInterrupt:
-    os._exit(0)
+
+
+if __name__ ==  "__main__":
+    try:
+        run()
+    except KeyboardInterrupt:
+        os._exit(0)

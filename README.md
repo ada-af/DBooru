@@ -75,15 +75,17 @@ You can download frozen package [here](https://bitbucket.org/anon_a/dbooru/downl
 #### Main menu
 Enter this commands if prompt starts with `DB>`
 
-| Command          | Description                                                |
-| ---------------- | ---------------------------------------------------------- |
-| help             | Shows in-app help                                          |
-| get images       | Downloads images that you liked/favorited on Derpibooru    |
-| total            | Prints amount of entries in local DB                       |
-| count \<tag\>    | Prints amount of entries tagged with \<tag\>               |
-| show \<image_id> | Opens image in image viewer or browser if no viewers found |
-| quit (exit)      | Closes app                                                 |
-| \<anything>      | Uses input as list of tags and searches for it             |
+| Command            | Description                                                                             |
+| ------------------ | --------------------------------------------------------------------------------------- |
+| help               | Shows in-app help                                                                       |
+| get images         | Downloads images that you liked/favorited on Derpibooru                                 |
+| get images -f      | Downloads images without checking file existance that you liked/favorited on Derpibooru |
+| get images --force | Same as get images -f                                                                   |
+| total              | Prints amount of entries in local DB                                                    |
+| count \<tag\>      | Prints amount of entries tagged with \<tag\>                                            |
+| show \<image_id>   | Opens image in image viewer or browser if no viewers found                              |
+| quit (exit)        | Closes app                                                                              |
+| \<anything>        | Uses input as list of tags and searches for it                                          |
 
 #### Search
 
