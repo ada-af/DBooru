@@ -50,10 +50,6 @@
 >If you have PyOpenSSL installed - remove it
 >
 >Or you can launch extra/linux\_deps.sh or extra/windows\_deps.bat and wait for magic
-    
-You can download frozen package [here](https://bitbucket.org/anon_a/dbooru/downloads/) (64-bit linux only)
-+ No need to install dependencies and/or python
-+ Needs configuration anyway
 
 ### Configuration
 1. [Get derpibooru Api Key](https://derpibooru.org/users/edit)
