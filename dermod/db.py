@@ -43,6 +43,12 @@ def total_found():
     print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM {} WHERE {}".format(table_name, columns[0])).fetchone()[0])
 
 
+def get_all_entries():
+    init_db()
+    result = list(cursor.execute("SELECT * from {}".format(table_name)))
+    return result
+
+
 def mkdb(table_name):  
     init_db()
     cursor.execute('drop table IF EXISTS {}'.format(table_name))
@@ -80,11 +86,8 @@ def fill_db():
 def count_tag(tag_to_count):
     init_db()
 
-    sample = """select count(*) FROM {} where tag1 LIKE '%{}%'""".format(table_name, tag_to_count)
-    for i in range(2, tag_amount + 1):
-        sample += " OR tag{} LIKE '%{}%'".format(i, tag_to_count)
+    sample = """select count(*) FROM {} where '{}' in ({})""".format(table_name, tag_to_count, tag_col)
     output = list(cursor.execute(sample))
-
     print(str(output[0]).strip("()").replace(",", "") + " images tagged {}".format(tag_to_count))
 
 

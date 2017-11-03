@@ -3,6 +3,7 @@ from settings_file import *
 from dermod import db
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
+from dermod import predict
 from dermod import derpiload_v3 as derpiload
 from dermod import derpilist_v2 as derpilist
 import socket
@@ -260,6 +261,17 @@ class Handler(Thread):
             else:
                 self.send_data(temp)
                 del temp
+        elif self.request['path'] == '/predict' and 'phrase' in self.request['params']:
+            predictor = predict.Predictor()
+            try:
+                matched = predictor.predict(self.request['params']['phrase'])
+                self.send_header(200)
+                if len(matched) == 0:
+                    self.send_data('[]')
+                else:
+                    self.send_data(str(matched))
+            except Exception:
+                self.send_header(500)
         else:
             try:
                 self.request['path'] = self.request['path'].replace('..', '')
@@ -272,6 +284,7 @@ class Handler(Thread):
             else:
                 self.send_header(200, f_type)
                 self.send_data(data)
+
 
 def run():
     print("Server started at http://{}:{}".format(web_ip, web_port))
