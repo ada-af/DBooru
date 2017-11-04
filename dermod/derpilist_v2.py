@@ -180,7 +180,7 @@ def run():
                 vote,
                 pages_num,
                 user_api_key), verify=False)
-        if len(dat.content) < 100:
+        if re.match('{"search":\[\]', dat.content.decode()) is not None:
             k = True
     k = False
     while k is False:
@@ -200,11 +200,11 @@ def run():
         t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
         t.start()
         tc.threads.append(t)
-        time.sleep(0.2)
+        time.sleep(0.1)
     c = 0
     while len(tc.threads) > 0:
         print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " "*16, flush=True, end='')
-        if c >= 5:
+        if c >= 5 and len(tc.threads) < 10:
             tc.threads = []
         else:
             time.sleep(1)
@@ -216,3 +216,4 @@ def run():
             print(f"\rProcessing file {i}.txt  ", end='', flush=True)
             f.write(open(f'tmp/{i}.txt', 'r').read())
             f.flush()
+            time.sleep(0.05)

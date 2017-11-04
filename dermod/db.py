@@ -43,6 +43,12 @@ def total_found():
     print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM {} WHERE {}".format(table_name, columns[0])).fetchone()[0])
 
 
+def get_all_entries():
+    init_db()
+    result = list(cursor.execute("SELECT * from {}".format(table_name)))
+    return result
+
+
 def mkdb(table_name):  
     init_db()
     cursor.execute('drop table IF EXISTS {}'.format(table_name))
@@ -80,11 +86,8 @@ def fill_db():
 def count_tag(tag_to_count):
     init_db()
 
-    sample = """select count(*) FROM {} where tag1 LIKE '%{}%'""".format(table_name, tag_to_count)
-    for i in range(2, tag_amount + 1):
-        sample += " OR tag{} LIKE '%{}%'".format(i, tag_to_count)
+    sample = """select count(*) FROM {} where '{}' in ({})""".format(table_name, tag_to_count, tag_col)
     output = list(cursor.execute(sample))
-
     print(str(output[0]).strip("()").replace(",", "") + " images tagged {}".format(tag_to_count))
 
 
@@ -101,14 +104,14 @@ def search(list_search, list_remove):
         sample = "INSERT INTO temp1 SELECT * FROM {} WHERE '{}' in ({})".format(table_name, list_search[0], tag_col)
         cursor.execute(sample)
         cursor.execute("delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
-        results = list(cursor.execute("SELECT * FROM temp1"))
+        results = list(cursor.execute("SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
     else:
         mkdb('temp1')
         sample = "INSERT INTO temp1 SELECT * FROM {}".format(table_name)
         cursor.execute(sample)
         cursor.execute("delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
-        results = list(cursor.execute("SELECT * FROM temp1"))
+        results = list(cursor.execute("SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
 
     for i in list_search[1:]:
@@ -118,7 +121,7 @@ def search(list_search, list_remove):
         conn.commit()
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute("select * from temp1"))
+        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
     results = ip.results_parser(results)
 
@@ -128,7 +131,7 @@ def search(list_search, list_remove):
         for i in list_remove:
             cursor.execute("DELETE FROM temp1 WHERE '{}' in ({})".format(i, tag_col))
             conn.commit()
-        results = list(cursor.execute("select * from temp1"))
+        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
         results = ip.results_parser(results)
         conn.commit()
 
@@ -149,7 +152,7 @@ def special_f(specials):
         conn.commit()
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute("select * from temp1"))
+        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
         return results
 
@@ -178,7 +181,7 @@ def special_f(specials):
 
 def search_by_id(img_id):
     init_db()
-    result = list(cursor.execute(f"SELECT fname FROM {table_name} WHERE fname like '{img_id}.%'"))
+    result = list(cursor.execute(f"SELECT * FROM {table_name} WHERE fname like '{img_id}.%'"))
 
     return result
 

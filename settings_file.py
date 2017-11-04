@@ -77,6 +77,9 @@ showing_imgs = 15
 # Example: (showing_tags = 14)
 showing_tags = 15
 
+
+# Path settings
+
 # Defines path where to store downloaded images
 # Supports relative and full paths
 # Format: images_path = string
@@ -111,6 +114,26 @@ db_name = "sqlite.db"
 # Format: table_name = string
 # Example: (table_name = 'images')
 table_name = 'images'
+
+# Servers discovery options
+
+# Override LAN IP broadcast address
+# If app uses wrong broadcast ip for searching servers set it manually
+# Format: br_ip = string or False
+# Example: Override (br_ip = '10.14.88.255')
+# Example: Do not override (br_ip = False)
+br_ip = False
+
+
+# Turns on/off local servers discovery
+# Format: discover_servers = bool
+# Example: (discover_servers = False)
+discover_servers = True
+
+# Turns on/off sharing images in lan
+# Format: discover_servers = bool
+# Example: (share_images = False)
+share_images = True
 
 # NOT IMPLEMENTED {
 #

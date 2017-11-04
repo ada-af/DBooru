@@ -12,12 +12,28 @@
         <div align="center" style="margin-top: 22%">
             <form action="/">
                 <div class="form-group">
-                    <input type="text" class="form-control form-control-lg" id="inp" name="query" placeholder="Search something">
+                    <input type="text" class="form-control form-control-lg" id="inp" list="search" autocomplete="off" name="query" placeholder="Search something">
                 </div>
                 <input name="page" value="1" style="visibility: hidden; width: 0; height: 0">
                 <button type="submit" class="btn btn-submit btn-info">Search</button><button type="button" class="btn btn-submit btn-danger" onclick="window.location.href = '/panic'">Panic Button</button>
             </form>
         </div>
     </div>
+    <datalist id="search" style="display: none">
+    </datalist>
+    <script type="application/javascript">
+        function update_datalist() {
+            document.getElementById('search').innerHTML = '';
+            //phrase = document.getElementById('inp').value;
+            phrase = this.value;
+            xhr = new XMLHttpRequest();
+            xhr.open("GET", '/predict?phrase='+phrase, true);
+            xhr.send();
+            xhr.onreadystatechange = function () {
+                document.getElementById('search').innerHTML = xhr.responseText;
+            }
+        }
+        document.getElementById('inp').addEventListener('input', update_datalist)
+    </script>
 </body>
 </html>

@@ -3,6 +3,7 @@ from settings_file import *
 from dermod import db
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
+from dermod import predict
 from dermod import derpiload_v3 as derpiload
 from dermod import derpilist_v2 as derpilist
 import socket
@@ -168,9 +169,9 @@ class Handler(Thread):
         elif self.request['path'] == '/' and self.request['query'] is not None:
             try:
                 s = datetime.now()
-                results = list(sorted(db.search(self.request["query"]['search'],
+                results = list(db.search(self.request["query"]['search'],
                                                 self.request["query"]['remove'])
-                                      [int(self.request['params']['page'])-1]))
+                                      [int(self.request['params']['page'])-1])
                 n = datetime.now()
                 self.log_debug("Query time: " + str(n-s))
             except Exception:
@@ -206,16 +207,19 @@ class Handler(Thread):
                 else:
                     self.send_header(200)
                     self.send_data(p)
-        elif self.request['path'] == '/update':
-            self.send_header(200)
-            self.send_data("started")
-            derpilist.run()
-            derpiload.run(ids_file)
-            db.mkdb(table_name, columns, tag_amount)
-            db.fill_db()
-            print("DB configured successfully")
-            os.remove(ids_file)
-            print("Image index is up-to-date")
+        # TODO: Update database from web
+        # TODO: Use websockets for status output
+        # TODO: Use JSON for status (implies changes in download code)
+        # elif self.request['path'] == '/update':
+        #     self.send_header(200)
+        #     self.send_data("started")
+        #     derpilist.run()
+        #     derpiload.run(ids_file)
+        #     db.mkdb(table_name, columns, tag_amount)
+        #     db.fill_db()
+        #     print("DB configured successfully")
+        #     os.remove(ids_file)
+        #     print("Image index is up-to-date")
         elif "/image/" in self.request['path']:
             img_id = self.request['path'].split("/")[-1]
             tags = db.search_by_id(img_id)
@@ -257,6 +261,17 @@ class Handler(Thread):
             else:
                 self.send_data(temp)
                 del temp
+        elif self.request['path'] == '/predict' and 'phrase' in self.request['params']:
+            predictor = predict.Predictor()
+            try:
+                matched = predictor.predict(self.request['params']['phrase'])
+                self.send_header(200)
+                if len(matched) == 0:
+                    self.send_data('[]')
+                else:
+                    self.send_data(str(matched))
+            except Exception:
+                self.send_header(500)
         else:
             try:
                 self.request['path'] = self.request['path'].replace('..', '')
@@ -270,12 +285,16 @@ class Handler(Thread):
                 self.send_header(200, f_type)
                 self.send_data(data)
 
-try:
+
+def run():
     print("Server started at http://{}:{}".format(web_ip, web_port))
     tc = ThreadController()
     tc.start()
-    UDPsrv = UDPHandler()
-    UDPsrv.start()
+    if share_images is True:
+        UDPsrv = UDPHandler()
+        UDPsrv.start()
+    else:
+        pass
     sock = socket.socket()
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((web_ip, web_port))
@@ -288,5 +307,10 @@ try:
             tc.threads.append(newT)
         except ConnectionResetError:
             pass
-except KeyboardInterrupt:
-    os._exit(0)
+
+
+if __name__ ==  "__main__":
+    try:
+        run()
+    except KeyboardInterrupt:
+        os._exit(0)

@@ -1,5 +1,5 @@
 from settings_file import *
-
+import re
 
 def parser(string):
     string = string.replace("%2C", ',').replace("+", " ").replace("%25", "%")
@@ -111,6 +111,7 @@ def web_arg_parser_v2(params):
         .replace("%3C", "<")\
         .replace("%3E", ">")\
         .replace("%20", " ")\
+        .replace("%3F", "?")\
         .split("&")
     temp = {}
     for i in params:
@@ -119,7 +120,7 @@ def web_arg_parser_v2(params):
     params = temp
     del temp
     params['query'] = params['query'].replace("%3D", "=")
-    query = parser(params['query'].repl)
+    query = parser(params['query'])
     return params, query
 
 
@@ -145,3 +146,23 @@ def request_parser(request):
         tmp = {i[0].lower(): i[1].strip()}
         parsed_request = dict(parsed_request, **tmp)
     return parsed_request
+
+
+def predictor_parser(string):
+    string = string.replace("%24", '$')\
+        .replace("%2C", ',')\
+        .replace("+", " ")\
+        .replace("%25", "%")\
+        .replace("%2A", "*")\
+        .replace("%3A", ":")\
+        .replace("%3C", "<")\
+        .replace("%3E", ">")\
+        .replace("%20", " ")\
+        .replace("%3F", "?")
+    previous = string.split(',')[:-1]
+    string = string.split(',')[-1].strip()
+    if string.startswith('-'):
+        string.split('-', maxsplit=1)
+    else:
+        string = ['', string]
+    return string, previous
