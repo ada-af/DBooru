@@ -97,7 +97,7 @@ Enter this commands if prompt starts with `DB>`
 | ------------------ | --------------------------------------------------------------------------------------- |
 | help               | Shows in-app help                                                                       |
 | get images         | Downloads images that you liked/favorited on Derpibooru                                 |
-| get images -f      | Downloads images without checking file existance that you liked/favorited on Derpibooru |
+| get images -f      | Downloads images without checking file existance |
 | get images --force | Same as get images -f                                                                   |
 | total              | Prints amount of entries in local DB                                                    |
 | count \<tag\>      | Prints amount of entries tagged with \<tag\>                                            |
