@@ -3,6 +3,9 @@
 <!-- TOC -->
 
 - [DBooru](#dbooru)
+    - [Branching](#branching)
+        - [Master](#master)
+        - [Next](#next)
     - [Features](#features)
         - [Both versions](#both-versions)
         - [CLI-version](#cli-version)
@@ -25,6 +28,25 @@
 
 <!-- /TOC -->
 
+## Branching
+### Master
+
+1. Stable branch
+1. Rare updates
+1. Lots of changes per update
+
+### Next
+
+1. Very unstable
+1. Lots of commits
+1. Lots of updates
+1. New features 
+1. Broken old features
+1. Rare commit messages
+1. If there a commit message then "Minor changes"*  
+    *Minor changes may include removal of half of all code
+
+
 ## Features
 ### Both versions
 1. Search in downloaded images
@@ -40,6 +62,7 @@
 1. Downloading images
 1. Exporting images
 1. Sharing images for LAN-clients (Turnable option)
+1. Tag predictions
 
 
 ## Installation
