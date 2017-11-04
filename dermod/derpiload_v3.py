@@ -219,7 +219,7 @@ def run(file, check_files=True):
     while len(tc.threads) > 0:
         gc.collect()
         print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " " * 16, flush=True, end='')
-        if c >= 5 and len(tc.threads) < 10:
+        if c >= 15 and len(tc.threads) < 5:
             tc.threads = []
         else:
             time.sleep(1)
