@@ -9,6 +9,7 @@
         - [Dependencies](#dependencies)
         - [Configuration](#configuration)
         - [How to run](#how-to-run)
+        - [How to make executable file](#how-to-make-executable-file)
     - [Commands and Web-endpoints](#commands-and-web-endpoints)
         - [CLI](#cli)
             - [Main menu](#main-menu)
@@ -55,15 +56,31 @@
 ### Configuration
 1. [Get derpibooru Api Key](https://derpibooru.org/users/edit)
 1. Replace "KEY GOES HERE" on line 10 in `settings_file.py` with your key
-1. (Optionally) Change other settings
+1. (Optionally) Change other settings (View [Settings_file.py](#settingsfilepy))
 
 ### How to run
-1. Run `python main.py` (or `./main` in case of frozen package)
+1. Run `python main.py`
 1. Type in "get images"
 1. Wait
-1. Search or run `python webv3.py` (or `./webv3` in case of frozen package)
+1. Search or run `python webv3.py`
 1. ???
 1. PROFIT
+
+### How to make executable file
+
+Run `python setup.py build`  
+Executables will be placed in build/exe.(platform)-(python_version)/
+
+>If you want to move executable be sure to move all the files in directory
+
+If you want to change settings after building executable 
+1. Rename `settings_file.py` to `settings_file.bak` **before** building
+1. Build executable
+1. Rename `settings_file.bak` to `settings_file.py`
+1. Copy `settings_file.py` to `build/exe.(platform)-(python_version)/settings_file.py`
+
+Otherwise it will build executable with settings_file.py as constant
+
 
 ## Commands and Web-endpoints
 
