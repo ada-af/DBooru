@@ -90,8 +90,11 @@ class Handler(Thread):
         self.readiness = 0
 
     def run(self):
-        self.request = ip.request_parser(self.req)
-        self.serve()
+        try:
+            self.request = ip.request_parser(self.req)
+            self.serve()
+        except Exception:
+            pass
         self.readiness = 1
 
     def send_data(self, data):
@@ -262,12 +265,15 @@ class Handler(Thread):
                 self.send_data(temp)
                 del temp
         elif self.request['path'] == '/predict' and 'phrase' in self.request['params']:
+            if "mobile" in self.request['user-agent'].lower():
+                self.readiness = 1
+                del self
             predictor = predict.Predictor()
             try:
                 matched = predictor.predict(self.request['params']['phrase'])
                 self.send_header(200)
-                if len(matched) == 0:
-                    self.send_data('[]')
+                if len(matched) == 0 or len(matched) == 1:
+                    self.send_data('')
                 else:
                     self.send_data(str(matched))
             except Exception:
