@@ -63,6 +63,7 @@
 1. Exporting images
 1. Sharing images for LAN-clients (Turnable option)
 1. Tag predictions
+1. Change page with ← or → arrows
 
 
 ## Installation

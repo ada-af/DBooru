@@ -210,9 +210,6 @@ class Handler(Thread):
                 else:
                     self.send_header(200)
                     self.send_data(p)
-        # TODO: Update database from web
-        # TODO: Use websockets for status output
-        # TODO: Use JSON for status (implies changes in download code)
         # elif self.request['path'] == '/update':
         #     self.send_header(200)
         #     self.send_data("started")
