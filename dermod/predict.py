@@ -42,7 +42,7 @@ class Predictor:
         return self.compile_html()
 
     def compile_html(self):
-        for i in self.matching:
+        for i in self.matching[:20]:
             if len(self.previous) == 0:
                 self.compiled += f'<option value="{self.inp[0]}{i}">'
             else:

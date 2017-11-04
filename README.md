@@ -109,6 +109,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | "/raw"                 | GET    | id=**filename**                     | Raw image data                   | Image without HTTP headers/status codes                   |
 | "/panic"               | GET    |                                     | Shuts down WebUI server          | Plain text data ("Done") and HTTP headers and status code |
 | "/shutdown"            | GET    |                                     | Shuts down WebUI server          | Plain text data ("Done") and HTTP headers and status code |
+| "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query    | Plain text data and HTTP headers and status code          |
 
 
 ## Search basics and syntax
