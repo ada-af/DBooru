@@ -200,6 +200,7 @@ def run(file, check_files=True):
                            k)
                 t.start()
                 tc.threads.append(t)
+                time.sleep(0.2)
     else:
         for i in range(chk):
             print(
