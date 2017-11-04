@@ -9,7 +9,7 @@
         - [Dependencies](#dependencies)
         - [Configuration](#configuration)
         - [How to run](#how-to-run)
-    - [Commands and Web-enpoints](#commands-and-web-enpoints)
+    - [Commands and Web-endpoints](#commands-and-web-endpoints)
         - [CLI](#cli)
             - [Main menu](#main-menu)
             - [Search](#search)
@@ -18,6 +18,7 @@
         - [Basic search rules](#basic-search-rules)
         - [Special tags](#special-tags)
             - [Syntax](#syntax)
+    - [Settings_file.py](#settingsfilepy)
 
 ## Features
 ### Both versions
@@ -64,7 +65,7 @@
 1. ???
 1. PROFIT
 
-## Commands and Web-enpoints
+## Commands and Web-endpoints
 
 ### CLI
 
@@ -147,3 +148,29 @@ Enter this commands if prompt starts with `Search@DB>`
 1. **`>=`** or **`=>`** means bigger or equal to \<value>
 1. **`<=`** or **`=<`** means less or equal to \<value>
 >Example: 'safe, width>100" will return images tagged with 'safe' tag and image width bigger than 100px
+
+## Settings_file.py
+
+| Option                | Format                        | Description                                              |
+| --------------------- | ----------------------------- | -------------------------------------------------------- |
+| user_api_key          | String ("Text")               | Defines derpibooru api key                               |
+| suppress_errors       | Bool (True/False)             | Prints errors and stacktrace in case of happening        |
+| enable_proxy          | Bool (True/False)             | Enables/Disables proxy for requests to derpibooru.org    |
+| derpicdn_enable_proxy | Bool (True/False)             | Enables/Disables proxy for requests to derpicdn.net      |
+| socks5_proxy_ip       | String ("IP")                 | Sets proxy IP                                            |
+| socks5_proxy_port     | String ("Port")               | Sets proxy port                                          |
+| web_ip                | String ("IP")                 | Set IP to bind Web interface                             |
+| web_port              | Integer (port)                | Sets port to bind Web interface                          |
+| vote                  | String ("faves"/"upvotes")    | Defines what images to download `Favorited` or `Upvoted` |
+| tag_amount            | Integer (number)              | Maximum tags per image                                   |
+| showing_imgs          | Integer (number)              | How many images to show per page                         |
+| showing_tags          | Integer (number)              | How many tags to **show** per image (CLI-only)           |
+| images_path           | String ("Path")               | Where to store loaded images                             |
+| export_path           | String ("Path")               | Where to store exported images                           |
+| time_wait             | Integer (seconds)             | How long thread can stay alive                           |
+| ids_file              | String ("Path/Filename")      | Name for tempfile (No need to change)                    |
+| db_name               | String ("Path/Filename")      | Where to store DB file                                   |
+| table_name            | String ("Text")               | Sets name for main table (No need to change)             |
+| br_ip                 | String ("IP") or Bool (False) | Sets Broadcast IP                                        |
+| discover_servers      | Bool (True/False)             | Enable checking for servers in LAN                       |
+| share_images          | Bool (True/False)             | Enable sharing in LAN                                    |
