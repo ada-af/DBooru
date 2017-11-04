@@ -15,23 +15,21 @@ class Error(Exception):
 
 
 class Timeouted(Error):
-        def __init__(self):
-            pass
+    def __init__(self):
+        pass
 
 
 class Timer(Thread):
-
     def __init__(self, to):
         Thread.__init__(self)
         self.time = to
-    
+
     def run(self):
         time.sleep(self.time)
         raise Timeouted
 
 
 class Loader(Thread):
-
     def __init__(self, url, fileid, fileform, is_proxy, proxy_ip, proxy_port, is_local=False):
         Thread.__init__(self)
         self.readiness = 0
@@ -91,9 +89,9 @@ class Loader(Thread):
 
     def writer(self):
         try:
-            open(images_path+self.id+'.'+self.format, 'rb')
+            open(images_path + self.id + '.' + self.format, 'rb')
         except FileNotFoundError:
-            with open(images_path+self.id+'.'+self.format, 'wb') as file:
+            with open(images_path + self.id + '.' + self.format, 'wb') as file:
                 file.write(self.raw_data)
                 file.flush()
         else:
@@ -102,7 +100,7 @@ class Loader(Thread):
 
 def udp_check():
     if discover_servers is True:
-        print("\rChecking for local servers..." + " "*16, flush=True, end='')
+        print("\rChecking for local servers..." + " " * 16, flush=True, end='')
         sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         p = socket.gethostname()
@@ -183,13 +181,15 @@ def run(file, check_files=True):
     k = udp_check()
     parsed = ip.name_tag_parser(file)
     chk = len(parsed)
-    print("\rLoading Images" + " "*16, flush=True, end='')
+    print("\rLoading Images" + " " * 16, flush=True, end='')
     c = 0
-    for i in range(chk):
-        print(f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " "*16, flush=True, end='')
-        if check_files is True:
+    if check_files is True:
+        for i in range(chk):
+            print(
+                f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 16,
+                flush=True, end='')
             try:
-                open(images_path+parsed[i][0]+'.'+parsed[i][1], 'rb')
+                open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb')
             except FileNotFoundError:
                 t = Loader(parsed[i][2],
                            parsed[i][0],
@@ -200,8 +200,12 @@ def run(file, check_files=True):
                            k)
                 t.start()
                 tc.threads.append(t)
-                time.sleep(0.1)
-        else:
+                time.sleep(0.15)
+    else:
+        for i in range(chk):
+            print(
+                f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 16,
+                flush=True, end='')
             t = Loader(parsed[i][2],
                        parsed[i][0],
                        parsed[i][1],
@@ -211,10 +215,10 @@ def run(file, check_files=True):
                        k)
             t.start()
             tc.threads.append(t)
-            time.sleep(0.1)
+            time.sleep(0.15)
     while len(tc.threads) > 0:
         gc.collect()
-        print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " "*16, flush=True, end='')
+        print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " " * 16, flush=True, end='')
         if c >= 5 and len(tc.threads) < 10:
             tc.threads = []
         else:
