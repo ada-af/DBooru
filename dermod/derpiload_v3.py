@@ -186,7 +186,6 @@ def run(file, check_files=True):
     print("\rLoading Images" + " "*16, flush=True, end='')
     c = 0
     for i in range(chk):
-        gc.collect()
         print(f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " "*16, flush=True, end='')
         if check_files is True:
             try:
@@ -202,18 +201,19 @@ def run(file, check_files=True):
                 t.start()
                 tc.threads.append(t)
                 time.sleep(0.1)
-            else:
-                t = Loader(parsed[i][2],
-                           parsed[i][0],
-                           parsed[i][1],
-                           derpicdn_enable_proxy,
-                           socks5_proxy_ip,
-                           socks5_proxy_port,
-                           k)
-                t.start()
-                tc.threads.append(t)
-                time.sleep(0.1)
+        else:
+            t = Loader(parsed[i][2],
+                       parsed[i][0],
+                       parsed[i][1],
+                       derpicdn_enable_proxy,
+                       socks5_proxy_ip,
+                       socks5_proxy_port,
+                       k)
+            t.start()
+            tc.threads.append(t)
+            time.sleep(0.1)
     while len(tc.threads) > 0:
+        gc.collect()
         print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " "*16, flush=True, end='')
         if c >= 5 and len(tc.threads) < 10:
             tc.threads = []
