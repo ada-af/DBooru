@@ -4,6 +4,7 @@ import sys
 import time
 import os
 import re
+import gc
 from settings_file import *
 import requests
 
@@ -180,7 +181,7 @@ def run():
                 vote,
                 pages_num,
                 user_api_key), verify=False)
-        if len(dat.content) < 100:
+        if re.match('{"search":\[\]', dat.content.decode()) is not None:
             k = True
     k = False
     while k is False:
@@ -195,6 +196,7 @@ def run():
     tc = ThreadController()
     tc.start()
     for i in range(pages_num+1):
+        gc.collect()
         print(f"\rChecking page {i} of {pages_num} ({format((i/pages_num)*100, '.4g')}% done)"
               f" (Running threads {len(tc.threads)})          ", flush=True, end='')
         t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
@@ -203,8 +205,9 @@ def run():
         time.sleep(0.2)
     c = 0
     while len(tc.threads) > 0:
+        gc.collect()
         print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " "*16, flush=True, end='')
-        if c >= 5:
+        if c >= 5 and len(tc.threads) < 10:
             tc.threads = []
         else:
             time.sleep(1)
@@ -216,3 +219,4 @@ def run():
             print(f"\rProcessing file {i}.txt  ", end='', flush=True)
             f.write(open(f'tmp/{i}.txt', 'r').read())
             f.flush()
+            time.sleep(0.01)

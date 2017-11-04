@@ -51,7 +51,7 @@
                     <span class="input-group-btn">
                             <button type="button" class="btn btn-primary" onclick="window.location = '/'">Home</button>
                         </span>
-                <input type="text" name="query" class="form-control" value="{}">
+                <input type="text" name="query" class="form-control" id='inp' autocomplete="off" list="search" value="{}">
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </span>
@@ -90,6 +90,22 @@
         win = window.open("/image/"+id, '_blank');
         win.focus()//
     }}
+    </script>
+    <datalist id="search" style="display: none">
+    </datalist>
+    <script type="application/javascript">
+        function update_datalist() {{
+            document.getElementById('search').innerHTML = '';
+            //phrase = document.getElementById('inp').value;
+            phrase = this.value;
+            xhr = new XMLHttpRequest();
+            xhr.open("GET", '/predict?phrase='+phrase, true);
+            xhr.send();
+            xhr.onreadystatechange = function () {{
+                document.getElementById('search').innerHTML = xhr.responseText;
+            }}
+        }}
+        document.getElementById('inp').addEventListener('input', update_datalist)
     </script>
 </body>
 </html>
