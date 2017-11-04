@@ -1,5 +1,7 @@
 # DBooru
 
+<!-- TOC -->
+
 - [DBooru](#dbooru)
     - [Features](#features)
         - [Both versions](#both-versions)
@@ -19,7 +21,9 @@
         - [Basic search rules](#basic-search-rules)
         - [Special tags](#special-tags)
             - [Syntax](#syntax)
-    - [Settings_file.py](#settingsfilepy)
+    - [Settings_file.py](#settings_filepy)
+
+<!-- /TOC -->
 
 ## Features
 ### Both versions
@@ -56,7 +60,7 @@
 ### Configuration
 1. [Get derpibooru Api Key](https://derpibooru.org/users/edit)
 1. Replace "KEY GOES HERE" on line 10 in `settings_file.py` with your key
-1. (Optionally) Change other settings (View [Settings_file.py](#settingsfilepy))
+1. (Optionally) Change other settings (View [Settings_file.py](#settings_filepy))
 
 ### How to run
 1. Run `python main.py`
