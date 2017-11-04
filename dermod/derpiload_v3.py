@@ -200,7 +200,6 @@ def run(file, check_files=True):
                            k)
                 t.start()
                 tc.threads.append(t)
-                time.sleep(0.15)
     else:
         for i in range(chk):
             print(
@@ -215,7 +214,7 @@ def run(file, check_files=True):
                        k)
             t.start()
             tc.threads.append(t)
-            time.sleep(0.15)
+            time.sleep(0.1)
     while len(tc.threads) > 0:
         gc.collect()
         print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " " * 16, flush=True, end='')

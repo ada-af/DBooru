@@ -202,7 +202,7 @@ def run():
         t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
         t.start()
         tc.threads.append(t)
-        time.sleep(0.15)
+        time.sleep(0.2)
     c = 0
     while len(tc.threads) > 0:
         gc.collect()
