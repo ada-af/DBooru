@@ -77,7 +77,7 @@ def fill_db():
         elif len(k) > 40:
             k = k[:40]
         k = str(k).strip("[]").replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}')".format(table_name, {i[0]}.{i[1]}, {k}, {i[3]}, {i[4]}, {i[5]})
+        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}')".format(table_name, {i[0], i[1], k, i[3], i[4], i[5])
         cursor.execute(j)
     cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(table_name=table_name))
     conn.commit()
