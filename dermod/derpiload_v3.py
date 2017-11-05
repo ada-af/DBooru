@@ -65,10 +65,11 @@ class Loader(Thread):
                 del timer
             self.writer()
         except Timeouted():
+            del timer
             pass
-        del timer
         self.readiness = 1
         del self.raw_data
+        del self
 
     def get_locally(self):
         sock = socket.socket()

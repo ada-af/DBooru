@@ -159,9 +159,8 @@ class Checker(Thread):
             self.compile()
             self.writer()
         except Exception:
-            pass
-        del timer
-        if len(open(f'tmp/{self.page}.txt', 'r').read()) == 0 and re.match('{"search":\[\]',
+            del timer
+        if len(open(f'tmp/{self.page}.txt', 'r').read()) == 0 and re.match(r'{"search":[]',
                                                                            self.raw_data).group() != '{"search":[]':
             self.run()
         else:
