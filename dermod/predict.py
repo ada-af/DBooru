@@ -1,6 +1,5 @@
 from dermod import db
 from dermod import input_parser
-import json.encoder as encoder
 
 
 def gen_list():
