@@ -107,11 +107,13 @@ class Handler(Thread):
     def send_header(self, code, mime='html'):
         mime = mimes.types[mime]
         if code == 200:
-            self.conn.sendall("HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\n".format(mime) +
-                              "X-HTTP-Pony: I'm working hard for you\n\n".encode())
+            self.conn.sendall("""\
+HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\n
+X-HTTP-Pony: I'm working hard for you\n\n""".format(mime).encode())
         elif code == 404:
-            self.conn.sendall("HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\n".format(mime) +
-                              "X-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n".encode())
+            self.conn.sendall("""\
+            HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\n
+X-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.send_data("<html>"
                            "<head>"
                            "<meta http-equiv='refresh' content='1; url=/' "
@@ -122,16 +124,17 @@ class Handler(Thread):
                            "</html>")
             self.conn.close()
         elif code == 500:
-            self.conn.sendall("HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: " +
-                              "{}\nX-HTTP-Pony: Well shit...\n\n".format(mime).encode())
+            self.conn.sendall("""\
+HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: 
+{}\nX-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
             self.send_data("500 Internal Server Error")
             self.conn.close()
 
     def log_request(self):
         request = self.request
         t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
-        print("[REQUEST] [{} @ {}] Made request: {request['method']} {request['path'] } with params ".format(self.ip, t) +
-              "'params: {request['params']}', 'query: {request['query']}'")
+        print("""[REQUEST] [{} @ {}] Made request: {request['method']} {request['path'] } with params \
+              'params: {request['params']}', 'query: {request['query']}'""")
 
     @staticmethod
     def log_debug(*args):
