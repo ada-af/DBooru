@@ -177,6 +177,10 @@ def run(file, check_files=True):
     chk = len(parsed)
     print("\rLoading Images" + " " * 16, flush=True, end='')
     c = 0
+    if "PyPy" in sys.version:
+        slp = 0.1
+    else:
+        slp = 0.2
     if check_files is True:
         for i in range(chk):
             print(
@@ -194,7 +198,7 @@ def run(file, check_files=True):
                            k)
                 t.start()
                 tc.threads.append(t)
-                time.sleep(0.2)
+                time.sleep(slp)
     else:
         for i in range(chk):
             print(
@@ -209,13 +213,13 @@ def run(file, check_files=True):
                        k)
             t.start()
             tc.threads.append(t)
-            time.sleep(0.1)
+            time.sleep(slp)
     while len(tc.threads) > 0:
         gc.collect()
         print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 16, flush=True, end='')
         if c >= 15 and len(tc.threads) < 5:
             tc.threads = []
-        else:
+        elif len(tc.threads) < 5:
             time.sleep(1)
             c += 1
     del tc

@@ -209,13 +209,17 @@ def run():
                 pass
     tc = ThreadController()
     tc.start()
+    if "PyPy" in sys.version:
+        slp = 0.1
+    else:
+        slp = 0.2
     for i in range(pages_num+1):
         gc.collect()
         print("\rChecking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end='')
         t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
         t.start()
         tc.threads.append(t)
-        time.sleep(0.15)
+        time.sleep(slp)
     c = 0
     while len(tc.threads) > 0:
         gc.collect()
