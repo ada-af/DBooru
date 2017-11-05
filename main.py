@@ -1,12 +1,11 @@
 #!/bin/python
 import os
-import webbrowser
 import shutil
-from settings_file import *
-from dermod import db
-from dermod import derpilist_v2
-from dermod import derpiload_v3
+import webbrowser
+
 from dermod import input_parser as ip
+from dermod import db, derpilist_v2, derpiload_v3
+from settings_file import *
 
 
 def show_help(case):

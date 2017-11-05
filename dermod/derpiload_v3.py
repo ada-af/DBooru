@@ -1,13 +1,15 @@
 import gc
-from threading import Thread
 import os
-import sys
-from . import input_parser as ip
-from settings_file import *
 import socket
+import sys
 import time
+from threading import Thread
+
 import requests
-import netifaces
+
+from settings_file import *
+
+from . import input_parser as ip
 
 
 class Error(Exception):
@@ -26,7 +28,13 @@ class Timer(Thread):
 
     def run(self):
         time.sleep(self.time)
-        raise Timeouted
+        if self.done == 0:
+            raise Timeouted
+        else:
+            pass
+
+    def stop(self):
+        self.done = 1
 
 
 class Loader(Thread):
@@ -48,33 +56,23 @@ class Loader(Thread):
 
     def run(self):
         try:
-            timer = Timer(time_wait)
             if self.local is not False:
                 try:
-                    timer.start()
                     self.get_locally()
-                    del timer
                 except Exception:
-                    timer.start()
                     self.get_raw_image()
-                    del timer
             else:
-                timer = Timer(time_wait)
-                timer.start()
                 self.get_raw_image()
-                del timer
             self.writer()
         except Timeouted():
-            del timer
             pass
         self.readiness = 1
         del self.raw_data
-        del self
 
     def get_locally(self):
         sock = socket.socket()
         sock.connect(self.local)
-        request = f"GET /raw?id={self.id+'.'+self.format} HTTP/1.1"
+        request = "GET /raw?id={} HTTP/1.1".format(self.id+'.'+self.format)
         sock.sendall(request.encode())
         while True:
             k = sock.recv(1024)
@@ -89,15 +87,15 @@ class Loader(Thread):
     def get_raw_image(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                f"https:{self.url}", verify=ssl_verify, timeout=10).content
+                "https:{}".format(self.url), verify=ssl_verify, timeout=10).content
         else:
             self.raw_data = requests.get(
-                f"https:{self.url}",
-                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify, timeout=10).content
+                "https:{}".format(self.url),
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=ssl_verify, timeout=10).content
 
     def writer(self):
         try:
-            open(images_path + self.id + '.' + self.format, 'rb')
+            open(images_path + self.id + '.' + self.format, 'rb').close()
         except FileNotFoundError:
             with open(images_path + self.id + '.' + self.format, 'wb') as file:
                 file.write(self.raw_data)
@@ -161,6 +159,7 @@ class ThreadController(Thread):
             for i in self.threads:
                 if i.readiness == 1:
                     self.threads.remove(i)
+                    i.join()
                     del i
                     p = p + 1
 
@@ -181,13 +180,17 @@ def run(file, check_files=True):
     chk = len(parsed)
     print("\rLoading Images" + " " * 16, flush=True, end='')
     c = 0
+    if "PyPy" in sys.version:
+        slp = 0.1
+    else:
+        slp = 0.2
     if check_files is True:
         for i in range(chk):
             print(
-                f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 16,
+                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             try:
-                open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb')
+                open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb').close()
             except FileNotFoundError:
                 t = Loader(parsed[i][2],
                            parsed[i][0],
@@ -198,11 +201,11 @@ def run(file, check_files=True):
                            k)
                 t.start()
                 tc.threads.append(t)
-                time.sleep(0.2)
+                time.sleep(slp)
     else:
         for i in range(chk):
             print(
-                f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 16,
+                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             t = Loader(parsed[i][2],
                        parsed[i][0],
@@ -213,13 +216,13 @@ def run(file, check_files=True):
                        k)
             t.start()
             tc.threads.append(t)
-            time.sleep(0.1)
+            time.sleep(slp)
     while len(tc.threads) > 0:
         gc.collect()
-        print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " " * 16, flush=True, end='')
+        print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 16, flush=True, end='')
         if c >= 15 and len(tc.threads) < 5:
             tc.threads = []
-        else:
+        elif len(tc.threads) < 5:
             time.sleep(1)
             c += 1
     del tc

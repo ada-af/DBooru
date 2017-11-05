@@ -1,5 +1,4 @@
-from dermod import db
-from dermod import input_parser
+from dermod import db, input_parser
 
 
 def gen_list():
@@ -43,7 +42,7 @@ class Predictor:
     def compile_html(self):
         for i in self.matching[:20]:
             if len(self.previous) == 0:
-                self.compiled += f'<option value="{self.inp[0]}{i}">'
+                self.compiled += '<option value="{}{}">'.format(self.inp[0], i)
             else:
-                self.compiled += f'<option value="{",".join(self.previous)}, {self.inp[0]}{i}">'
+                self.compiled += '<option value="{}, {}{}">'.format(",".join(self.previous), self.inp[0], i)
         return self.compiled

@@ -1,16 +1,16 @@
 #!/bin/python
-from settings_file import *
-from dermod import db
+import os
+import socket
+import time
+from datetime import datetime
+from threading import Thread
+
+from dermod import derpilist_v2 as derpilist
+from dermod import derpiload_v3 as derpiload
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
-from dermod import predict
-from dermod import derpiload_v3 as derpiload
-from dermod import derpilist_v2 as derpilist
-import socket
-from threading import Thread
-from datetime import datetime
-import os
-import time
+from dermod import db, predict
+from settings_file import *
 
 
 class ThreadController(Thread):
@@ -21,7 +21,7 @@ class ThreadController(Thread):
         j = ''
         for i in args:
             j += str(i)
-        print(f"[DEBUG] @ [{t}] " + str(j))
+        print("[DEBUG] @ [{}] ".format(t) + str(j))
 
     def __init__(self):
         Thread.__init__(self)
@@ -42,7 +42,7 @@ class ThreadController(Thread):
             if p == 0:
                 pass
             else:
-                self.log_debug(f"Running threads {len(self.threads)} ({p} threads destroyed)")
+                self.log_debug("Running threads {} ({} threads destroyed)".format(len(self.threads), p))
 
 
 class UDPHandler(Thread):
@@ -53,7 +53,7 @@ class UDPHandler(Thread):
         j = ''
         for i in args:
             j += str(i)
-        print(f"[DEBUG] @ [{t}] " + str(j))
+        print("[DEBUG] @ [{}] ".format(t) + str(j))
 
     def __init__(self):
         Thread.__init__(self)
@@ -70,7 +70,7 @@ class UDPHandler(Thread):
             if h != b'':
                 h = h.decode()
                 host = h
-                self.log_debug(f"[UDP] Received discovery from {socket.gethostbyname(host)} ({host})")
+                self.log_debug("[UDP] Received discovery from {} ({})".format(socket.gethostbyname(host), host))
                 h = str(socket.gethostbyname(socket.gethostname()))
                 h = h + ":" + str(web_port)
                 sock.sendto(h.encode(), (host, 29889))
@@ -107,11 +107,13 @@ class Handler(Thread):
     def send_header(self, code, mime='html'):
         mime = mimes.types[mime]
         if code == 200:
-            self.conn.sendall(f"HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {mime}\n"
-                              f"X-HTTP-Pony: I'm working hard for you\n\n".encode())
+            self.conn.sendall("""\
+HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}
+X-HTTP-Pony: I'm working hard for you\n\n""".format(mime).encode())
         elif code == 404:
-            self.conn.sendall(f"HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {mime}\n"
-                              f"X-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n".encode())
+            self.conn.sendall("""\
+            HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}
+X-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.send_data("<html>"
                            "<head>"
                            "<meta http-equiv='refresh' content='1; url=/' "
@@ -122,22 +124,24 @@ class Handler(Thread):
                            "</html>")
             self.conn.close()
         elif code == 500:
-            self.conn.sendall(f"HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: "
-                              f"{mime}\nX-HTTP-Pony: Well shit...\n\n".encode())
+            self.conn.sendall("""\
+HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: {}
+X-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
             self.send_data("500 Internal Server Error")
             self.conn.close()
 
     def log_request(self):
         request = self.request
         t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
-        print(f"[REQUEST] [{self.ip} @ {t}] Made request: {request['method']} {request['path'] } with params "
-              f"'params: {request['params']}', 'query: {request['query']}'")
+        print("""[REQUEST] [{} @ {}] Made request: {} {} with params \
+{{'params: {}', 'query: {}'}}"""\
+.format(self.ip, t, request['method'], request['path'], request['params'], request['query']))
 
     @staticmethod
     def log_debug(*args):
         t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
         for i in args:
-            print(f"[DEBUG] @ [{t}] " + str(i))
+            print("[DEBUG] @ [{}] ".format(t) + str(i))
 
     def serve(self):
         self.log_request()
@@ -147,7 +151,7 @@ class Handler(Thread):
         elif self.request['path'].split('/')[1] == 'images' and self.request['path'].split('/')[2] is not '':
             try:
                 f_type = self.request['path'].split('.')[-1]
-                f = open(f"{images_path+self.request['path'].split('/')[-1]}", 'rb').read()
+                f = open("{}".format(images_path+self.request['path'].split('/')[-1]), 'rb').read()
             except FileNotFoundError:
                 self.send_header(404)
             else:
@@ -155,15 +159,15 @@ class Handler(Thread):
                 self.send_data(f)
         elif self.request['path'] == '/export' and self.request['params']['id'] is not None:
             try:
-                src_file = open(f"{images_path+self.request['params']['id']}", 'rb').read()
+                src_file = open(str({images_path+self.request['params']['id']}), 'rb').read()
             except FileNotFoundError:
                 self.send_header(404)
             else:
                 try:
-                    open(f"{export_path+self.request['params']['id']}", 'wb').write(src_file)
+                    open(str({export_path+self.request['params']['id']}), 'wb').write(src_file)
                 except FileNotFoundError:
                     os.mkdir(export_path)
-                    open(f"{export_path+self.request['params']['id']}", 'wb').write(src_file)
+                    open(str({export_path+self.request['params']['id']}), 'wb').write(src_file)
                 except Exception:
                     self.send_header(500)
                 else:
@@ -189,16 +193,19 @@ class Handler(Thread):
                 for i in set(pictures):
                     if i[0].split('.')[1] != 'webm':
                         try:
-                            p += f"""<div class='g-item'><abbr title="{str(i[1:-3]).strip('()').replace("'", '')}"><img src="
-                        /images/{i[0]}" onclick="sclick('{i[0].split('.')[0]}')" class="img-fluid"></abbr></div>"""
+                            p += """<div class='g-item'><abbr title="{}"><img src="
+                        /images/{}" onclick="sclick('{}')" class="img-fluid"></abbr></div>"""\
+                        .format(str(i[1:-3]).strip('()').replace("'", ''), i[0], i[0].split('.')[0])
                         except Exception:
                             self.send_header(500)
                     elif i[0].split('.')[1] == 'webm':
-                        p += f"""<div class='g-item'><abbr title="{str(i[1:-3]).strip('()').replace("'", '')}">
-                                 <video class="img-fluid" preload='auto' muted onclick="sclick('{i[0].split('.')[0]}')">
-                                 <source src="{images_path}{i[0]}"/>
+                        p += """<div class='g-item'><abbr title="{}">
+                                 <video class="img-fluid" preload='auto' muted onclick="sclick('{}')">
+                                 <source src="{}{}"/>
                                  </video>
-                                 </abbr></div>"""
+                                 </abbr></div>""".format(str(i[1:-3]).strip('()').replace("'", ''),
+                                i[0].split('.')[0],
+                                images_path, i[0])
                 try:
                     p = open("extra/results.html", 'r').read().format(self.request['params']['query'],
                                                                       p,
@@ -217,13 +224,11 @@ class Handler(Thread):
             if tags[0].split('.')[1] != 'webm':
                 p = '<img src="/images/{}" class="img img-fluid">'.format(tags[0])
             else:
-                p = f"""<video class="img img-fluid" preload='auto' autoplay controls muted loop>
-                    <source src="/{images_path}{tags[0]}"/>
-                    </video>"""
+                p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
+                    <source src="/{}{}"/>
+                    </video>""".format(images_path, tags[0])
             data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0],
-                                                               str([f"<a href='/?query={f}&page=1'>{f}</a>"
-                                                                    for f in [x for x in tags[1:-3]] if f != "None"])
-                                                               .strip("[]").replace('"', ''))
+                str(["<a href='/?query={}&page=1'>{}</a>".format(f, f) for f in [x for x in tags[1:-3]] if f != "None"]).strip("[]").replace('"', ''))
             self.send_header(200)
             self.send_data(data)
         elif self.request['path'] == '/panic' or self.request['path'] == '/shutdown':

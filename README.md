@@ -68,13 +68,14 @@
 
 ## Installation
 ### Dependencies
->- Python 3.6+
+>- Python 3.4+ or PyPy3 5.9.0+
 >- pip
 >- requests
 >- requests[security]
 >- pysocks
 >- idna
 >- cryptography
+>- pysocks
 >
 >If you have PyOpenSSL installed - remove it
 >
@@ -86,10 +87,10 @@
 1. (Optionally) Change other settings (View [Settings_file.py](#settings_filepy))
 
 ### How to run
-1. Run `python main.py`
+1. Run `python main.py` or `pypy3 main.py`
 1. Type in "get images"
 1. Wait
-1. Search or run `python webv3.py`
+1. Search or run `python webv3.py` or `pypy3 webv3.py`
 1. ???
 1. PROFIT
 
