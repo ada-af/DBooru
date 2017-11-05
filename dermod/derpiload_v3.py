@@ -41,7 +41,7 @@ class Loader(Thread):
         self.ip = proxy_ip
         self.port = proxy_port
         self.local = is_local
-        global suppressor
+        global suppressor, domain
         if suppressor is True:
             suppress = open(os.devnull, 'w')
             sys.stderr = suppress

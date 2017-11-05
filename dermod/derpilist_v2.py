@@ -57,6 +57,7 @@ class ThreadController(Thread):
 class Checker(Thread):
 
     def __init__(self, all_pages, page, is_proxy, api_key, vote, proxy_ip, proxy_port):
+        global suppressor, domain
         Thread.__init__(self)
         self.readiness = 0
         self.compiled = ''
