@@ -24,13 +24,17 @@ class Timer(Thread):
     def __init__(self, to):
         Thread.__init__(self)
         self.time = to
+        self.done = 0
 
     def run(self):
         time.sleep(self.time)
-        raise Timeouted
+        if self.done == 0:
+            raise Timeouted
+        else:
+            pass
 
     def stop(self):
-        self._is_running = False
+        self.done = 1
 
 
 class ThreadController(Thread):

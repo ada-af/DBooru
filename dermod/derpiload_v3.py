@@ -25,7 +25,13 @@ class Timer(Thread):
 
     def run(self):
         time.sleep(self.time)
-        raise Timeouted
+        if self.done == 0:
+            raise Timeouted
+        else:
+            pass
+
+    def stop(self):
+        self.done = 1
 
 
 class Loader(Thread):
