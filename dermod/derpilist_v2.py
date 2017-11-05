@@ -81,6 +81,7 @@ class Checker(Thread):
             sys.stderr = suppress
 
     def get_data(self):
+        global domain
         if self.proxy is False:
             self.raw_data = requests.get(
                 f"https://{domain}/search.json/?q=my:{self.vote}"
