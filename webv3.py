@@ -133,8 +133,9 @@ X-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
     def log_request(self):
         request = self.request
         t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
-        print("""[REQUEST] [{} @ {}] Made request: {} {} with params\
-'params: {}', 'query: {}'""".format(self.ip, t, request['method'], request['path'], request['params'], request['query']))
+        print("""[REQUEST] [{} @ {}] Made request: {} {} with params \
+\{'params: {}', 'query: {}'\}"""\
+.format(self.ip, t, request['method'], request['path'], request['params'], request['query']))
 
     @staticmethod
     def log_debug(*args):
@@ -203,8 +204,8 @@ X-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
                                  <source src="{}{}"/>
                                  </video>
                                  </abbr></div>""".format(str(i[1:-3]).strip('()').replace("'", ''),
-                                                                                 i[0].split('.')[0],
-                                                                                 images_path, i[0])
+                                i[0].split('.')[0],
+                                images_path, i[0])
                 try:
                     p = open("extra/results.html", 'r').read().format(self.request['params']['query'],
                                                                       p,
