@@ -64,7 +64,7 @@ class Loader(Thread):
     def get_locally(self):
         sock = socket.socket()
         sock.connect(self.local)
-        request = f"GET /raw?id={self.id+'.'+self.format} HTTP/1.1"
+        request = "GET /raw?id={} HTTP/1.1".format(self.id+'.'+self.format)
         sock.sendall(request.encode())
         while True:
             k = sock.recv(1024)
@@ -79,10 +79,10 @@ class Loader(Thread):
     def get_raw_image(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                f"https:{self.url}", verify=ssl_verify, timeout=10).content
+                "https:{}".format(self.url), verify=ssl_verify, timeout=10).content
         else:
             self.raw_data = requests.get(
-                f"https:{self.url}",
+                "https:{}".format(self.url),
                 proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify, timeout=10).content
 
     def writer(self):
@@ -174,7 +174,7 @@ def run(file, check_files=True):
     if check_files is True:
         for i in range(chk):
             print(
-                f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 16,
+                "\rLoading image {} of {} ({}% done) (Running threads {len(tc.threads)})".format(i, chk, format((i/chk)*100, '.4g')) + " " * 16,
                 flush=True, end='')
             try:
                 open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb')
@@ -192,7 +192,7 @@ def run(file, check_files=True):
     else:
         for i in range(chk):
             print(
-                f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 16,
+                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format((i/chk)*100, '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             t = Loader(parsed[i][2],
                        parsed[i][0],
@@ -206,7 +206,7 @@ def run(file, check_files=True):
             time.sleep(0.1)
     while len(tc.threads) > 0:
         gc.collect()
-        print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " " * 16, flush=True, end='')
+        print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 16, flush=True, end='')
         if c >= 15 and len(tc.threads) < 5:
             tc.threads = []
         else:

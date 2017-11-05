@@ -77,9 +77,9 @@ def fill_db():
         elif len(k) > 40:
             k = k[:40]
         k = str(k).strip("[]").replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = f"INSERT INTO {table_name} VALUES ('{i[0]}.{i[1]}', {k}, '{i[3]}', '{i[4]}', '{i[5]}')"
+        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}')".format(table_name, {i[0]}.{i[1]}, {k}, {i[3]}, {i[4]}, {i[5]})
         cursor.execute(j)
-    cursor.execute(f"delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)")
+    cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(table_name=table_name))
     conn.commit()
 
 
@@ -181,7 +181,7 @@ def special_f(specials):
 
 def search_by_id(img_id):
     init_db()
-    result = list(cursor.execute(f"SELECT * FROM {table_name} WHERE fname like '{img_id}.%'"))
+    result = list(cursor.execute("SELECT * FROM {} WHERE fname like '{}.%'".format(table_name, img_id)))
 
     return result
 
