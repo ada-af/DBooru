@@ -133,8 +133,8 @@ X-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
     def log_request(self):
         request = self.request
         t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
-        print("""[REQUEST] [{} @ {}] Made request: {request['method']} {request['path'] } with params \
-              'params: {request['params']}', 'query: {request['query']}'""")
+        print("""[REQUEST] [{} @ {}] Made request: {} {} with params\
+'params: {}', 'query: {}'""".format(self.ip, t, request['method'], request['path'], request['params'], request['query']))
 
     @staticmethod
     def log_debug(*args):
@@ -227,7 +227,7 @@ X-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
                     <source src="/{}{}"/>
                     </video>""".format(images_path, tags[0])
             data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0],
-                str(["<a href='/?query={f}&page=1'>{f}</a>".format(f) for f in [x for x in tags[1:-3]] if f != "None"]).strip("[]").replace('"', ''))
+                str(["<a href='/?query={}&page=1'>{}</a>".format(f) for f in [x for x in tags[1:-3]] if f != "None"]).strip("[]").replace('"', ''))
             self.send_header(200)
             self.send_data(data)
         elif self.request['path'] == '/panic' or self.request['path'] == '/shutdown':
