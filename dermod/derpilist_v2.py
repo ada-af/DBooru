@@ -147,7 +147,7 @@ class Checker(Thread):
         with open('tmp/{}.txt'.format(self.page), 'w') as f:
             f.write(self.compiled)
             f.flush()
-            len(f)
+            len(f.read())
 
     def run(self):
         timer = Timer(time_wait)
