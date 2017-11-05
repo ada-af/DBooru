@@ -108,11 +108,11 @@ class Handler(Thread):
         mime = mimes.types[mime]
         if code == 200:
             self.conn.sendall("""\
-HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\n
+HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}
 X-HTTP-Pony: I'm working hard for you\n\n""".format(mime).encode())
         elif code == 404:
             self.conn.sendall("""\
-            HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\n
+            HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}
 X-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.send_data("<html>"
                            "<head>"
@@ -125,8 +125,8 @@ X-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime)
             self.conn.close()
         elif code == 500:
             self.conn.sendall("""\
-HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: 
-{}\nX-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
+HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: {}
+X-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
             self.send_data("500 Internal Server Error")
             self.conn.close()
 
