@@ -81,11 +81,11 @@ class Loader(Thread):
     def get_raw_image(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                f"https:{self.url}", verify=ssl_verify).content
+                f"https:{self.url}", verify=ssl_verify, timeout=10).content
         else:
             self.raw_data = requests.get(
                 f"https:{self.url}",
-                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify).content
+                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify, timeout=10).content
 
     def writer(self):
         try:

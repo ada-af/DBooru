@@ -82,16 +82,16 @@ class Checker(Thread):
     def get_data(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                f"https://derpibooru.org/search.json/?q=my:{self.vote}"
+                f"https://{domain}/search.json/?q=my:{self.vote}"
                 f"&page={self.page}"
-                f"&key={self.api_key}", verify=ssl_verify)
+                f"&key={self.api_key}", verify=ssl_verify, timeout=10)
             self.raw_data = self.raw_data.content.decode()
         else:
             self.raw_data = requests.get(
-                f"https://derpibooru.org/search.json/?q=my:{self.vote}"
+                f"https://{domain}/search.json/?q=my:{self.vote}"
                 f"&page={self.page}"
                 f"&key={self.api_key}",
-                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify)
+                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify, timeout=10)
             self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
@@ -177,10 +177,10 @@ def run():
         pages_num += 50
         print(f'\rFinding max page... (Checking Page {pages_num})', flush=True, end='')
         dat = requests.get(
-            "https://trixiebooru.org/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
+            "https://{domain}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
                 vote,
                 pages_num,
-                user_api_key), verify=ssl_verify)
+                user_api_key), verify=ssl_verify, timeout=10)
         if re.match('{"search":\[\]', dat.content.decode()) is not None:
             k = True
     k = False

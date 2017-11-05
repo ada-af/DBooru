@@ -201,6 +201,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | user_api_key          | String ("Text")               | Defines derpibooru api key                               |
 | suppress_errors       | Bool (True/False)             | Prints errors and stacktrace in case of happening        |
 | ssl_verify            | Bool (True/False) or String ("Path") | Enable/Disable ssl verification or set custom CA Cert |
+| domain                | String ("Domain.name")        | Set derpibooru domain (use for accessing through tor)
 | enable_proxy          | Bool (True/False)             | Enables/Disables proxy for requests to derpibooru.org    |
 | derpicdn_enable_proxy | Bool (True/False)             | Enables/Disables proxy for requests to derpicdn.net      |
 | socks5_proxy_ip       | String ("IP")                 | Sets proxy IP                                            |

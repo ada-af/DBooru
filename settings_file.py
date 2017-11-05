@@ -16,12 +16,16 @@ suppress_errors = True
 
 # Disable requests verifying
 # Useful when connecting to derpibooru through tor
-# Format : ssl_verify = bool or string
-# Example : Enable verification (ssl_verify = True)
-# Example : Disable verification (ssl_verify = False)
-# Example : Use custom CA Cert (ssl_verify = 'cacert.pem')
+# Format: ssl_verify = bool or string
+# Example: Enable verification (ssl_verify = True)
+# Example: Disable verification (ssl_verify = False)
+# Example: Use custom CA Cert (ssl_verify = 'cacert.pem')
 ssl_verify = True
 
+# Set derpibooru domain
+# Format: domain = string
+# Example: (domain = "trixiebooru.org")
+domain = "derpibooru.org"
 
 # Proxy Settings
 # Useful if connection to derpibooru is blocked by anything
