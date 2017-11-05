@@ -1,5 +1,4 @@
-from dermod import db
-from dermod import input_parser
+from dermod import db, input_parser
 
 
 def gen_list():

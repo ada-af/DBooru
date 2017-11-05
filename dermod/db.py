@@ -1,9 +1,9 @@
-import sqlite3
 import os
+import sqlite3
 import sys
+
 from dermod import input_parser as ip
 from settings_file import *
-
 
 globals().update()
 

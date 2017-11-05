@@ -1,12 +1,15 @@
 import gc
-from threading import Thread
 import os
-import sys
-from . import input_parser as ip
-from settings_file import *
 import socket
+import sys
 import time
+from threading import Thread
+
 import requests
+
+from settings_file import *
+
+from . import input_parser as ip
 
 
 class Error(Exception):

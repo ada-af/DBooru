@@ -1,16 +1,16 @@
 #!/bin/python
-from settings_file import *
-from dermod import db
+import os
+import socket
+import time
+from datetime import datetime
+from threading import Thread
+
+from dermod import derpilist_v2 as derpilist
+from dermod import derpiload_v3 as derpiload
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
-from dermod import predict
-from dermod import derpiload_v3 as derpiload
-from dermod import derpilist_v2 as derpilist
-import socket
-from threading import Thread
-from datetime import datetime
-import os
-import time
+from dermod import db, predict
+from settings_file import *
 
 
 class ThreadController(Thread):

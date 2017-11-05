@@ -1,5 +1,5 @@
-from cx_Freeze import setup, Executable
 import requests
+from cx_Freeze import Executable, setup
 
 buildOptions = {
     "packages": ["os", 'requests', 'queue', 'idna', 'gc'],
