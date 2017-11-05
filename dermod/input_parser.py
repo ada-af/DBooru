@@ -159,7 +159,8 @@ def predictor_parser(string):
         .replace("%3E", ">")\
         .replace("%20", " ")\
         .replace("%3F", "?")\
-        .replace("%5C", "\\")
+        .replace("%5C", "\\")\
+        .replace("%21", "!")
     previous = string.split(',')[:-1]
     string = string.split(',')[-1].strip()
     if string.startswith('-'):
