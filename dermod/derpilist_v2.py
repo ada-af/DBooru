@@ -144,7 +144,7 @@ class Checker(Thread):
             self.compiled += tmp
 
     def writer(self):
-        with open('tmp/{}.txt'.format(self.page), 'w') as f:
+        with open('tmp/{}.txt'.format(self.page), 'w+') as f:
             f.write(self.compiled)
             f.flush()
             len(f.read())
@@ -154,6 +154,7 @@ class Checker(Thread):
         try:
             timer.start()
             self.get_data()
+            del timer
         except Exception:
             pass
         self.parse_data()
