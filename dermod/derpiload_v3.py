@@ -173,7 +173,7 @@ def run(file, check_files=True):
     if check_files is True:
         for i in range(chk):
             print(
-                "\rLoading image {} of {} ({}% done) (Running threads {len(tc.threads)})".format(i, chk, format((i/chk)*100, '.4g')) + " " * 16,
+                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             try:
                 open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb')

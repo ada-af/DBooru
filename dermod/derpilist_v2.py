@@ -200,8 +200,7 @@ def run():
     tc.start()
     for i in range(pages_num+1):
         gc.collect()
-        print("\rChecking page {} of {} ({format((i/pages_num)*100, '.4g')}% done)".format(i, pages_num) +
-              " (Running threads {})          ".format(len(tc.threads)), flush=True, end='')
+        print("\rChecking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end='')
         t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
         t.start()
         tc.threads.append(t)
