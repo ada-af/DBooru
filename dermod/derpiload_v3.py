@@ -92,7 +92,7 @@ class Loader(Thread):
 
     def writer(self):
         try:
-            open(images_path + self.id + '.' + self.format, 'rb')
+            open(images_path + self.id + '.' + self.format, 'rb').close()
         except FileNotFoundError:
             with open(images_path + self.id + '.' + self.format, 'wb') as file:
                 file.write(self.raw_data)
@@ -183,7 +183,7 @@ def run(file, check_files=True):
                 "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             try:
-                open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb')
+                open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb').close()
             except FileNotFoundError:
                 t = Loader(parsed[i][2],
                            parsed[i][0],

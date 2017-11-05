@@ -170,7 +170,9 @@ class Checker(Thread):
         self.parse_data()
         self.compile()
         self.writer()
-        if len(open('tmp/{}.txt'.format(self.page), 'r').read()) == 0 and re.match('{"search":\[\]', self.raw_data).group() != '{"search":[]':
+        with open('tmp/{}.txt'.format(self.page), 'r') as f:
+            tmp = f.read()
+        if len(tmp) == 0 and re.match('{"search":\[\]', self.raw_data).group() != '{"search":[]':
             self.run()
         else:
             pass
@@ -228,6 +230,7 @@ def run():
     with open(ids_file, 'w') as f:
         for i in range(pages_num+1):
             print("\rProcessing file {}.txt  ".format(i), end='', flush=True)
-            f.write(open('tmp/{}.txt'.format(i), 'r').read())
+            with open('tmp/{}.txt'.format(i), 'r') as tmp:
+                f.write(tmp.read())
             f.flush()
             time.sleep(0.01)
