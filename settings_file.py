@@ -115,15 +115,8 @@ db_name = "sqlite.db"
 # Example: (table_name = 'images')
 table_name = 'images'
 
+
 # Servers discovery options
-
-# Override LAN IP broadcast address
-# If app uses wrong broadcast ip for searching servers set it manually
-# Format: br_ip = string or False
-# Example: Override (br_ip = '10.14.88.255')
-# Example: Do not override (br_ip = False)
-br_ip = False
-
 
 # Turns on/off local servers discovery
 # Format: discover_servers = bool

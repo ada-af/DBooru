@@ -75,7 +75,6 @@
 >- pysocks
 >- idna
 >- cryptography
->- netifaces
 >
 >If you have PyOpenSSL installed - remove it
 >
@@ -217,6 +216,5 @@ Enter this commands if prompt starts with `Search@DB>`
 | ids_file              | String ("Path/Filename")      | Name for tempfile (No need to change)                    |
 | db_name               | String ("Path/Filename")      | Where to store DB file                                   |
 | table_name            | String ("Text")               | Sets name for main table (No need to change)             |
-| br_ip                 | String ("IP") or Bool (False) | Sets Broadcast IP                                        |
 | discover_servers      | Bool (True/False)             | Enable checking for servers in LAN                       |
 | share_images          | Bool (True/False)             | Enable sharing in LAN                                    |
