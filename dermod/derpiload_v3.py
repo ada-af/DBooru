@@ -83,7 +83,7 @@ class Loader(Thread):
         else:
             self.raw_data = requests.get(
                 "https:{}".format(self.url),
-                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify, timeout=10).content
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=ssl_verify, timeout=10).content
 
     def writer(self):
         try:

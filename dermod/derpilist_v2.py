@@ -144,7 +144,7 @@ class Checker(Thread):
             self.compiled += tmp
 
     def writer(self):
-        with open(f'tmp/{self.page}.txt', 'w') as f:
+        with open('tmp/{}.txt'.format(self.page), 'w') as f:
             f.write(self.compiled)
             f.flush()
             len(f)
@@ -160,7 +160,7 @@ class Checker(Thread):
             self.writer()
         except Exception:
             pass
-        if len(open(f'tmp/{self.page}.txt', 'r').read()) == 0 and re.match(r'{"search":[]',
+        if len(open('tmp/{}.txt'.format(self.page), 'r').read()) == 0 and re.match(r'{"search":[]',
                                                                            self.raw_data).group() != '{"search":[]':
             self.run()
         else:
@@ -177,7 +177,7 @@ def run():
     k = False
     while k is False:
         pages_num += 50
-        print(f'\rFinding max page... (Checking Page {pages_num})', flush=True, end='')
+        print('\rFinding max page... (Checking Page {})'.format(pages_num), flush=True, end='')
         dat = requests.get(
             "https://{}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
                 domain,
@@ -220,6 +220,6 @@ def run():
     with open(ids_file, 'w') as f:
         for i in range(pages_num+1):
             print("\rProcessing file {}.txt  ".format(i), end='', flush=True)
-            f.write(open(f'tmp/{i}.txt', 'r').read())
+            f.write(open('tmp/{}.txt'.format(i), 'r').read())
             f.flush()
             time.sleep(0.01)
