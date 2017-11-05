@@ -154,12 +154,11 @@ class Checker(Thread):
         try:
             timer.start()
             self.get_data()
-            del timer
-            self.parse_data()
-            self.compile()
-            self.writer()
         except Exception:
             pass
+        self.parse_data()
+        self.compile()
+        self.writer()
         if len(open('tmp/{}.txt'.format(self.page), 'r').read()) == 0 and re.match(r'{"search":[]',
                                                                            self.raw_data).group() != '{"search":[]':
             self.run()

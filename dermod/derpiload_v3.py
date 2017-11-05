@@ -191,7 +191,7 @@ def run(file, check_files=True):
     else:
         for i in range(chk):
             print(
-                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format((i/chk)*100, '.4g'), len(tc.threads)) + " " * 16,
+                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             t = Loader(parsed[i][2],
                        parsed[i][0],
