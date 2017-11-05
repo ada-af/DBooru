@@ -68,7 +68,7 @@
 
 ## Installation
 ### Dependencies
->- Python 3.6+
+>- Python 3.4+ or PyPy 5.9.0+
 >- pip
 >- requests
 >- requests[security]
