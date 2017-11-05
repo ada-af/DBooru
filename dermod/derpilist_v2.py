@@ -1,12 +1,14 @@
-from threading import Thread
+import gc
+import os
+import re
 import shutil
 import sys
 import time
-import os
-import re
-import gc
-from settings_file import *
+from threading import Thread
+
 import requests
+
+from settings_file import *
 
 
 class Error(Exception):
@@ -160,7 +162,7 @@ class Checker(Thread):
         self.parse_data()
         self.compile()
         self.writer()
-        if len(open('tmp/{}.txt'.format(self.page), 'r').read()) == 0 and re.match('{"search":\[\]', self.raw_data).group() != '{"search":[]':
+        if len(open('tmp/{}.txt'.format(self.page), 'r').read()) == 0 and re.match('\{"search":\[\]', self.raw_data).group() != '{"search":[]':
             self.run()
         else:
             pass
