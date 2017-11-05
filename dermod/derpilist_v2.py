@@ -84,16 +84,16 @@ class Checker(Thread):
     def get_data(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                f"https://{self.domain}/search.json/?q=my:{self.vote}"
-                f"&page={self.page}"
-                f"&key={self.api_key}", verify=ssl_verify, timeout=10)
+                "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
+                "&page={}".format(self.page) +
+                "&key={}".format(sel.api_key), verify=ssl_verify, timeout=10)
             self.raw_data = self.raw_data.content.decode()
         else:
             self.raw_data = requests.get(
-                f"https://{self.domain}/search.json/?q=my:{self.vote}"
-                f"&page={self.page}"
-                f"&key={self.api_key}",
-                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify, timeout=10)
+                "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
+                "&page={}".format(self.page) +
+                "&key={}".format(self.api_key),
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=ssl_verify, timeout=10)
             self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
@@ -200,8 +200,8 @@ def run():
     tc.start()
     for i in range(pages_num+1):
         gc.collect()
-        print(f"\rChecking page {i} of {pages_num} ({format((i/pages_num)*100, '.4g')}% done)"
-              f" (Running threads {len(tc.threads)})          ", flush=True, end='')
+        print("\rChecking page {} of {} ({format((i/pages_num)*100, '.4g')}% done)".format(i, pages_num) +
+              " (Running threads {})          ".format(len(tc.threads)), flush=True, end='')
         t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
         t.start()
         tc.threads.append(t)
@@ -209,7 +209,7 @@ def run():
     c = 0
     while len(tc.threads) > 0:
         gc.collect()
-        print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " "*16, flush=True, end='')
+        print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " "*16, flush=True, end='')
         if c >= 5 and len(tc.threads) < 10:
             tc.threads = []
         else:
@@ -219,7 +219,7 @@ def run():
     print("Concatenating files...")
     with open(ids_file, 'w') as f:
         for i in range(pages_num+1):
-            print(f"\rProcessing file {i}.txt  ", end='', flush=True)
+            print("\rProcessing file {}.txt  ".format(i), end='', flush=True)
             f.write(open(f'tmp/{i}.txt', 'r').read())
             f.flush()
             time.sleep(0.01)

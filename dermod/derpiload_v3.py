@@ -48,28 +48,18 @@ class Loader(Thread):
 
     def run(self):
         try:
-            timer = Timer(time_wait)
             if self.local is not False:
                 try:
-                    timer.start()
                     self.get_locally()
-                    del timer
                 except Exception:
-                    timer.start()
                     self.get_raw_image()
-                    del timer
             else:
-                timer = Timer(time_wait)
-                timer.start()
                 self.get_raw_image()
-                del timer
             self.writer()
         except Timeouted():
-            del timer
             pass
         self.readiness = 1
         del self.raw_data
-        del self
 
     def get_locally(self):
         sock = socket.socket()
