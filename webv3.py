@@ -134,7 +134,7 @@ X-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
         request = self.request
         t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
         print("""[REQUEST] [{} @ {}] Made request: {} {} with params \
-\{'params: {}', 'query: {}'\}"""\
+{{'params: {}', 'query: {}'}}"""\
 .format(self.ip, t, request['method'], request['path'], request['params'], request['query']))
 
     @staticmethod
