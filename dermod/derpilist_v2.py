@@ -167,7 +167,7 @@ class Checker(Thread):
 
 
 def run():
-    global user_api_key, vote, enable_proxy, socks5_proxy_ip, socks5_proxy_port, suppressor, ids_file
+    global user_api_key, vote, enable_proxy, socks5_proxy_ip, socks5_proxy_port, suppressor, ids_file, domain
     if suppressor is True:
         suppress = open(os.devnull, 'w')
         sys.stderr = suppress

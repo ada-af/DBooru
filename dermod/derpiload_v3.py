@@ -160,7 +160,7 @@ class ThreadController(Thread):
 def run(file, check_files=True):
     tc = ThreadController()
     tc.start()
-    global suppressor, images_path, derpicdn_enable_proxy, socks5_proxy_ip, socks5_proxy_port
+    global suppressor, images_path, derpicdn_enable_proxy, socks5_proxy_ip, socks5_proxy_port, domain
     if suppressor is True:
         suppress = open(os.devnull, 'w')
         sys.stderr = suppress
