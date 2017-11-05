@@ -41,7 +41,7 @@ class Loader(Thread):
         self.ip = proxy_ip
         self.port = proxy_port
         self.local = is_local
-        global suppressor, domain
+        global suppressor, doma
         if suppressor is True:
             suppress = open(os.devnull, 'w')
             sys.stderr = suppress
@@ -49,17 +49,24 @@ class Loader(Thread):
     def run(self):
         try:
             timer = Timer(time_wait)
-            timer.start()
             if self.local is not False:
                 try:
+                    timer.start()
                     self.get_locally()
+                    del timer
                 except Exception:
+                    timer.start()
                     self.get_raw_image()
+                    del timer
             else:
+                timer = Timer(time_wait)
+                timer.start()
                 self.get_raw_image()
+                del timer
             self.writer()
         except Timeouted():
             pass
+        del timer
         self.readiness = 1
         del self.raw_data
 

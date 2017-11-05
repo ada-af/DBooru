@@ -154,6 +154,7 @@ class Checker(Thread):
         try:
             timer.start()
             self.get_data()
+            del timer
             self.parse_data()
             self.compile()
             self.writer()
