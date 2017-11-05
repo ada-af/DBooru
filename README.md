@@ -6,6 +6,7 @@
     - [Branching](#branching)
         - [Master](#master)
         - [Next](#next)
+        - [Exp/Fixes/Test](#expfixestest)
     - [Features](#features)
         - [Both versions](#both-versions)
         - [CLI-version](#cli-version)
@@ -46,6 +47,12 @@
 1. If there a commit message then "Minor changes"*  
     *Minor changes may include removal of half of all code
 
+### Exp/Fixes/Test
+
+1. If there brach like Exp/Fixes/Test then only working branch is [Master](#master)
+1. Nothing works
+1. Lots of commits
+1. Contains something new
 
 ## Features
 ### Both versions
