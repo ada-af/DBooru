@@ -84,14 +84,14 @@ class Checker(Thread):
             self.raw_data = requests.get(
                 f"https://derpibooru.org/search.json/?q=my:{self.vote}"
                 f"&page={self.page}"
-                f"&key={self.api_key}", verify=False)
+                f"&key={self.api_key}", verify=ssl_verify)
             self.raw_data = self.raw_data.content.decode()
         else:
             self.raw_data = requests.get(
                 f"https://derpibooru.org/search.json/?q=my:{self.vote}"
                 f"&page={self.page}"
                 f"&key={self.api_key}",
-                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=False)
+                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify)
             self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
@@ -180,7 +180,7 @@ def run():
             "https://trixiebooru.org/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
                 vote,
                 pages_num,
-                user_api_key), verify=False)
+                user_api_key), verify=ssl_verify)
         if re.match('{"search":\[\]', dat.content.decode()) is not None:
             k = True
     k = False

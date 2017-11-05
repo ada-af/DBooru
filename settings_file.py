@@ -14,6 +14,14 @@ user_api_key = "KEY GOES HERE"
 # Format: suppress_errors = bool # Example: (suppress_errors = True)
 suppress_errors = True
 
+# Disable requests verifying
+# Useful when connecting to derpibooru through tor
+# Format : ssl_verify = bool or string
+# Example : Enable verification (ssl_verify = True)
+# Example : Disable verification (ssl_verify = False)
+# Example : Use custom CA Cert (ssl_verify = 'cacert.pem')
+ssl_verify = True
+
 
 # Proxy Settings
 # Useful if connection to derpibooru is blocked by anything

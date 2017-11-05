@@ -120,7 +120,7 @@ Enter this commands if prompt starts with `DB>`
 | ------------------ | --------------------------------------------------------------------------------------- |
 | help               | Shows in-app help                                                                       |
 | get images         | Downloads images that you liked/favorited on Derpibooru                                 |
-| get images -f      | Downloads images without checking file existance |
+| get images -f      | Downloads images without checking file existance                                        |
 | get images --force | Same as get images -f                                                                   |
 | total              | Prints amount of entries in local DB                                                    |
 | count \<tag\>      | Prints amount of entries tagged with \<tag\>                                            |
@@ -200,6 +200,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | --------------------- | ----------------------------- | -------------------------------------------------------- |
 | user_api_key          | String ("Text")               | Defines derpibooru api key                               |
 | suppress_errors       | Bool (True/False)             | Prints errors and stacktrace in case of happening        |
+| ssl_verify            | Bool (True/False) or String ("Path") | Enable/Disable ssl verification or set custom CA Cert |
 | enable_proxy          | Bool (True/False)             | Enables/Disables proxy for requests to derpibooru.org    |
 | derpicdn_enable_proxy | Bool (True/False)             | Enables/Disables proxy for requests to derpicdn.net      |
 | socks5_proxy_ip       | String ("IP")                 | Sets proxy IP                                            |
