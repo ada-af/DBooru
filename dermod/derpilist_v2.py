@@ -160,8 +160,7 @@ class Checker(Thread):
         self.parse_data()
         self.compile()
         self.writer()
-        if len(open('tmp/{}.txt'.format(self.page), 'r').read()) == 0 and re.match('{"search":\[\]',
-                                                                           self.raw_data).group() != '{"search":[]':
+        if len(open('tmp/{}.txt'.format(self.page), 'r').read()) == 0 and re.match('{"search":\[\]', self.raw_data).group() != '{"search":[]':
             self.run()
         else:
             pass
