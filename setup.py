@@ -1,11 +1,12 @@
 from cx_Freeze import setup, Executable
 import requests
 
-buildOptions = {"packages": ["os", 'requests', 'queue', 'idna', 'gc'],
-                'includes': ['requests', 'dermod', 'queue', 'idna', 'gc'],
-                "excludes": ["tkinter"],
-                'include_files': ["extra/", (requests.certs.where(), 'cacert.pem')]
-                }
+buildOptions = {
+    "packages": ["os", 'requests', 'queue', 'idna', 'gc'],
+    'includes': ['requests', 'dermod', 'queue', 'idna', 'gc'],
+    "excludes": ["tkinter"],
+    'include_files': ["extra/", (requests.certs.where(), 'cacert.pem')]
+    }
 
 setup(
     name="DBooru",

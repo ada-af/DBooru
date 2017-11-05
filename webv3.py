@@ -210,16 +210,6 @@ class Handler(Thread):
                 else:
                     self.send_header(200)
                     self.send_data(p)
-        # elif self.request['path'] == '/update':
-        #     self.send_header(200)
-        #     self.send_data("started")
-        #     derpilist.run()
-        #     derpiload.run(ids_file)
-        #     db.mkdb(table_name, columns, tag_amount)
-        #     db.fill_db()
-        #     print("DB configured successfully")
-        #     os.remove(ids_file)
-        #     print("Image index is up-to-date")
         elif "/image/" in self.request['path']:
             img_id = self.request['path'].split("/")[-1]
             tags = db.search_by_id(img_id)
