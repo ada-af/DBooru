@@ -179,7 +179,7 @@ def run():
         pages_num += 50
         print(f'\rFinding max page... (Checking Page {pages_num})', flush=True, end='')
         dat = requests.get(
-            "https://{self.domain}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
+            "https://{domain}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
                 vote,
                 pages_num,
                 user_api_key), verify=ssl_verify, timeout=10)
