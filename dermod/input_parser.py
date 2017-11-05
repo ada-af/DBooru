@@ -1,5 +1,4 @@
 from settings_file import *
-import re
 
 def parser(string):
     string = string.replace("%2C", ',').replace("+", " ").replace("%25", "%")
