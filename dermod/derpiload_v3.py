@@ -7,7 +7,6 @@ from settings_file import *
 import socket
 import time
 import requests
-import netifaces
 
 
 class Error(Exception):
