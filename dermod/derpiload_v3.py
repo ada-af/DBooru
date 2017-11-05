@@ -150,6 +150,7 @@ class ThreadController(Thread):
             for i in self.threads:
                 if i.readiness == 1:
                     self.threads.remove(i)
+                    i.join()
                     del i
                     p = p + 1
 

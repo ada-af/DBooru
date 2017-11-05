@@ -29,6 +29,9 @@ class Timer(Thread):
         time.sleep(self.time)
         raise Timeouted
 
+    def stop(self):
+        self._is_running = False
+
 
 class ThreadController(Thread):
     @staticmethod
@@ -52,6 +55,7 @@ class ThreadController(Thread):
             for i in self.threads:
                 if i.readiness == 1:
                     self.threads.remove(i)
+                    i.join()
                     del i
                     p = p + 1
 
@@ -156,7 +160,7 @@ class Checker(Thread):
         try:
             timer.start()
             self.get_data()
-            del timer
+            timer.stop()
         except Exception:
             pass
         self.parse_data()
