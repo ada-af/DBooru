@@ -59,6 +59,7 @@ class Checker(Thread):
     def __init__(self, all_pages, page, is_proxy, api_key, vote, proxy_ip, proxy_port):
         global suppressor, domain
         Thread.__init__(self)
+        self.domain = domain
         self.readiness = 0
         self.compiled = ''
         self.pages = all_pages
@@ -81,16 +82,15 @@ class Checker(Thread):
             sys.stderr = suppress
 
     def get_data(self):
-        global domain
         if self.proxy is False:
             self.raw_data = requests.get(
-                f"https://{domain}/search.json/?q=my:{self.vote}"
+                f"https://{self.domain}/search.json/?q=my:{self.vote}"
                 f"&page={self.page}"
                 f"&key={self.api_key}", verify=ssl_verify, timeout=10)
             self.raw_data = self.raw_data.content.decode()
         else:
             self.raw_data = requests.get(
-                f"https://{domain}/search.json/?q=my:{self.vote}"
+                f"https://{self.domain}/search.json/?q=my:{self.vote}"
                 f"&page={self.page}"
                 f"&key={self.api_key}",
                 proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=ssl_verify, timeout=10)
@@ -179,7 +179,7 @@ def run():
         pages_num += 50
         print(f'\rFinding max page... (Checking Page {pages_num})', flush=True, end='')
         dat = requests.get(
-            "https://{domain}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
+            "https://{self.domain}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
                 vote,
                 pages_num,
                 user_api_key), verify=ssl_verify, timeout=10)
