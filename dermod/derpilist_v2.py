@@ -88,7 +88,7 @@ class Checker(Thread):
             self.raw_data = requests.get(
                 "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
                 "&page={}".format(self.page) +
-                "&key={}".format(sel.api_key), verify=ssl_verify, timeout=10)
+                "&key={}".format(self.api_key), verify=ssl_verify, timeout=10)
             self.raw_data = self.raw_data.content.decode()
         else:
             self.raw_data = requests.get(
