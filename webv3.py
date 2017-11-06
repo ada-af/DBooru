@@ -99,7 +99,11 @@ class Handler(Thread):
             pass
         self.readiness = 1
 
-    def send_data(self, data):
+    def send_data(self, *data):
+        if len(data) > 1:
+            data = "".join(data)
+        else:
+            data = data[0]
         try:
             self.conn.send(data.encode())
         except AttributeError:
@@ -113,8 +117,7 @@ class Handler(Thread):
         elif code == 404:
             self.conn.sendall("""HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.conn.close()
-            self.send_data("<html><head><meta http-equiv='refresh' content='1; url=/' </head>"
-                           "<body>404 Not Found</body></html>")
+            self.send_data("<html><head><meta http-equiv='refresh' content='1; url=/' </head><body>404 Not Found</body></html>")
         elif code == 500:
             self.conn.sendall("""HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
             self.send_data("500 Internal Server Error")
