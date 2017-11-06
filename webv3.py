@@ -172,7 +172,7 @@ class Handler(Thread):
                 i = tuple([x for x in i if x != 'None'])
                 pictures.append(i)
             p = ''
-            for i in sorted(set(pictures), key=lambda tup: tup[0], reverse=True):
+            for i in sorted(list(set(pictures)), key=lambda tup: tup[0], reverse=True):
                 if i[0].split('.')[1] != 'webm':
                     try:
                         p += """<div class='g-item'><abbr title="{}"><img src="
