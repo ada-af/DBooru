@@ -16,7 +16,7 @@ def parser(string):
     for i in remove:
         if i in search:
             search.remove(i)
-    return {"search": search, "remove": remove}
+    return {"search": [x for x in search if x != ''], "remove": [x for x in remove if x != '']}
 
 
 def json_parser(string):
