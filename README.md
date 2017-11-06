@@ -82,7 +82,6 @@
 >- pysocks
 >- idna
 >- cryptography
->- pysocks
 >
 >If you have PyOpenSSL installed - remove it
 >

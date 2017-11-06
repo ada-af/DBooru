@@ -3,7 +3,6 @@ TODO: Update database from web
 TODO: Use Websockets OR AJAX for status output
 TODO: Use JSON for status (implies changes in download code)
 TODO: "View on derpibooru" button
-TODO: Replace huge serve() 'if' statement with methods
 TODO: Rework Exception handling
 
 # db.py
