@@ -259,7 +259,7 @@ class Handler(Thread):
         try:
             matched = predictor.predict(self.request['params']['phrase'])
             if len(matched) == 0 or len(matched) == 1:
-                self.send_header(200))
+                self.send_header(200)
                 self.send_data('')
             else:
                 self.send_header(200, len(str(matched))))
