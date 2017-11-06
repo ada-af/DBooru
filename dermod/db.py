@@ -3,16 +3,14 @@ import sqlite3
 import sys
 
 from dermod import input_parser as ip
-from settings_file import *
-
-globals().update()
+import settings_file
 
 
 def precomp():
     global tag_col, tag_col_full, tag_col_serv
     tag_col = 'fname, '
     h = 'tag{}, '
-    for i in range(1, 41):
+    for i in range(1, settings_file.tag_amount+1):
         tag_col += h.format(i)
     tag_col = tag_col[:-2]
     tag_col_full = tag_col + ', height, width, ratio'
@@ -28,24 +26,24 @@ def suppress_errs(supp):
 
 
 def errors_init():  
-    suppress_errs(suppressor)
+    suppress_errs(settings_file.suppressor)
 
 
 def init_db():  
     global cursor
     global conn
-    conn = sqlite3.connect(db_name)
+    conn = sqlite3.connect(settings_file.db_name)
     cursor = conn.cursor()
 
 
 def total_found():  
     init_db()
-    print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM {} WHERE {}".format(table_name, columns[0])).fetchone()[0])
+    print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM {} WHERE {}".format(settings_file.table_name, settings_file.columns[0])).fetchone()[0])
 
 
 def get_all_entries():
     init_db()
-    result = list(cursor.execute("SELECT * from {}".format(table_name)))
+    result = list(cursor.execute("SELECT * from {}".format(settings_file.table_name)))
     return result
 
 
@@ -61,32 +59,30 @@ def mkdb(table_name):
 
 def fill_db():  
     print("\nFilling DB")
-    global table_name
-    global tag_amount
     init_db()
-    mkdb(table_name)
-    unparsed = open(ids_file).read()
+    mkdb(settings_file.table_name)
+    unparsed = open(settings_file.ids_file).read()
     halfparsed = unparsed.strip("\n").split("\n")
     for i in halfparsed:
         i = i.split(",,,")
         k = i[6].split(",")
-        if len(k) < 40:
-            k += ["None"] * (40 - len(k))
-        elif len(k) == 40:
+        if len(k) < settings_file.tag_amount:
+            k += ["None"] * (settings_file.tag_amount - len(k))
+        elif len(k) == settings_file.tag_amount:
             pass
-        elif len(k) > 40:
-            k = k[:40]
+        elif len(k) > settings_file.tag_amount:
+            k = k[:settings_file.tag_amount]
         k = str(k).strip("[]").replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}')".format(table_name, i[0], i[1], k, i[3], i[4], i[5])
+        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}')".format(settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5])
         cursor.execute(j)
-    cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(table_name=table_name))
+    cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(table_name=settings_file.table_name))
     conn.commit()
 
 
 def count_tag(tag_to_count):
     init_db()
 
-    sample = """select count(*) FROM {} where '{}' in ({})""".format(table_name, tag_to_count, tag_col)
+    sample = """select count(*) FROM {} where '{}' in ({})""".format(settings_file.table_name, tag_to_count, tag_col)
     output = list(cursor.execute(sample))
     print(str(output[0]).strip("()").replace(",", "") + " images tagged {}".format(tag_to_count))
 
@@ -101,14 +97,14 @@ def search(list_search, list_remove):
 
     if len(list_search) != 0:
         mkdb('temp1')
-        sample = "INSERT INTO temp1 SELECT * FROM {} WHERE '{}' in ({})".format(table_name, list_search[0], tag_col)
+        sample = "INSERT INTO temp1 SELECT * FROM {} WHERE '{}' in ({})".format(settings_file.table_name, list_search[0], tag_col)
         cursor.execute(sample)
         cursor.execute("delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
         results = list(cursor.execute("SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
     else:
         mkdb('temp1')
-        sample = "INSERT INTO temp1 SELECT * FROM {}".format(table_name)
+        sample = "INSERT INTO temp1 SELECT * FROM {}".format(settings_file.table_name)
         cursor.execute(sample)
         cursor.execute("delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
         results = list(cursor.execute("SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
@@ -181,7 +177,7 @@ def special_f(specials):
 
 def search_by_id(img_id):
     init_db()
-    result = list(cursor.execute("SELECT * FROM {} WHERE fname like '{}.%'".format(table_name, img_id)))
+    result = list(cursor.execute("SELECT * FROM {} WHERE fname like '{}.%'".format(settings_file.table_name, img_id)))
 
     return result
 
