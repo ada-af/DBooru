@@ -204,19 +204,22 @@ class Handler(Thread):
     def details(self):
         img_id = self.request['path'].split("/")[-1]
         tags = db.search_by_id(img_id)
-        tags = [x for x in tags[0] if x is not None]
-        if tags[0].split('.')[1] != 'webm':
-            p = '<img src="/images/{}" class="img img-fluid">'.format(tags[0])
+        if tags => 1:
+            tags = [x for x in tags[0] if x is not None]
+            if tags[0].split('.')[1] != 'webm':
+                p = '<img src="/images/{}" class="img img-fluid">'.format(tags[0])
+            else:
+                p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
+                                <source src="/{}{}"/>
+                                </video>""".format(settings_file.images_path, tags[0])
+            data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0],
+                                                               str(["<a href='/?query={}&page=1'>{}</a>".format(f, f)
+                                                                    for f in [x for x in tags[1:-3]] if
+                                                                    f != "None"]).strip("[]").replace('"', ''))
+            self.send_header(200)
+            self.send_data(data)
         else:
-            p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
-                            <source src="/{}{}"/>
-                            </video>""".format(settings_file.images_path, tags[0])
-        data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0],
-                                                           str(["<a href='/?query={}&page=1'>{}</a>".format(f, f)
-                                                                for f in [x for x in tags[1:-3]] if
-                                                                f != "None"]).strip("[]").replace('"', ''))
-        self.send_header(200)
-        self.send_data(data)
+            self.send_header(404)
 
     def die(self):
         self.send_header(200)
@@ -229,8 +232,9 @@ class Handler(Thread):
                 temp = t.read()
         except FileNotFoundError:
             self.send_header(404)
-        except Exception as e:
-            print(e)
+        except KeyError:
+            self.send_header(404)
+        except Exception:
             self.send_header(500)
         else:
             self.send_header(200, self.request['params']['id'].split('.')[-1])
