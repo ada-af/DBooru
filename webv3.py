@@ -106,10 +106,10 @@ class Handler(Thread):
             self.conn.send(data)
         self.conn.close()
 
-    def send_header(self, code, mime='html'):
+    def send_header(self, code, mime='html', length=0):
         mime = mimes.types[mime]
         if code == 200:
-            self.conn.sendall("""HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: I'm working hard for you\n\n""".format(mime).encode())
+            self.conn.sendall("""HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: I'm working hard for you\nContent-Length: {}\n\n""".format(mime, length).encode())
         elif code == 404:
             self.conn.sendall("""HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.send_data("<html><head><meta http-equiv='refresh' content='1; url=/' </head><body>404 Not Found</body></html>".encode())
@@ -125,8 +125,9 @@ class Handler(Thread):
               .format(self.ip, t, request['method'], request['path'], request['params'], request['query']))
 
     def index(self):
-        self.send_header(200)
-        self.send_data(open("extra/index.html", 'rb').read())
+        with open("extra/index.html", 'rb') as j:
+        self.send_header(200, length=len(j.read()))
+        self.send_data(j.read())
 
     def show_img(self):
         try:
@@ -153,7 +154,7 @@ class Handler(Thread):
             except Exception:
                 self.send_header(500)
             else:
-                self.send_header(200)
+                self.send_header(200, length=4)
                 self.send_data('Done')
 
     def results(self):
@@ -197,7 +198,7 @@ class Handler(Thread):
             except Exception:
                 self.send_header(500)
             else:
-                self.send_header(200)
+                self.send_header(200, length=len(p)))
                 self.send_data(p)
 
     def details(self):
@@ -215,13 +216,13 @@ class Handler(Thread):
                                                                str(["<a href='/?query={}&page=1'>{}</a>".format(f, f)
                                                                     for f in [x for x in tags[1:-3]] if
                                                                     f != "None"]).strip("[]").replace('"', ''))
-            self.send_header(200)
+            self.send_header(200, length=len(data))
             self.send_data(data)
         else:
             self.send_header(404)
 
     def die(self):
-        self.send_header(200)
+        self.send_header(200, length=4)
         self.send_data("Done")
         os._exit(0)
 
@@ -257,10 +258,11 @@ class Handler(Thread):
         predictor = predict.Predictor()
         try:
             matched = predictor.predict(self.request['params']['phrase'])
-            self.send_header(200)
             if len(matched) == 0 or len(matched) == 1:
+                self.send_header(200))
                 self.send_data('')
             else:
+                self.send_header(200, len(str(matched))))
                 self.send_data(str(matched))
         except Exception:
             self.send_header(500)
