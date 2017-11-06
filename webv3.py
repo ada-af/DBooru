@@ -161,10 +161,9 @@ class Handler(Thread):
             results = list(db.search(self.request["query"]['search'],
                                      self.request["query"]['remove'])
                            [int(self.request['params']['page']) - 1])
-        except IndexError:
+        except (IndexError, KeyError):
             self.send_header(404)
-        except Exception as e:
-            print(sys.exc_info()[0])
+        except Exception:
             self.send_header(500)
         else:
             pictures = []
