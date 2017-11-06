@@ -204,7 +204,7 @@ class Handler(Thread):
     def details(self):
         img_id = self.request['path'].split("/")[-1]
         tags = db.search_by_id(img_id)
-        if tags => 1:
+        if tags >= 1:
             tags = [x for x in tags[0] if x is not None]
             if tags[0].split('.')[1] != 'webm':
                 p = '<img src="/images/{}" class="img img-fluid">'.format(tags[0])
