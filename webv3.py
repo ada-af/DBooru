@@ -164,7 +164,7 @@ class Handler(Thread):
         except IndexError:
             self.send_header(404)
         except Exception as e:
-            print(sys.exc_info()[e])
+            print(sys.exc_info()[0])
             self.send_header(500)
         else:
             pictures = []
