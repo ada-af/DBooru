@@ -126,8 +126,8 @@ class Handler(Thread):
 
     def index(self):
         with open("extra/index.html", 'rb') as j:
-        self.send_header(200, length=len(j.read()))
-        self.send_data(j.read())
+            self.send_header(200, length=len(j.read()))
+            self.send_data(j.read())
 
     def show_img(self):
         try:
