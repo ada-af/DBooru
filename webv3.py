@@ -109,7 +109,7 @@ class Handler(Thread):
     def send_header(self, code, mime='html'):
         mime = mimes.types[mime]
         if code == 200:
-            self.conn.sendall("""HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: I'm working hard for you\nContent-Length: {}\n\n""".format(mime).encode())
+            self.conn.sendall("""HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: I'm working hard for you\n\n""".format(mime).encode())
         elif code == 404:
             self.conn.sendall("""HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.send_data("<html><head><meta http-equiv='refresh' content='1; url=/' </head><body>404 Not Found</body></html>".encode())
