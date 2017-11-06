@@ -158,10 +158,9 @@ class Handler(Thread):
 
     def results(self):
         try:
-            results = sorted(list(db.search(self.request["query"]['search'],
+            results =list(db.search(self.request["query"]['search'],
                                      self.request["query"]['remove'])
-                           [int(self.request['params']['page']) - 1]),
-                            key=lambda tup: tup[0], reverse=True)
+                           [int(self.request['params']['page']) - 1])
         except IndexError:
             self.send_header(404)
         except Exception:
@@ -173,7 +172,7 @@ class Handler(Thread):
                 i = tuple([x for x in i if x != 'None'])
                 pictures.append(i)
             p = ''
-            for i in set(pictures):
+            for i in sorted(set(pictures), key=lambda tup: tup[0], reverse=True):
                 if i[0].split('.')[1] != 'webm':
                     try:
                         p += """<div class='g-item'><abbr title="{}"><img src="
