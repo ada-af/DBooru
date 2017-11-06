@@ -55,17 +55,14 @@ class Loader(Thread):
             sys.stderr = suppress
 
     def run(self):
-        try:
-            if self.local is not False:
-                try:
-                    self.get_locally()
-                except Exception:
-                    self.get_raw_image()
-            else:
+        if self.local is not False:
+            try:
+                self.get_locally()
+            except Exception:
                 self.get_raw_image()
-            self.writer()
-        except Timeouted():
-            pass
+        else:
+            self.get_raw_image()
+        self.writer()
         self.readiness = 1
         del self.raw_data
 
@@ -87,11 +84,11 @@ class Loader(Thread):
     def get_raw_image(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                "https:{}".format(self.url), verify=ssl_verify, timeout=10).content
+                "https:{}".format(self.url), verify=ssl_verify).content
         else:
             self.raw_data = requests.get(
                 "https:{}".format(self.url),
-                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=ssl_verify, timeout=10).content
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=ssl_verify).content
 
     def writer(self):
         try:
