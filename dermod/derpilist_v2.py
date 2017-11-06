@@ -8,7 +8,7 @@ from threading import Thread
 
 import requests
 
-from settings_file import *
+import settings_file
 
 
 class Error(Exception):
@@ -67,9 +67,8 @@ class ThreadController(Thread):
 class Checker(Thread):
 
     def __init__(self, all_pages, page, is_proxy, api_key, vote, proxy_ip, proxy_port):
-        global suppressor, domain
         Thread.__init__(self)
-        self.domain = domain
+        self.domain = settings_file.domain
         self.readiness = 0
         self.compiled = ''
         self.pages = all_pages
@@ -87,7 +86,7 @@ class Checker(Thread):
         self.vote = vote
         self.ip = proxy_ip
         self.port = proxy_port
-        if suppressor is True:
+        if settings_file.suppressor is True:
             suppress = open(os.devnull, 'w')
             sys.stderr = suppress
 
@@ -96,14 +95,14 @@ class Checker(Thread):
             self.raw_data = requests.get(
                 "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
                 "&page={}".format(self.page) +
-                "&key={}".format(self.api_key), verify=ssl_verify, timeout=10)
+                "&key={}".format(self.api_key), verify=settings_file.ssl_verify, timeout=10)
             self.raw_data = self.raw_data.content.decode()
         else:
             self.raw_data = requests.get(
                 "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
                 "&page={}".format(self.page) +
                 "&key={}".format(self.api_key),
-                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=ssl_verify, timeout=10)
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify, timeout=10)
             self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
@@ -160,7 +159,7 @@ class Checker(Thread):
             len(f.read())
 
     def run(self):
-        timer = Timer(time_wait)
+        timer = Timer(settings_file.time_wait)
         try:
             timer.start()
             self.get_data()
@@ -180,8 +179,7 @@ class Checker(Thread):
 
 
 def run():
-    global user_api_key, vote, enable_proxy, socks5_proxy_ip, socks5_proxy_port, suppressor, ids_file, domain
-    if suppressor is True:
+    if settings_file.suppressor is True:
         suppress = open(os.devnull, 'w')
         sys.stderr = suppress
     pages_num = 0
@@ -191,10 +189,10 @@ def run():
         print('\rFinding max page... (Checking Page {})'.format(pages_num), flush=True, end='')
         dat = requests.get(
             "https://{}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
-                domain,
-                vote,
+                settings_file.domain,
+                settings_file.vote,
                 pages_num,
-                user_api_key), verify=ssl_verify, timeout=10)
+                settings_file.user_api_key), verify=settings_file.ssl_verify, timeout=10)
         if re.match('{"search":\[\]', dat.content.decode()) is not None:
             k = True
     k = False
@@ -216,7 +214,7 @@ def run():
     for i in range(pages_num+1):
         gc.collect()
         print("\rChecking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end='')
-        t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
+        t = Checker(pages_num, i, settings_file.enable_proxy, settings_file.user_api_key, settings_file.vote, settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port)
         t.start()
         tc.threads.append(t)
         time.sleep(slp)
@@ -231,7 +229,7 @@ def run():
             c += 1
     del tc
     print("Concatenating files...")
-    with open(ids_file, 'w') as f:
+    with open(settings_file.ids_file, 'w') as f:
         for i in range(pages_num+1):
             print("\rProcessing file {}.txt  ".format(i), end='', flush=True)
             with open('tmp/{}.txt'.format(i), 'r') as tmp:
