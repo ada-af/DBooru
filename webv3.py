@@ -198,7 +198,7 @@ class Handler(Thread):
             except Exception:
                 self.send_header(500)
             else:
-                self.send_header(200, length=len(p)))
+                self.send_header(200, length=len(p))
                 self.send_data(p)
 
     def details(self):
