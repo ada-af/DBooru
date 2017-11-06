@@ -7,7 +7,7 @@ from threading import Thread
 
 import requests
 
-from settings_file import *
+import settings_file
 
 from . import input_parser as ip
 
@@ -49,8 +49,7 @@ class Loader(Thread):
         self.ip = proxy_ip
         self.port = proxy_port
         self.local = is_local
-        global suppressor, doma
-        if suppressor is True:
+        if settings_file.suppressor is True:
             suppress = open(os.devnull, 'w')
             sys.stderr = suppress
 
@@ -84,17 +83,17 @@ class Loader(Thread):
     def get_raw_image(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                "https:{}".format(self.url), verify=ssl_verify).content
+                "https:{}".format(self.url), verify=settings_file.ssl_verify).content
         else:
             self.raw_data = requests.get(
                 "https:{}".format(self.url),
-                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=ssl_verify).content
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify).content
 
     def writer(self):
         try:
-            open(images_path + self.id + '.' + self.format, 'rb').close()
+            open(settings_file.images_path + self.id + '.' + self.format, 'rb').close()
         except FileNotFoundError:
-            with open(images_path + self.id + '.' + self.format, 'wb') as file:
+            with open(settings_file.images_path + self.id + '.' + self.format, 'wb') as file:
                 file.write(self.raw_data)
                 file.flush()
         else:
@@ -102,7 +101,7 @@ class Loader(Thread):
 
 
 def udp_check():
-    if discover_servers is True:
+    if settings_file.discover_servers is True:
         print("\rChecking for local servers..." + " " * 16, flush=True, end='')
         sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -164,12 +163,11 @@ class ThreadController(Thread):
 def run(file, check_files=True):
     tc = ThreadController()
     tc.start()
-    global suppressor, images_path, derpicdn_enable_proxy, socks5_proxy_ip, socks5_proxy_port, domain
-    if suppressor is True:
+    if settings_file.suppressor is True:
         suppress = open(os.devnull, 'w')
         sys.stderr = suppress
     try:
-        os.mkdir(images_path)
+        os.mkdir(settings_file.images_path)
     except FileExistsError:
         pass
     k = udp_check()
@@ -187,14 +185,14 @@ def run(file, check_files=True):
                 "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             try:
-                open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb').close()
+                open(settings_file.images_path + parsed[i][0] + '.' + parsed[i][1], 'rb').close()
             except FileNotFoundError:
                 t = Loader(parsed[i][2],
                            parsed[i][0],
                            parsed[i][1],
-                           derpicdn_enable_proxy,
-                           socks5_proxy_ip,
-                           socks5_proxy_port,
+                           settings_file.derpicdn_enable_proxy,
+                           settings_file.socks5_proxy_ip,
+                           settings_file.socks5_proxy_port,
                            k)
                 t.start()
                 tc.threads.append(t)
@@ -207,9 +205,9 @@ def run(file, check_files=True):
             t = Loader(parsed[i][2],
                        parsed[i][0],
                        parsed[i][1],
-                       derpicdn_enable_proxy,
-                       socks5_proxy_ip,
-                       socks5_proxy_port,
+                       settings_file.derpicdn_enable_proxy,
+                       settings_file.socks5_proxy_ip,
+                       settings_file.socks5_proxy_port,
                        k)
             t.start()
             tc.threads.append(t)
