@@ -5,7 +5,7 @@ import webbrowser
 
 from dermod import input_parser as ip
 from dermod import db, derpilist_v2, derpiload_v3
-import settings_file
+from settings_file import *
 
 
 def show_help(case):
@@ -54,7 +54,7 @@ def query_cycle(results):
                     for i in results[(int(inp)-1)]:
                         
                         i = [x for x in i if x != "None"][:-3]
-                        print(str(i[0]) + " "*(15 - len(i[0])) + " => " + str(i[1:settings_file.showing_tags]).strip("()"))
+                        print(str(i[0]) + " "*(15 - len(i[0])) + " => " + str(i[1:showing_tags]).strip("()"))
                 except KeyError:
                     print('There is no page named {}'.format(inp))
 
@@ -63,9 +63,9 @@ def query_cycle(results):
                 inp = db.search_by_id(inp.strip())[0][0]
                 try:
                     if os.name != "nt":
-                        webbrowser.open(str(settings_file.images_path + inp.strip()))
+                        webbrowser.open(str(images_path + inp.strip()))
                     else:
-                        os.system(str("explorer.exe " + settings_file.images_path + inp.strip()))
+                        os.system(str("explorer.exe " + images_path + inp.strip()))
                 except FileNotFoundError:
                     print("File doesn't exist.")
 
@@ -73,9 +73,9 @@ def query_cycle(results):
                 for i in results.keys():
                     for k in results[i]:
                         try:
-                            shutil.copy(str(settings_file.images_path + k[0]), str(settings_file.export_path + k[0]))
+                            shutil.copy(str(images_path + k[0]), str(export_path + k[0]))
                         except FileNotFoundError:
-                            os.mkdir(settings_file.export_path)
+                            os.mkdir(export_path)
                         else:
                             pass
 
@@ -99,19 +99,19 @@ def main_cycle():
     inp = inp.lower()
     if inp == "get images":  
         derpilist_v2.run()
-        derpiload_v3.run(settings_file.ids_file)
+        derpiload_v3.run(ids_file)
         db.fill_db()
         print("DB configured successfully")
         shutil.rmtree('tmp')
-        os.remove(settings_file.ids_file)
+        os.remove(ids_file)
         print("Image index is up-to-date")
     if inp == "get images --force" or inp == "get images -f":  
         derpilist_v2.run()
-        derpiload_v3.run(settings_file.ids_file, check_files=False)
+        derpiload_v3.run(ids_file, check_files=False)
         db.fill_db()
         print("DB configured successfully")
         shutil.rmtree('tmp')
-        os.remove(settings_file.ids_file)
+        os.remove(ids_file)
         print("Image index is up-to-date")
     elif inp == "total":  
         db.total_found()
@@ -125,9 +125,9 @@ def main_cycle():
         inp = db.search_by_id(inp.strip())[0][0]
         try:
             if os.name != "nt":
-                webbrowser.open(str(settings_file.images_path + inp.strip()))
+                webbrowser.open(str(images_path + inp.strip()))
             else:
-                os.system(str("explorer.exe " + settings_file.images_path + inp.strip()))
+                os.system(str("explorer.exe " + images_path + inp.strip()))
         except FileNotFoundError:
             print("File doesn't exist.")
     elif inp == 'quit' or inp == 'exit':  

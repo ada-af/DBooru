@@ -1,4 +1,4 @@
-import settings_file
+from settings_file import *
 
 def parser(string):
     string = string.replace("%2C", ',').replace("+", " ").replace("%25", "%")
@@ -62,13 +62,13 @@ def json_parser_v2(string):
 
 def results_parser(list_tuple):
     results = list_tuple
-    res_num = (len(list(results)) / settings_file.showing_imgs) + 1
+    res_num = (len(list(results)) / showing_imgs) + 1
     pages = []
     lists = []
     for k in range(0, int(res_num) + 1):
         pages.append(k)
-    for i in range(0, len(list(results)), settings_file.showing_imgs):
-        lists.append(list(results)[i:i + settings_file.showing_imgs])
+    for i in range(0, len(list(results)), showing_imgs):
+        lists.append(list(results)[i:i + showing_imgs])
     pages = dict(zip(pages, lists))
     return pages
 

@@ -2,14 +2,13 @@
 import os
 import socket
 import time
-import sys
 from datetime import datetime
 from threading import Thread
 
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
 from dermod import db, predict
-import settings_file
+from settings_file import *
 
 
 class ThreadController(Thread):
@@ -58,6 +57,7 @@ class UDPHandler(Thread):
         self.ip = '0.0.0.0'
 
     def start_listener(self):
+        global web_port
         sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((self.ip, self.port))
@@ -68,7 +68,7 @@ class UDPHandler(Thread):
                 host = h
                 self.log_debug("[UDP] Received discovery from {} ({})".format(socket.gethostbyname(host), host))
                 h = str(socket.gethostbyname(socket.gethostname()))
-                h = h + ":" + str(settings_file.web_port)
+                h = h + ":" + str(web_port)
                 sock.sendto(h.encode(), (host, 29889))
 
     def run(self):
@@ -131,7 +131,7 @@ class Handler(Thread):
     def show_img(self):
         try:
             f_type = self.request['path'].split('.')[-1]
-            with open("{}".format(settings_file.images_path + self.request['path'].split('/')[-1]), 'rb') as j:
+            with open("{}".format(images_path + self.request['path'].split('/')[-1]), 'rb') as j:
                 f = j.read()
         except FileNotFoundError:
             self.send_header(404)
@@ -141,15 +141,15 @@ class Handler(Thread):
 
     def exporter(self):
         try:
-            src_file = open(str(settings_file.images_path + self.request['params']['id']), 'rb').read()
+            src_file = open(str(images_path + self.request['params']['id']), 'rb').read()
         except FileNotFoundError:
             self.send_header(404)
         else:
             try:
-                open(str(settings_file.export_path + self.request['params']['id']), 'wb').write(src_file)
+                open(str(export_path + self.request['params']['id']), 'wb').write(src_file)
             except FileNotFoundError:
-                os.mkdir(settings_file.export_path)
-                open(str(settings_file.export_path + self.request['params']['id']), 'wb').write(src_file)
+                os.mkdir(export_path)
+                open(str(export_path + self.request['params']['id']), 'wb').write(src_file)
             except Exception:
                 self.send_header(500)
             else:
@@ -161,7 +161,7 @@ class Handler(Thread):
             results = list(db.search(self.request["query"]['search'],
                                      self.request["query"]['remove'])
                            [int(self.request['params']['page']) - 1])
-        except (IndexError, KeyError):
+        except IndexError:
             self.send_header(404)
         except Exception:
             self.send_header(500)
@@ -187,7 +187,7 @@ class Handler(Thread):
                              </video>
                              </abbr></div>""".format(str(i[1:-3]).strip('()').replace("'", ''),
                                                      i[0].split('.')[0],
-                                                     settings_file.images_path, i[0])
+                                                     images_path, i[0])
             try:
                 p = open("extra/results.html", 'r').read().format(self.request['params']['query'],
                                                                   p,
@@ -203,22 +203,19 @@ class Handler(Thread):
     def details(self):
         img_id = self.request['path'].split("/")[-1]
         tags = db.search_by_id(img_id)
-        if len(tags) >= 1:
-            tags = [x for x in tags[0] if x is not None]
-            if tags[0].split('.')[1] != 'webm':
-                p = '<img src="/images/{}" class="img img-fluid">'.format(tags[0])
-            else:
-                p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
-                                <source src="/{}{}"/>
-                                </video>""".format(settings_file.images_path, tags[0])
-            data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0],
-                                                               str(["<a href='/?query={}&page=1'>{}</a>".format(f, f)
-                                                                    for f in [x for x in tags[1:-3]] if
-                                                                    f != "None"]).strip("[]").replace('"', ''))
-            self.send_header(200)
-            self.send_data(data)
+        tags = [x for x in tags[0] if x is not None]
+        if tags[0].split('.')[1] != 'webm':
+            p = '<img src="/images/{}" class="img img-fluid">'.format(tags[0])
         else:
-            self.send_header(404)
+            p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
+                            <source src="/{}{}"/>
+                            </video>""".format(images_path, tags[0])
+        data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0],
+                                                           str(["<a href='/?query={}&page=1'>{}</a>".format(f, f)
+                                                                for f in [x for x in tags[1:-3]] if
+                                                                f != "None"]).strip("[]").replace('"', ''))
+        self.send_header(200)
+        self.send_data(data)
 
     def die(self):
         self.send_header(200)
@@ -227,13 +224,12 @@ class Handler(Thread):
 
     def dl(self):
         try:
-            with open(str(settings_file.images_path + self.request['params']['id']), 'rb') as t:
+            with open(str(images_path + self.request['params']['id']), 'rb') as t:
                 temp = t.read()
         except FileNotFoundError:
             self.send_header(404)
-        except KeyError:
-            self.send_header(404)
-        except Exception:
+        except Exception as e:
+            print(e)
             self.send_header(500)
         else:
             self.send_header(200, self.request['params']['id'].split('.')[-1])
@@ -242,7 +238,7 @@ class Handler(Thread):
 
     def raw_dl(self):
         try:
-            with open(str(settings_file.images_path + self.request['params']['id']), 'rb') as j:
+            with open(str(images_path + self.request['params']['id']), 'rb') as j:
                 temp = j.read()
         except Exception:
             self.send_data(str(500))
@@ -301,17 +297,17 @@ class Handler(Thread):
 
 
 def run():
-    print("Server started at http://{}:{}".format(settings_file.web_ip, settings_file.web_port))
+    print("Server started at http://{}:{}".format(web_ip, web_port))
     tc = ThreadController()
     tc.start()
-    if settings_file.share_images is True:
+    if share_images is True:
         UDPsrv = UDPHandler()
         UDPsrv.start()
     else:
         pass
     sock = socket.socket()
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    sock.bind((settings_file.web_ip, settings_file.web_port))
+    sock.bind((web_ip, web_port))
     sock.listen(10)
     while True:
         try:
