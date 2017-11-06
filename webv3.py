@@ -262,7 +262,7 @@ class Handler(Thread):
                 self.send_header(200)
                 self.send_data('')
             else:
-                self.send_header(200, len(str(matched))))
+                self.send_header(200, len(str(matched)))
                 self.send_data(str(matched))
         except Exception:
             self.send_header(500)
