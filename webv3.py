@@ -158,7 +158,7 @@ class Handler(Thread):
 
     def results(self):
         try:
-            results =list(db.search(self.request["query"]['search'],
+            results = list(db.search(self.request["query"]['search'],
                                      self.request["query"]['remove'])
                            [int(self.request['params']['page']) - 1])
         except IndexError:
