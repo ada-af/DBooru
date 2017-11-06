@@ -99,11 +99,7 @@ class Handler(Thread):
             pass
         self.readiness = 1
 
-    def send_data(self, *data):
-        if len(data) > 1:
-            data = "".join(data)
-        else:
-            data = data[0]
+    def send_data(self, data):
         try:
             self.conn.send(data.encode())
         except AttributeError:
