@@ -67,7 +67,7 @@ class UDPHandler(Thread):
                 host = h
                 self.log_debug("[UDP] Received discovery from {} ({})".format(socket.gethostbyname(host), host))
                 h = str(socket.gethostbyname(socket.gethostname()))
-                h = h + ":" + str(web_port)
+                h = h + ":" + str(settings_file.web_port)
                 sock.sendto(h.encode(), (host, 29889))
 
     def run(self):
@@ -162,7 +162,8 @@ class Handler(Thread):
                            [int(self.request['params']['page']) - 1])
         except IndexError:
             self.send_header(404)
-        except Exception:
+        except Exception as e:
+            print(e)
             self.send_header(500)
         else:
             pictures = []
