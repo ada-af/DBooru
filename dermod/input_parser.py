@@ -1,11 +1,17 @@
 import settings_file
+from dermod.aliases import aliases
 
 def parser(string):
     string = string.replace("%2C", ',').replace("+", " ").replace("%25", "%")
     string = string.lower().split(',')
     half_parsed = []
     for i in string:
-        half_parsed.append(i.strip())
+        i = i.strip()
+        if i in aliases.keys():
+            i = aliases[i]
+        elif i in ["-"+x for x in aliases.keys()]:
+            i = "-"+aliases[i.strip("-")]
+        half_parsed.append(i)
     search = []
     remove = []
     for i in half_parsed:
@@ -13,10 +19,11 @@ def parser(string):
             remove.append(i.replace('-', ''))
         else:
             search.append(i)
+    search = [x for x in search if x != ''] # remove empty strings
     for i in remove:
         if i in search:
             search.remove(i)
-    return {"search": [x for x in search if x != ''], "remove": [x for x in remove if x != '']}
+    return {"search": search, "remove": [x for x in remove if x != '']}
 
 
 def json_parser(string):

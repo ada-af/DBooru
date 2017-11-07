@@ -26,6 +26,8 @@
         - [Special tags](#special-tags)
             - [Syntax](#syntax)
     - [Settings_file.py](#settings_filepy)
+    - [dermod/aliases.py](#dermodaliasespy)
+        - [Syntax](#syntax-1)
 
 <!-- /TOC -->
 
@@ -227,3 +229,19 @@ Enter this commands if prompt starts with `Search@DB>`
 | table_name            | String ("Text")               | Sets name for main table (No need to change)             |
 | discover_servers      | Bool (True/False)             | Enable checking for servers in LAN                       |
 | share_images          | Bool (True/False)             | Enable sharing in LAN                                    |
+
+## dermod/aliases.py
+
+Allows creating alias to tag, so you can find one tag using alias
+
+>Note: Aliasing alias won't work
+
+### Syntax
+
+```python
+aliases = {
+    "alias1": "aliased tag1",
+    "alias2": "aliased tag1",
+    "alias3": "aliased tag2"
+}
+```
