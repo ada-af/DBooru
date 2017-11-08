@@ -186,8 +186,7 @@ Enter this commands if prompt starts with `Search@DB>`
 >Works only for filtering searches
 >Example: width=100 (Works) while -width=100 (Doesn't works)
 
->These tags support **`*`** (asterisk)
->Example: "safe, ratio=1.2*" will return images tagged 'safe' and image aspect ratio 1.20 or 1.23 or 1.288889 etc.
+>Tip: `ratio` contains 10 symbols maximum
 
 1. `height`
 1. `width`

@@ -1,7 +1,6 @@
 import os
 import sqlite3
 import sys
-import re
 
 from dermod import input_parser as ip
 import settings_file
@@ -162,15 +161,14 @@ def special_f(specials):
             else:
                 pass
         i = i.split(splitter)
-        value = i[1].replace("*", "%")
         if i[0] == 'height':
-            results = src(value, i[0], splitter)
+            results = src(i[1], i[0], splitter)
             conn.commit()
         elif i[0] == 'width':
-            results = src(value, i[0], splitter)
+            results = src(i[1], i[0], splitter)
             conn.commit()
         elif i[0] == 'ratio' or i[0] == 'aspect_ratio':
-            results = src(value[:10], 'ratio', splitter)
+            results = src(i[1][:10], 'ratio', splitter)
             conn.commit()
     if len(results) == 0:
         results = []
