@@ -158,20 +158,6 @@ checked_pages = 25
 # Example: (follower_sleep = 600) # Checks every 600 seconds = 10 minutes
 follower_sleep = 1800
 
-# DEPRECATED {
-#
-# Defines how many pages should be checked
-# Format: pages_num = int
-# Example: (pages_num = 500)
-# pages_num = 1000
-#
-#
-# Defines how many threads can be used for downloading images
-# Do not set values bigger than 30 while using tor
-# Format: max_threads = int
-# Example: (max_threads = 15)
-# max_threads = 30
-# }
 
 # DO NOT CHANGE #
 # Due to some serious shit never change these settings or everything will fuck up.
