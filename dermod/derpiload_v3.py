@@ -156,7 +156,7 @@ class ThreadController(Thread):
                     p = p + 1
 
 
-def run(file, check_files=True):
+def run(file, check_files=True, check_local=True):
     tc = ThreadController()
     tc.start()
     if settings_file.suppressor is True:
@@ -166,7 +166,8 @@ def run(file, check_files=True):
         os.mkdir(settings_file.images_path)
     except FileExistsError:
         pass
-    k = udp_check()
+    if check_local is True:
+        k = udp_check()
     parsed = ip.name_tag_parser(file)
     chk = len(parsed)
     print("\rLoading Images" + " " * 16, flush=True, end='')
