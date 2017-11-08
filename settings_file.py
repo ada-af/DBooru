@@ -12,7 +12,7 @@ user_api_key = "KEY GOES HERE"
 # Output Errors
 # There will be over 9000 errors. Do not set False unless you are developer or someone who know programming
 # Format: suppress_errors = bool # Example: (suppress_errors = True)
-suppress_errors = False
+suppress_errors = True
 
 # Disable requests verifying
 # Useful when connecting to derpibooru through tor
