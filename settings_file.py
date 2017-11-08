@@ -140,15 +140,23 @@ discover_servers = True
 # Example: (share_images = False)
 share_images = True
 
-# NOT IMPLEMENTED {
-#
-# Defines name (or path and name) for temporary follow file
-# Format: follow_file = string
-# Example_windows: (follow_file = "follow_ids.txt" or follow_file = "C:/User/Temp/Filename.dat")
-# Example_linux: (follow_file = "follow_ids.txt" or follow_file = "/home/vasyan/follow_ids.txt")
-# follow_file = "follow_ids.txt"
-#
-# }
+
+# Following settings
+
+# Enable or Disable running follower with webUI
+# Format: run_follower = bool
+# Example: (run_follower = False)
+run_follower = True
+
+# Defines amount of pages to check
+# Format: checked_pages = int
+# Example: (checked_pages = 10)
+checked_pages = 25
+
+# Defines time between checking again
+# Format: follower_sleep = int
+# Example: (follower_sleep = 600) # Checks every 600 seconds = 10 minutes
+follower_sleep = 1800
 
 # DEPRECATED {
 #

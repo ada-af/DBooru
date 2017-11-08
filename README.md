@@ -28,6 +28,8 @@
     - [Settings_file.py](#settings_filepy)
     - [dermod/aliases.py](#dermodaliasespy)
         - [Syntax](#syntax-1)
+    - [dermod/follow.py](#dermodfollowpy)
+            - [How Api works](#how-api-works)
 
 <!-- /TOC -->
 
@@ -131,6 +133,7 @@ Enter this commands if prompt starts with `DB>`
 | get images         | Downloads images that you liked/favorited on Derpibooru                                 |
 | get images -f      | Downloads images without checking file existance                                        |
 | get images --force | Same as get images -f                                                                   |
+| get images --fast  | Checks for new images and downloads them using follower's settings
 | total              | Prints amount of entries in local DB                                                    |
 | count \<tag\>      | Prints amount of entries tagged with \<tag\>                                            |
 | show \<image_id>   | Opens image in image viewer or browser if no viewers found                              |
@@ -152,7 +155,7 @@ Enter this commands if prompt starts with `Search@DB>`
 ### Web
 
 | Endpoint               | Method | Parameters                          | Description                      | Returns                                                   |
-| ---------------------- | ------ | ----------------------------------- | -------------------------------- | --------------------------------------------------------- |
+| :----------------------: | :------: | ----------------------------------- | -------------------------------- | --------------------------------------------------------- |
 | "/"                    | GET    |                                     | Main page                        | HTML-page                                                 |
 | "/"                    | GET    | query=**search_query** page=**int** | Search images                    | HTML-page and HTTP headers and status code                |
 | "/export"              | GET    | id=**filename**                     | Exports image to <export_path>   | Plain text data ("Done") and HTTP headers and status code |
@@ -202,6 +205,7 @@ Enter this commands if prompt starts with `Search@DB>`
 1. **`<=`** or **`=<`** means less or equal to \<value>
 >Example: 'safe, width>100" will return images tagged with 'safe' tag and image width bigger than 100px
 
+
 ## Settings_file.py
 
 | Option                | Format                        | Description                                              |
@@ -228,6 +232,10 @@ Enter this commands if prompt starts with `Search@DB>`
 | table_name            | String ("Text")               | Sets name for main table (No need to change)             |
 | discover_servers      | Bool (True/False)             | Enable checking for servers in LAN                       |
 | share_images          | Bool (True/False)             | Enable sharing in LAN                                    |
+| run_follower          | Bool (True/False)             | Enable checking for new images while webUI runs          |
+| <div id="checked">checked_pages</div>         | Integer (number)              | How many pages should be checked                         |
+| follower_sleep        | Integer (seconds)             | Defines time between checking for images                 |
+
 
 ## dermod/aliases.py
 
@@ -244,3 +252,19 @@ aliases = {
     "alias3": "aliased tag2"
 }
 ```
+
+
+## dermod/follow.py
+
+Checks first pages of derpibooru api and downloads liked/faved images
+
+>Due to `follow.py` implementation and nature of derpibooru api it won't download images that was uploaded long ago and liked now  
+In that case you should use "`get images`" command of [CLI-version](#cli-version)
+
+#### How Api works
+
+>Before faving `Image1334`:  
+    Image1337, Image1336, Image1332...
+
+>After faving:  
+    Image1337, Image1336, `Image1334`, Image1332...

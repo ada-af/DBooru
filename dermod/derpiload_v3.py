@@ -30,8 +30,6 @@ class Timer(Thread):
         time.sleep(self.time)
         if self.done == 0:
             raise Timeouted
-        else:
-            pass
 
     def stop(self):
         self.done = 1
@@ -96,8 +94,6 @@ class Loader(Thread):
             with open(settings_file.images_path + self.id + '.' + self.format, 'wb') as file:
                 file.write(self.raw_data)
                 file.flush()
-        else:
-            pass
 
 
 def udp_check():

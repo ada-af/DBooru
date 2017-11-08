@@ -4,7 +4,7 @@ import shutil
 import webbrowser
 
 from dermod import input_parser as ip
-from dermod import db, derpilist_v2, derpiload_v3
+from dermod import db, derpilist_v2, derpiload_v3, follow
 import settings_file
 
 
@@ -21,6 +21,9 @@ def show_help(case):
     if str(case) == "1":
         print("<any tags, split, by comma> to search in DB")
         print("<get images> loads every picture you faved/upvoted (may be changed in settings_file.py)")
+        print("<get images -f> loads every picture you faved/upvoted Downloads images without checking file existance")
+        print("<get images --force> same as <get images -f>")
+        print("<get images --fast> checks for new images and downloads them using follower")
         print("<total> prints amount of pictures you have in DB")
         print("<count <tag>> prints amount of pictures tagged by <tag>")
         print("<show <id>> opens image in default image viewer")
@@ -105,7 +108,7 @@ def main_cycle():
         shutil.rmtree('tmp')
         os.remove(settings_file.ids_file)
         print("Image index is up-to-date")
-    if inp == "get images --force" or inp == "get images -f":  
+    elif inp == "get images --force" or inp == "get images -f":  
         derpilist_v2.run()
         derpiload_v3.run(settings_file.ids_file, check_files=False)
         db.fill_db()
@@ -113,6 +116,8 @@ def main_cycle():
         shutil.rmtree('tmp')
         os.remove(settings_file.ids_file)
         print("Image index is up-to-date")
+    elif inp == "get images --fast":
+        follow.run(run_once=True)
     elif inp == "total":  
         db.total_found()
     elif "count" in inp:  

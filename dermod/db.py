@@ -21,8 +21,6 @@ def suppress_errs(supp):
     if supp is True:
         suppressor = open(os.devnull, 'w')
         sys.stderr = suppressor
-    else:
-        pass
 
 
 def errors_init():  
@@ -57,11 +55,10 @@ def mkdb(table_name):
     conn.commit()
 
 
-def fill_db():  
+def fill_db(file=settings_file.ids_file):  
     print("\nFilling DB")
     init_db()
-    mkdb(settings_file.table_name)
-    unparsed = open(settings_file.ids_file).read()
+    unparsed = open(file).read()
     halfparsed = unparsed.strip("\n").split("\n")
     for i in halfparsed:
         i = i.split(",,,")
@@ -158,8 +155,6 @@ def special_f(specials):
         for k in i:
             if k == "=" or k == "<" or k == ">":
                 splitter += str(k)
-            else:
-                pass
         i = i.split(splitter)
         if i[0] == 'height':
             results = src(i[1], i[0], splitter)

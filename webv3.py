@@ -8,7 +8,7 @@ from threading import Thread
 
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
-from dermod import db, predict
+from dermod import db, predict, follow
 import settings_file
 
 
@@ -98,6 +98,7 @@ class Handler(Thread):
         except Exception:
             pass
         self.readiness = 1
+        quit(0)
 
     def send_data(self, data):
         try:
@@ -303,18 +304,19 @@ class Handler(Thread):
 
 
 def run():
-    print("Server started at http://{}:{}".format(settings_file.web_ip, settings_file.web_port))
     tc = ThreadController()
     tc.start()
     if settings_file.share_images is True:
         UDPsrv = UDPHandler()
         UDPsrv.start()
-    else:
-        pass
+    if settings_file.run_follower is True:
+        follower = Thread(target=follow.run)
+        follower.start()
     sock = socket.socket()
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((settings_file.web_ip, settings_file.web_port))
     sock.listen(10)
+    print("Server started at http://{}:{}".format(settings_file.web_ip, settings_file.web_port))
     while True:
         try:
             conn, addr = sock.accept()

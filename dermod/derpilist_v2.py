@@ -30,8 +30,6 @@ class Timer(Thread):
         time.sleep(self.time)
         if self.done == 0:
             raise Timeouted
-        else:
-            pass
 
     def stop(self):
         self.done = 1
@@ -173,28 +171,31 @@ class Checker(Thread):
             tmp = f.read()
         if len(tmp) == 0 and re.match('{"search":\[\]', self.raw_data).group() != '{"search":[]':
             self.run()
-        else:
-            pass
         self.readiness = 1
 
 
-def run():
+def run(follower=False, pages_num=0, file=settings_file.ids_file):
     if settings_file.suppressor is True:
         suppress = open(os.devnull, 'w')
         sys.stderr = suppress
-    pages_num = 0
-    k = False
-    while k is False:
-        pages_num += 50
-        print('\rFinding max page... (Checking Page {})'.format(pages_num), flush=True, end='')
-        dat = requests.get(
-            "https://{}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
-                settings_file.domain,
-                settings_file.vote,
-                pages_num,
-                settings_file.user_api_key), verify=settings_file.ssl_verify, timeout=10)
-        if re.match('{"search":\[\]', dat.content.decode()) is not None:
-            k = True
+
+    if follower is True:
+        pass
+    else:
+        pages_num = 0
+        k = False
+        while k is False:
+            pages_num += 50
+            print('\rFinding max page... (Checking Page {})'.format(pages_num), flush=True, end='')
+            dat = requests.get(
+                "https://{}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
+                    settings_file.domain,
+                    settings_file.vote,
+                    pages_num,
+                    settings_file.user_api_key), verify=settings_file.ssl_verify, timeout=10)
+            if re.match('{"search":\[\]', dat.content.decode()) is not None:
+                k = True
+    
     k = False
     while k is False:
         try:
@@ -229,7 +230,7 @@ def run():
             c += 1
     del tc
     print("Concatenating files...")
-    with open(settings_file.ids_file, 'w') as f:
+    with open(file, 'w') as f:
         for i in range(pages_num+1):
             print("\rProcessing file {}.txt  ".format(i), end='', flush=True)
             with open('tmp/{}.txt'.format(i), 'r') as tmp:
