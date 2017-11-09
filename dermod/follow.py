@@ -13,9 +13,12 @@ def run(run_once=False):
         sys.stderr = silencer
     while True:
         print("Checking new images")
-        derpilist_v2.run(follower=True, pages_num=settings_file.checked_pages)
-        derpiload_v3.run(file=settings_file.ids_file, check_local=False)
-        db.fill_db(file=settings_file.ids_file)
+        try:
+            derpilist_v2.run(follower=True, pages_num=settings_file.checked_pages)
+            derpiload_v3.run(file=settings_file.ids_file, check_local=False)
+            db.fill_db(file=settings_file.ids_file)
+        except Exception as exc:
+            print("Exception occured: "+exc.with_traceback(None))
         print("Cleanup")
         shutil.rmtree('tmp')
         os.remove(settings_file.ids_file)

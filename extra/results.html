@@ -102,7 +102,6 @@
     <script type="application/javascript">
         function update_datalist() {{
             document.getElementById('search').innerHTML = '';
-            //phrase = document.getElementById('inp').value;
             phrase = this.value;
             xhr = new XMLHttpRequest();
             xhr.open("GET", '/predict?phrase='+phrase, true);
