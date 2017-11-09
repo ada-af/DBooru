@@ -118,7 +118,7 @@ def udp_check():
         except socket.timeout:
             pass
         del sock, sock1
-        if k == '' or socket.gethostbyname(socket.gethostname) == k[0]:
+        if k == '' or socket.gethostbyname(socket.gethostname()) == k[0]:
             print("\rNo servers found                 ", flush=True, end='')
             k = False
         else:
