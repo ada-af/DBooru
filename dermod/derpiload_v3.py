@@ -115,7 +115,7 @@ def udp_check():
             if k is not '' and k is not b'':
                 k = k.decode()
                 k = (socket.gethostbyname(k.split(":")[0]), int(k.split(":")[1]))
-                if socket.gethostbyname(socket.gethostname) == k[0]
+                if socket.gethostbyname(socket.gethostname) == k[0]:
                     k = False
                 else:
                     break
