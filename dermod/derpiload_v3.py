@@ -168,6 +168,8 @@ def run(file, check_files=True, check_local=True):
         pass
     if check_local is True:
         k = udp_check()
+    else:
+        k = False
     parsed = ip.name_tag_parser(file)
     chk = len(parsed)
     print("\rLoading Images" + " " * 16, flush=True, end='')
