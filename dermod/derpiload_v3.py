@@ -62,6 +62,7 @@ class Loader(Thread):
         self.writer()
         self.readiness = 1
         del self.raw_data
+        quit(0)
 
     def get_locally(self):
         sock = socket.socket()
