@@ -93,14 +93,14 @@ class Checker(Thread):
             self.raw_data = requests.get(
                 "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
                 "&page={}".format(self.page) +
-                "&key={}".format(self.api_key), verify=settings_file.ssl_verify, timeout=10)
+                "&key={}".format(self.api_key), verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             self.raw_data = self.raw_data.content.decode()
         else:
             self.raw_data = requests.get(
                 "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
                 "&page={}".format(self.page) +
                 "&key={}".format(self.api_key),
-                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify, timeout=10)
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
@@ -169,9 +169,10 @@ class Checker(Thread):
         self.writer()
         with open('tmp/{}.txt'.format(self.page), 'r') as f:
             tmp = f.read()
-        if len(tmp) == 0 and re.match('{"search":\[\]', self.raw_data).group() != '{"search":[]':
+        if len(tmp) == 0 and re.match('{"search":\[\]', self.raw_data) is None:
             self.run()
         self.readiness = 1
+        quit()
 
 
 def run(follower=False, pages_num=0, file=settings_file.ids_file):
@@ -192,7 +193,7 @@ def run(follower=False, pages_num=0, file=settings_file.ids_file):
                     settings_file.domain,
                     settings_file.vote,
                     pages_num,
-                    settings_file.user_api_key), verify=settings_file.ssl_verify, timeout=10)
+                    settings_file.user_api_key), verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             if re.match('{"search":\[\]', dat.content.decode()) is not None:
                 k = True
     
