@@ -159,6 +159,18 @@ checked_pages = 25
 follower_sleep = 1800
 
 
+# Threading
+
+# Defines maximum running threads before blocking creating new threads
+# Format: thread_cap = int
+# Example: (thread_cap = 200) # New threads won't be created after reaching this value
+thread_cap = 100
+
+# Defines amount of threads to remove block
+# Format: thread_thresh = int
+# Example: (thread_thresh = 200) # New threads will be created after reaching this value
+thread_thresh = 50
+
 # DO NOT CHANGE #
 # Due to some serious shit never change these settings or everything will fuck up.
 suppressor = suppress_errors
