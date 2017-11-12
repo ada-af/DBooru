@@ -3,6 +3,10 @@
 <!-- TOC -->
 
 - [DBooru](#dbooru)
+    - [Branching](#branching)
+        - [Master](#master)
+        - [Next](#next)
+        - [Exp/Fixes/Test](#expfixestest)
     - [Features](#features)
         - [Both versions](#both-versions)
         - [CLI-version](#cli-version)
@@ -22,8 +26,37 @@
         - [Special tags](#special-tags)
             - [Syntax](#syntax)
     - [Settings_file.py](#settings_filepy)
+    - [dermod/aliases.py](#dermodaliasespy)
+        - [Syntax](#syntax-1)
+    - [dermod/follow.py](#dermodfollowpy)
+            - [How Api works](#how-api-works)
 
 <!-- /TOC -->
+
+## Branching
+### Master
+
+1. Stable branch
+1. Rare updates
+1. Lots of changes per update
+
+### Next
+
+1. Very unstable
+1. Lots of commits
+1. Lots of updates
+1. New features 
+1. Broken old features
+1. Rare commit messages
+1. If there a commit message then "Minor changes"*  
+    *Minor changes may include removal of half of all code
+
+### Exp/Fixes/Test
+
+1. If there brach like Exp/Fixes/Test then only working branch is [Master](#master)
+1. Nothing works
+1. Lots of commits
+1. Contains something new
 
 ## Features
 ### Both versions
@@ -40,18 +73,19 @@
 1. Downloading images
 1. Exporting images
 1. Sharing images for LAN-clients (Turnable option)
+1. Tag predictions
+1. Change page with ← or → arrows
 
 
 ## Installation
 ### Dependencies
->- Python 3.6+
+>- Python 3.4+ or PyPy3 5.9.0+
 >- pip
 >- requests
 >- requests[security]
 >- pysocks
 >- idna
 >- cryptography
->- netifaces
 >
 >If you have PyOpenSSL installed - remove it
 >
@@ -63,10 +97,10 @@
 1. (Optionally) Change other settings (View [Settings_file.py](#settings_filepy))
 
 ### How to run
-1. Run `python main.py`
+1. Run `python main.py` or `pypy3 main.py`
 1. Type in "get images"
 1. Wait
-1. Search or run `python webv3.py`
+1. Search or run `python webv3.py` or `pypy3 webv3.py`
 1. ???
 1. PROFIT
 
@@ -97,8 +131,9 @@ Enter this commands if prompt starts with `DB>`
 | ------------------ | --------------------------------------------------------------------------------------- |
 | help               | Shows in-app help                                                                       |
 | get images         | Downloads images that you liked/favorited on Derpibooru                                 |
-| get images -f      | Downloads images without checking file existance that you liked/favorited on Derpibooru |
+| get images -f      | Downloads images without checking file existance                                        |
 | get images --force | Same as get images -f                                                                   |
+| get images --fast  | Checks for new images and downloads them using follower's settings
 | total              | Prints amount of entries in local DB                                                    |
 | count \<tag\>      | Prints amount of entries tagged with \<tag\>                                            |
 | show \<image_id>   | Opens image in image viewer or browser if no viewers found                              |
@@ -120,7 +155,7 @@ Enter this commands if prompt starts with `Search@DB>`
 ### Web
 
 | Endpoint               | Method | Parameters                          | Description                      | Returns                                                   |
-| ---------------------- | ------ | ----------------------------------- | -------------------------------- | --------------------------------------------------------- |
+| :----------------------: | :------: | ----------------------------------- | -------------------------------- | --------------------------------------------------------- |
 | "/"                    | GET    |                                     | Main page                        | HTML-page                                                 |
 | "/"                    | GET    | query=**search_query** page=**int** | Search images                    | HTML-page and HTTP headers and status code                |
 | "/export"              | GET    | id=**filename**                     | Exports image to <export_path>   | Plain text data ("Done") and HTTP headers and status code |
@@ -154,8 +189,7 @@ Enter this commands if prompt starts with `Search@DB>`
 >Works only for filtering searches
 >Example: width=100 (Works) while -width=100 (Doesn't works)
 
->These tags support **`*`** (asterisk)
->Example: "safe, ratio=1.2*" will return images tagged 'safe' and image aspect ratio 1.20 or 1.23 or 1.288889 etc.
+>Tip: `ratio` contains 10 symbols maximum
 
 1. `height`
 1. `width`
@@ -171,12 +205,15 @@ Enter this commands if prompt starts with `Search@DB>`
 1. **`<=`** or **`=<`** means less or equal to \<value>
 >Example: 'safe, width>100" will return images tagged with 'safe' tag and image width bigger than 100px
 
+
 ## Settings_file.py
 
 | Option                | Format                        | Description                                              |
 | --------------------- | ----------------------------- | -------------------------------------------------------- |
 | user_api_key          | String ("Text")               | Defines derpibooru api key                               |
 | suppress_errors       | Bool (True/False)             | Prints errors and stacktrace in case of happening        |
+| ssl_verify            | Bool (True/False) or String ("Path") | Enable/Disable ssl verification or set custom CA Cert |
+| domain                | String ("Domain.name")        | Set derpibooru domain (use for accessing through tor)
 | enable_proxy          | Bool (True/False)             | Enables/Disables proxy for requests to derpibooru.org    |
 | derpicdn_enable_proxy | Bool (True/False)             | Enables/Disables proxy for requests to derpicdn.net      |
 | socks5_proxy_ip       | String ("IP")                 | Sets proxy IP                                            |
@@ -193,6 +230,41 @@ Enter this commands if prompt starts with `Search@DB>`
 | ids_file              | String ("Path/Filename")      | Name for tempfile (No need to change)                    |
 | db_name               | String ("Path/Filename")      | Where to store DB file                                   |
 | table_name            | String ("Text")               | Sets name for main table (No need to change)             |
-| br_ip                 | String ("IP") or Bool (False) | Sets Broadcast IP                                        |
 | discover_servers      | Bool (True/False)             | Enable checking for servers in LAN                       |
 | share_images          | Bool (True/False)             | Enable sharing in LAN                                    |
+| run_follower          | Bool (True/False)             | Enable checking for new images while webUI runs          |
+| <div id="checked">checked_pages</div>         | Integer (number)              | How many pages should be checked                         |
+| follower_sleep        | Integer (seconds)             | Defines time between checking for images                 |
+
+
+## dermod/aliases.py
+
+Allows creating alias to tag, so you can find one tag using alias
+
+>Note: Aliasing alias won't work
+
+### Syntax
+
+```python
+aliases = {
+    "alias1": "aliased tag1",
+    "alias2": "aliased tag1",
+    "alias3": "aliased tag2"
+}
+```
+
+
+## dermod/follow.py
+
+Checks first pages of derpibooru api and downloads liked/faved images
+
+>Due to `follow.py` implementation and nature of derpibooru api it won't download images that was uploaded long ago and liked now  
+In that case you should use "`get images`" command of [CLI-version](#cli-version)
+
+#### How Api works
+
+>Before faving `Image1334`:  
+    Image1337, Image1336, Image1332...
+
+>After faving:  
+    Image1337, Image1336, `Image1334`, Image1332...
