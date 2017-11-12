@@ -66,7 +66,10 @@ class UDPHandler(Thread):
             if h != b'':
                 h = h.decode()
                 host = h
-                self.log_debug("[UDP] Received discovery from {} ({})".format(socket.gethostbyname(host), host))
+                try:
+                    self.log_debug("[UDP] Received discovery from {} ({})".format(socket.gethostbyname(host), host))
+                except Exception:
+                    self.log_debug("[UDP] Received discovery from '' ({})".format(host))
                 h = str(socket.gethostbyname(socket.gethostname()))
                 h = h + ":" + str(settings_file.web_port)
                 sock.sendto(h.encode(), (host, 29889))
