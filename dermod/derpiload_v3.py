@@ -103,6 +103,7 @@ def udp_check():
         sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         p = socket.gethostname()
+        p = socket.gethostbyname(p)
         h = str.encode(p)
         broadcast_ip = '255.255.255.255'
         sock.sendto(h, (broadcast_ip, 29888))

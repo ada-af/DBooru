@@ -67,7 +67,7 @@ class UDPHandler(Thread):
                 h = h.decode()
                 host = h
                 try:
-                    self.log_debug("[UDP] Received discovery from {} ({})".format(socket.gethostbyname(host), host))
+                    self.log_debug("[UDP] Received discovery from {} ({})".format(host, socket.gethostbyname(host)))
                 except Exception:
                     self.log_debug("[UDP] Received discovery from '' ({})".format(host))
                 h = str(socket.gethostbyname(socket.gethostname()))
