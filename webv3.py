@@ -177,17 +177,17 @@ class Handler(Thread):
             for i in sorted(list(set(pictures)), key=lambda tup: tup[0], reverse=True):
                 if i[0].split('.')[1] != 'webm':
                     try:
-                        p += """<div class='g-item'><abbr title="{}"><img src="
-                    /images/{}" onclick="sclick('{}')" class="img-fluid"></abbr></div>""" \
+                        p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
+                    /images/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
                             .format(str(i[1:-3]).strip('()').replace("'", ''), i[0], i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
                 elif i[0].split('.')[1] == 'webm':
-                    p += """<div class='g-item'><abbr title="{}">
-                             <video class="img-fluid" preload='auto' muted onclick="sclick('{}')">
+                    p += """<div class="cont"><div class='g-item'><abbr title="{}">
+                             <video class="img-fluid g-item" preload='auto' muted onclick="sclick('{}')">
                              <source src="{}{}"/>
                              </video>
-                             </abbr></div>""".format(str(i[1:-3]).strip('()').replace("'", ''),
+                             </abbr></div></div>""".format(str(i[1:-3]).strip('()').replace("'", ''),
                                                      i[0].split('.')[0],
                                                      settings_file.images_path, i[0])
             try:
