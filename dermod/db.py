@@ -15,6 +15,13 @@ def precomp():
     tag_col = tag_col[:-2]
     tag_col_full = tag_col + ', height, width, ratio'
     tag_col_serv = 'height, width, ratio'
+    init_db()
+    t = True
+    for i in cursor.execute("select * from sqlite_master").fetchall():
+        if settings_file.table_name in i:
+            t = False
+    if t is True:
+        mkdb(settings_file.table_name)
 
 
 def suppress_errs(supp):  
