@@ -67,6 +67,7 @@ def fill_db(file=settings_file.ids_file):
     init_db()
     unparsed = open(file).read()
     halfparsed = unparsed.strip("\n").split("\n")
+    cnt = 0
     for i in halfparsed:
         i = i.split(",,,")
         k = i[6].split(",")
@@ -79,6 +80,10 @@ def fill_db(file=settings_file.ids_file):
         k = str(k).strip("[]").replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'')
         j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}')".format(settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5])
         cursor.execute(j)
+        if cnt == 10:
+            conn.commit()
+            cnt = 0
+    conn.commit()
     cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(table_name=settings_file.table_name))
     conn.commit()
 
