@@ -46,25 +46,33 @@ def json_parser(string):
 
 
 def json_parser_v2(string):
-    string = string.replace("'", '"')
     string = string.split('"id":"')[1:]
     ids = []
     form = []
     links = []
     tags = []
-    lst = []
+    height = []
+    width = []
+    ratio = []
     for i in string:
+        k = i.split('"width":')[1]
+        k = k.split(',')[0]
+        width.append(k)
+        k = i.split('"height":')[1]
+        k = k.split(',')[0]
+        height.append(k)
+        k = i.split('"aspect_ratio":')[1]
+        k = k.split(',')[0][:10]
+        ratio.append(k)
         ids.append(i.split('","')[0])
         k = i.split('original_format')[1]
         k = k.split('":"')[1].split('","')[0]
         form.append(k)
-        k = i.split('","large":"')[1]
-        k = k.split('","tall"')[0]
+        k = i.split('","full":"')[1]
+        k = k.split('"},"is_rendered"')[0]
         links.append(k)
-        tags.append(i.split('"tags":"')[1].split('","')[0])
-    for i in range(len(ids)):
-        lst.append(str(ids[i] + ',,,' + form[i] + ',,,' + links[i] + ',,,' + tags[i]))
-    return lst
+        tags.append(i.split('"tags":"')[1].split('"')[0])
+    return ids, form, links, tags, height, width, ratio
 
 
 def results_parser(list_tuple):
