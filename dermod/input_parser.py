@@ -38,8 +38,8 @@ def json_parser(string):
         k = i.split('original_format')[1]
         k = k.split('":"')[1].split('","')[0]
         form.append(k)
-        k = i.split('","large":"')[1]
-        k = k.split('","tall"')[0]
+        k = i.split('","full":"')[1]
+        k = k.split('"},"is_rendered"')[0]
         links.append(k)
         tags.append(i.split('"tags":"')[1].split('"')[0])
     return ids, form, links, tags
