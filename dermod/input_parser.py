@@ -26,25 +26,6 @@ def parser(string):
     return {"search": search, "remove": [x for x in remove if x != '']}
 
 
-def json_parser(string):
-    string = string.replace("'", '"')
-    string = string.split('"id":"')[1:]
-    ids = []
-    form = []
-    links = []
-    tags = []
-    for i in string:
-        ids.append(i.split('","')[0])
-        k = i.split('original_format')[1]
-        k = k.split('":"')[1].split('","')[0]
-        form.append(k)
-        k = i.split('","full":"')[1]
-        k = k.split('"},"is_rendered"')[0]
-        links.append(k)
-        tags.append(i.split('"tags":"')[1].split('"')[0])
-    return ids, form, links, tags
-
-
 def json_parser_v2(string):
     string = string.split('"id":"')[1:]
     ids = []
@@ -69,6 +50,7 @@ def json_parser_v2(string):
         k = k.split('":"')[1].split('","')[0]
         form.append(k)
         k = i.split('","full":"')[1]
+        k = k.split('","webm":"')[0]
         k = k.split('"},"is_rendered"')[0]
         links.append(k)
         tags.append(i.split('"tags":"')[1].split('"')[0])
@@ -96,22 +78,6 @@ def name_tag_parser(fname):
         parsed.append(i.split(',,,'))
     del unparsed, halfparsed
     return parsed
-
-
-def web_arg_parser(btes):
-    btes = btes.split()[1]
-    stroke = btes.decode()
-    stroke = stroke.split("?")[1]
-    stroke = stroke.split("&")
-    s_query = final = {}
-    for i in stroke:
-        s_query[i.split("=")[0]] = final[i.split("=")[0]] = i.split("=")[1]
-    try:
-        s_query = s_query['query'].replace("%2C", ',').replace("+", " ").replace("%25", "%")
-        final["query"] = parser(final["query"])
-    except Exception:
-        pass
-    return final, s_query
 
 
 def web_arg_parser_v2(params):
