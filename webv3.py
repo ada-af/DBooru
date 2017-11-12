@@ -318,7 +318,7 @@ def run():
     sock = socket.socket()
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((settings_file.web_ip, settings_file.web_port))
-    sock.listen(10)
+    sock.listen(64)
     print("Server started at http://{}:{}".format(settings_file.web_ip, settings_file.web_port))
     while True:
         try:
