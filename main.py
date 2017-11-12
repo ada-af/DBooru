@@ -1,4 +1,4 @@
-#!/bin/python
+#!python
 import os
 import shutil
 import webbrowser

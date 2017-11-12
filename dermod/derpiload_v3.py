@@ -108,7 +108,7 @@ def udp_check():
         sock.sendto(h, (broadcast_ip, 29888))
         sock1 = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock1.bind(('', 29889))
+        sock1.bind(('0.0.0.0', 29889))
         sock1.settimeout(2)
         k = ''
         try:
