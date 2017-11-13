@@ -236,7 +236,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | <div id="checked">checked_pages</div>         | Integer (number)              | How many pages should be checked                         |
 | follower_sleep        | Integer (seconds)             | Defines time between checking for images                 |
 | thread_cap            | Integer (number)              | Defines maximum running threads before blocking creating new threads |
-| thread_thresh         | Integer (number)              | Defines amount of threads to remove block                |
+| sleep_time            | integer (seconds)             | Defines time to wait before creating new thread after thread cap is reached |
 
 
 ## dermod/aliases.py
