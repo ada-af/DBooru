@@ -198,6 +198,10 @@ def run(file, check_files=True, check_local=True):
                 t.start()
                 tc.threads.append(t)
                 time.sleep(slp)
+                if len(tc.threads) < settings_file.thread_cap:
+                    pass
+                else:
+                    time.sleep(settings_file.sleep_time)
     else:
         for i in range(chk):
             print(
@@ -213,6 +217,10 @@ def run(file, check_files=True, check_local=True):
             t.start()
             tc.threads.append(t)
             time.sleep(slp)
+            if len(tc.threads) < settings_file.thread_cap:
+                pass
+            else:
+                time.sleep(settings_file.sleep_time)
     while len(tc.threads) > 0:
         gc.collect()
         print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 16, flush=True, end='')

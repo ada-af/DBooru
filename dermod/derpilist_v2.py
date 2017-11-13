@@ -9,6 +9,7 @@ from threading import Thread
 import requests
 
 import settings_file
+from dermod import input_parser as ip
 
 
 class Error(Exception):
@@ -105,32 +106,7 @@ class Checker(Thread):
 
     def parse_data(self):
         string = self.raw_data.replace("'", '"')
-        string = string.split('"id":"')[1:]
-        ids = []
-        form = []
-        links = []
-        tags = []
-        height = []
-        width = []
-        ratio = []
-        for i in string:
-            k = i.split('"width":')[1]
-            k = k.split(',')[0]
-            width.append(k)
-            k = i.split('"height":')[1]
-            k = k.split(',')[0]
-            height.append(k)
-            k = i.split('"aspect_ratio":')[1]
-            k = k.split(',')[0][:10]
-            ratio.append(k)
-            ids.append(i.split('","')[0])
-            k = i.split('original_format')[1]
-            k = k.split('":"')[1].split('","')[0]
-            form.append(k)
-            k = i.split('","large":"')[1]
-            k = k.split('","tall"')[0]
-            links.append(k)
-            tags.append(i.split('"tags":"')[1].split('"')[0])
+        ids, form, links, tags, height, width, ratio = ip.json_parser_v2(string)
         self.ids = ids
         self.form = form
         self.links = links

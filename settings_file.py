@@ -159,6 +159,19 @@ checked_pages = 25
 follower_sleep = 1800
 
 
+# Threading
+
+# Defines maximum running threads before waiting before creating new threads
+# Format: thread_cap = int
+# Example: (thread_cap = 200) # New threads will be created with delay after reaching this value
+thread_cap = 50
+
+# Defines time to wait after reaching thread cap
+# Format: sleep_time = int
+# Example: (sleep_time = 5) # Will wait 5 seconds before creating new thread
+sleep_time = 5
+
+
 # DO NOT CHANGE #
 # Due to some serious shit never change these settings or everything will fuck up.
 suppressor = suppress_errors
