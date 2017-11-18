@@ -1,12 +1,15 @@
-from threading import Thread
+import gc
+import os
+import re
 import shutil
 import sys
 import time
-import os
-import re
-import gc
-from settings_file import *
+from threading import Thread
+
 import requests
+
+import settings_file
+from dermod import input_parser as ip
 
 
 class Error(Exception):
@@ -22,10 +25,15 @@ class Timer(Thread):
     def __init__(self, to):
         Thread.__init__(self)
         self.time = to
+        self.done = 0
 
     def run(self):
         time.sleep(self.time)
-        raise Timeouted
+        if self.done == 0:
+            raise Timeouted
+
+    def stop(self):
+        self.done = 1
 
 
 class ThreadController(Thread):
@@ -50,6 +58,7 @@ class ThreadController(Thread):
             for i in self.threads:
                 if i.readiness == 1:
                     self.threads.remove(i)
+                    i.join()
                     del i
                     p = p + 1
 
@@ -58,6 +67,7 @@ class Checker(Thread):
 
     def __init__(self, all_pages, page, is_proxy, api_key, vote, proxy_ip, proxy_port):
         Thread.__init__(self)
+        self.domain = settings_file.domain
         self.readiness = 0
         self.compiled = ''
         self.pages = all_pages
@@ -75,53 +85,28 @@ class Checker(Thread):
         self.vote = vote
         self.ip = proxy_ip
         self.port = proxy_port
-        if suppressor is True:
+        if settings_file.suppressor is True:
             suppress = open(os.devnull, 'w')
             sys.stderr = suppress
 
     def get_data(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                f"https://derpibooru.org/search.json/?q=my:{self.vote}"
-                f"&page={self.page}"
-                f"&key={self.api_key}", verify=False)
+                "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
+                "&page={}".format(self.page) +
+                "&key={}".format(self.api_key), verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             self.raw_data = self.raw_data.content.decode()
         else:
             self.raw_data = requests.get(
-                f"https://derpibooru.org/search.json/?q=my:{self.vote}"
-                f"&page={self.page}"
-                f"&key={self.api_key}",
-                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=False)
+                "https://{}/search.json/?q=my:{}".format(self.domain, self.vote) +
+                "&page={}".format(self.page) +
+                "&key={}".format(self.api_key),
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
         string = self.raw_data.replace("'", '"')
-        string = string.split('"id":"')[1:]
-        ids = []
-        form = []
-        links = []
-        tags = []
-        height = []
-        width = []
-        ratio = []
-        for i in string:
-            k = i.split('"width":')[1]
-            k = k.split(',')[0]
-            width.append(k)
-            k = i.split('"height":')[1]
-            k = k.split(',')[0]
-            height.append(k)
-            k = i.split('"aspect_ratio":')[1]
-            k = k.split(',')[0][:10]
-            ratio.append(k)
-            ids.append(i.split('","')[0])
-            k = i.split('original_format')[1]
-            k = k.split('":"')[1].split('","')[0]
-            form.append(k)
-            k = i.split('","large":"')[1]
-            k = k.split('","tall"')[0]
-            links.append(k)
-            tags.append(i.split('"tags":"')[1].split('"')[0])
+        ids, form, links, tags, height, width, ratio = ip.json_parser_v2(string)
         self.ids = ids
         self.form = form
         self.links = links
@@ -142,47 +127,52 @@ class Checker(Thread):
             self.compiled += tmp
 
     def writer(self):
-        with open(f'tmp/{self.page}.txt', 'w') as f:
+        with open('tmp/{}.txt'.format(self.page), 'w+') as f:
             f.write(self.compiled)
             f.flush()
-            len(f)
+            len(f.read())
 
     def run(self):
-        timer = Timer(time_wait)
+        timer = Timer(settings_file.time_wait)
         try:
             timer.start()
             self.get_data()
-            self.parse_data()
-            self.compile()
-            self.writer()
+            timer.stop()
         except Exception:
             pass
-        del timer
-        if len(open(f'tmp/{self.page}.txt', 'r').read()) == 0 and re.match('{"search":\[\]',
-                                                                           self.raw_data).group() != '{"search":[]':
+        self.parse_data()
+        self.compile()
+        self.writer()
+        with open('tmp/{}.txt'.format(self.page), 'r') as f:
+            tmp = f.read()
+        if len(tmp) == 0 and re.match('{"search":\[\]', self.raw_data) is None:
             self.run()
-        else:
-            pass
         self.readiness = 1
+        quit()
 
 
-def run():
-    global user_api_key, vote, enable_proxy, socks5_proxy_ip, socks5_proxy_port, suppressor, ids_file
-    if suppressor is True:
+def run(follower=False, pages_num=0, file=settings_file.ids_file):
+    if settings_file.suppressor is True:
         suppress = open(os.devnull, 'w')
         sys.stderr = suppress
-    pages_num = 0
-    k = False
-    while k is False:
-        pages_num += 50
-        print(f'\rFinding max page... (Checking Page {pages_num})', flush=True, end='')
-        dat = requests.get(
-            "https://trixiebooru.org/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
-                vote,
-                pages_num,
-                user_api_key), verify=False)
-        if re.match('{"search":\[\]', dat.content.decode()) is not None:
-            k = True
+
+    if follower is True:
+        pass
+    else:
+        pages_num = 0
+        k = False
+        while k is False:
+            pages_num += 50
+            print('\rFinding max page... (Checking Page {})'.format(pages_num), flush=True, end='')
+            dat = requests.get(
+                "https://{}/search.json/?q=my:{}&page={}&filter_id=56027&key={}".format(
+                    settings_file.domain,
+                    settings_file.vote,
+                    pages_num,
+                    settings_file.user_api_key), verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
+            if re.match('{"search":\[\]', dat.content.decode()) is not None:
+                k = True
+    
     k = False
     while k is False:
         try:
@@ -195,18 +185,21 @@ def run():
                 pass
     tc = ThreadController()
     tc.start()
+    if "PyPy" in sys.version:
+        slp = 0.1
+    else:
+        slp = 0.2
     for i in range(pages_num+1):
         gc.collect()
-        print(f"\rChecking page {i} of {pages_num} ({format((i/pages_num)*100, '.4g')}% done)"
-              f" (Running threads {len(tc.threads)})          ", flush=True, end='')
-        t = Checker(pages_num, i, enable_proxy, user_api_key, vote, socks5_proxy_ip, socks5_proxy_port)
+        print("\rChecking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end='')
+        t = Checker(pages_num, i, settings_file.enable_proxy, settings_file.user_api_key, settings_file.vote, settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port)
         t.start()
         tc.threads.append(t)
-        time.sleep(0.2)
+        time.sleep(slp)
     c = 0
     while len(tc.threads) > 0:
         gc.collect()
-        print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " "*16, flush=True, end='')
+        print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " "*16, flush=True, end='')
         if c >= 5 and len(tc.threads) < 10:
             tc.threads = []
         else:
@@ -214,9 +207,10 @@ def run():
             c += 1
     del tc
     print("Concatenating files...")
-    with open(ids_file, 'w') as f:
+    with open(file, 'w') as f:
         for i in range(pages_num+1):
-            print(f"\rProcessing file {i}.txt  ", end='', flush=True)
-            f.write(open(f'tmp/{i}.txt', 'r').read())
+            print("\rProcessing file {}.txt  ".format(i), end='', flush=True)
+            with open('tmp/{}.txt'.format(i), 'r') as tmp:
+                f.write(tmp.read())
             f.flush()
             time.sleep(0.01)

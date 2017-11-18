@@ -1,13 +1,15 @@
 import gc
-import netifaces
-from threading import Thread
 import os
-import sys
-from . import input_parser as ip
-from settings_file import *
 import socket
+import sys
 import time
+from threading import Thread
+
 import requests
+
+import settings_file
+
+from . import input_parser as ip
 
 
 class Error(Exception):
@@ -26,7 +28,11 @@ class Timer(Thread):
 
     def run(self):
         time.sleep(self.time)
-        raise Timeouted
+        if self.done == 0:
+            raise Timeouted
+
+    def stop(self):
+        self.done = 1
 
 
 class Loader(Thread):
@@ -41,32 +47,27 @@ class Loader(Thread):
         self.ip = proxy_ip
         self.port = proxy_port
         self.local = is_local
-        global suppressor
-        if suppressor is True:
+        if settings_file.suppressor is True:
             suppress = open(os.devnull, 'w')
             sys.stderr = suppress
 
     def run(self):
-        try:
-            timer = Timer(time_wait)
-            timer.start()
-            if self.local is not False:
-                try:
-                    self.get_locally()
-                except Exception:
-                    self.get_raw_image()
-            else:
+        if self.local is not False:
+            try:
+                self.get_locally()
+            except Exception:
                 self.get_raw_image()
-            self.writer()
-        except Timeouted():
-            pass
+        else:
+            self.get_raw_image()
+        self.writer()
         self.readiness = 1
         del self.raw_data
+        quit(0)
 
     def get_locally(self):
         sock = socket.socket()
         sock.connect(self.local)
-        request = f"GET /raw?id={self.id+'.'+self.format} HTTP/1.1"
+        request = "GET /raw?id={} HTTP/1.1".format(self.id+'.'+self.format)
         sock.sendall(request.encode())
         while True:
             k = sock.recv(1024)
@@ -81,45 +82,34 @@ class Loader(Thread):
     def get_raw_image(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                f"https:{self.url}", verify=False).content
+                "https:{}".format(self.url), verify=settings_file.ssl_verify).content
         else:
             self.raw_data = requests.get(
-                f"https:{self.url}",
-                proxies=dict(https=f'socks5://{self.ip}:{self.port}'), verify=False).content
+                "https:{}".format(self.url),
+                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify).content
 
     def writer(self):
         try:
-            open(images_path + self.id + '.' + self.format, 'rb')
+            open(settings_file.images_path + self.id + '.' + self.format, 'rb').close()
         except FileNotFoundError:
-            with open(images_path + self.id + '.' + self.format, 'wb') as file:
+            with open(settings_file.images_path + self.id + '.' + self.format, 'wb') as file:
                 file.write(self.raw_data)
                 file.flush()
-        else:
-            pass
 
 
 def udp_check():
-    if discover_servers is True:
+    if settings_file.discover_servers is True:
         print("\rChecking for local servers..." + " " * 16, flush=True, end='')
         sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         p = socket.gethostname()
+        p = socket.gethostbyname(p)
         h = str.encode(p)
-        if br_ip is False:
-            broadcast_ip = ''
-            for i in netifaces.interfaces():
-                if 2 in netifaces.ifaddresses(i):
-                    if 'broadcast' in netifaces.ifaddresses(i)[2][0]:
-                        broadcast_ip = netifaces.ifaddresses(i)[2][0]['broadcast']
-                        break
-            if broadcast_ip == '':
-                broadcast_ip = '192.168.1.255'
-        else:
-            broadcast_ip = br_ip
+        broadcast_ip = '255.255.255.255'
         sock.sendto(h, (broadcast_ip, 29888))
         sock1 = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock1.bind(('', 29889))
+        sock1.bind(('0.0.0.0', 29889))
         sock1.settimeout(2)
         k = ''
         try:
@@ -130,7 +120,7 @@ def udp_check():
         except socket.timeout:
             pass
         del sock, sock1
-        if k == '':
+        if k == '' or socket.gethostbyname(socket.gethostname()) == k[0]:
             print("\rNo servers found                 ", flush=True, end='')
             k = False
         else:
@@ -163,65 +153,80 @@ class ThreadController(Thread):
             for i in self.threads:
                 if i.readiness == 1:
                     self.threads.remove(i)
+                    i.join()
                     del i
                     p = p + 1
 
 
-def run(file, check_files=True):
+def run(file, check_files=True, check_local=True):
     tc = ThreadController()
     tc.start()
-    global suppressor, images_path, derpicdn_enable_proxy, socks5_proxy_ip, socks5_proxy_port
-    if suppressor is True:
+    if settings_file.suppressor is True:
         suppress = open(os.devnull, 'w')
         sys.stderr = suppress
     try:
-        os.mkdir(images_path)
+        os.mkdir(settings_file.images_path)
     except FileExistsError:
         pass
-    k = udp_check()
+    if check_local is True:
+        k = udp_check()
+    else:
+        k = False
     parsed = ip.name_tag_parser(file)
     chk = len(parsed)
     print("\rLoading Images" + " " * 16, flush=True, end='')
     c = 0
+    if "PyPy" in sys.version:
+        slp = 0.1
+    else:
+        slp = 0.2
     if check_files is True:
         for i in range(chk):
             print(
-                f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 16,
+                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             try:
-                open(images_path + parsed[i][0] + '.' + parsed[i][1], 'rb')
+                open(settings_file.images_path + parsed[i][0] + '.' + parsed[i][1], 'rb').close()
             except FileNotFoundError:
                 t = Loader(parsed[i][2],
                            parsed[i][0],
                            parsed[i][1],
-                           derpicdn_enable_proxy,
-                           socks5_proxy_ip,
-                           socks5_proxy_port,
+                           settings_file.derpicdn_enable_proxy,
+                           settings_file.socks5_proxy_ip,
+                           settings_file.socks5_proxy_port,
                            k)
                 t.start()
                 tc.threads.append(t)
-                time.sleep(0.2)
+                time.sleep(slp)
+                if len(tc.threads) < settings_file.thread_cap:
+                    pass
+                else:
+                    time.sleep(settings_file.sleep_time)
     else:
         for i in range(chk):
             print(
-                f"\rLoading image {i} of {chk} ({format((i/chk)*100, '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 16,
+                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             t = Loader(parsed[i][2],
                        parsed[i][0],
                        parsed[i][1],
-                       derpicdn_enable_proxy,
-                       socks5_proxy_ip,
-                       socks5_proxy_port,
+                       settings_file.derpicdn_enable_proxy,
+                       settings_file.socks5_proxy_ip,
+                       settings_file.socks5_proxy_port,
                        k)
             t.start()
             tc.threads.append(t)
-            time.sleep(0.1)
+            time.sleep(slp)
+            if len(tc.threads) < settings_file.thread_cap:
+                pass
+            else:
+                time.sleep(settings_file.sleep_time)
     while len(tc.threads) > 0:
         gc.collect()
-        print(f"\rWaiting {len(tc.threads)} thread(s) to end routine" + " " * 16, flush=True, end='')
+        print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 16, flush=True, end='')
         if c >= 15 and len(tc.threads) < 5:
             tc.threads = []
-        else:
+        elif len(tc.threads) < 5:
             time.sleep(1)
             c += 1
     del tc

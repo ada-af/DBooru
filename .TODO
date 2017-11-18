@@ -1,0 +1,9 @@
+# Webv3.py
+TODO: Update database from web
+TODO: Use Websockets OR AJAX for status output
+TODO: Use JSON for status (implies changes in download code)
+TODO: "View on derpibooru" button
+TODO: Rework Exception handling
+
+# db.py
+TODO: Change SQLite expressions

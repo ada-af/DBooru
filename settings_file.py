@@ -14,6 +14,18 @@ user_api_key = "KEY GOES HERE"
 # Format: suppress_errors = bool # Example: (suppress_errors = True)
 suppress_errors = True
 
+# Disable requests verifying
+# Useful when connecting to derpibooru through tor
+# Format: ssl_verify = bool or string
+# Example: Enable verification (ssl_verify = True)
+# Example: Disable verification (ssl_verify = False)
+# Example: Use custom CA Cert (ssl_verify = 'cacert.pem')
+ssl_verify = True
+
+# Set derpibooru domain
+# Format: domain = string
+# Example: (domain = "trixiebooru.org")
+domain = "derpibooru.org"
 
 # Proxy Settings
 # Useful if connection to derpibooru is blocked by anything
@@ -115,15 +127,8 @@ db_name = "sqlite.db"
 # Example: (table_name = 'images')
 table_name = 'images'
 
+
 # Servers discovery options
-
-# Override LAN IP broadcast address
-# If app uses wrong broadcast ip for searching servers set it manually
-# Format: br_ip = string or False
-# Example: Override (br_ip = '10.14.88.255')
-# Example: Do not override (br_ip = False)
-br_ip = False
-
 
 # Turns on/off local servers discovery
 # Format: discover_servers = bool
@@ -135,30 +140,37 @@ discover_servers = True
 # Example: (share_images = False)
 share_images = True
 
-# NOT IMPLEMENTED {
-#
-# Defines name (or path and name) for temporary follow file
-# Format: follow_file = string
-# Example_windows: (follow_file = "follow_ids.txt" or follow_file = "C:/User/Temp/Filename.dat")
-# Example_linux: (follow_file = "follow_ids.txt" or follow_file = "/home/vasyan/follow_ids.txt")
-# follow_file = "follow_ids.txt"
-#
-# }
 
-# DEPRECATED {
-#
-# Defines how many pages should be checked
-# Format: pages_num = int
-# Example: (pages_num = 500)
-# pages_num = 1000
-#
-#
-# Defines how many threads can be used for downloading images
-# Do not set values bigger than 30 while using tor
-# Format: max_threads = int
-# Example: (max_threads = 15)
-# max_threads = 30
-# }
+# Following settings
+
+# Enable or Disable running follower with webUI
+# Format: run_follower = bool
+# Example: (run_follower = False)
+run_follower = True
+
+# Defines amount of pages to check
+# Format: checked_pages = int
+# Example: (checked_pages = 10)
+checked_pages = 25
+
+# Defines time between checking again
+# Format: follower_sleep = int
+# Example: (follower_sleep = 600) # Checks every 600 seconds = 10 minutes
+follower_sleep = 1800
+
+
+# Threading
+
+# Defines maximum running threads before waiting before creating new threads
+# Format: thread_cap = int
+# Example: (thread_cap = 200) # New threads will be created with delay after reaching this value
+thread_cap = 50
+
+# Defines time to wait after reaching thread cap
+# Format: sleep_time = int
+# Example: (sleep_time = 5) # Will wait 5 seconds before creating new thread
+sleep_time = 5
+
 
 # DO NOT CHANGE #
 # Due to some serious shit never change these settings or everything will fuck up.
