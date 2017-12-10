@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DBooru > {}</title>
     <link rel='stylesheet' href="/extra/bootstrap.min.css">
-    <script href="/extra/bootstrap.min.js"></script>
+    <script src="/extra/bootstrap.min.js"></script>
+    <script src="/extra/clipboard.min.js" type="application/javascript"></script>
     <script type="text/javascript">
         function dbclick(id){{
         var xhr = new XMLHttpRequest();
@@ -45,7 +46,23 @@
             }}
         }}
     }}
+    function dcdn(link){{
+        win = window.open(link, '_blank');
+        win.focus()
+    }}
+    function sw(){{
+            var img = document.getElementById('image')
+            img.classList.toggle("img")
+            img.classList.toggle("img-fluid")
+            img.classList.toggle("ft")
+        }}
     </script>
+    <style>
+    .ft{{
+        max-height: 80vh;
+        max-width: 80vw;
+    }}
+    </style>
 </head>
 <body style="background-color: #faffd5" class="container-fluid">
     <div class="row">
@@ -66,12 +83,19 @@
         </div>
     <div>
         <div align="center">{}<br></div>
-        <div align="center"><button class="btn btn-info" onclick="dl('{}')">Download</button><button class="btn btn-info" id="export" onclick="dbclick('{}')">Export</button></div>
+        <div align="center">
+            <button class="btn btn-info" onclick="dl('{}')">Download</button>
+            <button class="btn btn-info" id="export" onclick="dbclick('{}')">Export</button>
+            <button class="btn btn-info" id="export" onclick="dcdn('{}')">View on Derpicdn</button>
+            <button class="btn btn-info" data-clipboard-text="{}" id='clip'>Copy Derpicdn link</button>
+        </div>
         <div><h3>Tags: {}</h3></div>
     </div>
     <datalist id="search" style="display: none">
     </datalist>
     <script type="application/javascript">
+        var btn = document.getElementById('clip');
+        var clipboard = new Clipboard(btn);
         function update_datalist() {{
             document.getElementById('search').innerHTML = '';
             //phrase = document.getElementById('inp').value;

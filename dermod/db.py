@@ -13,9 +13,14 @@ def precomp():
     for i in range(1, settings_file.tag_amount+1):
         tag_col += h.format(i)
     tag_col = tag_col[:-2]
-    tag_col_full = tag_col + ', height, width, ratio'
-    tag_col_serv = 'height, width, ratio'
+    tag_col_full = tag_col + ', height, width, ratio, derpicdn_link'
+    tag_col_serv = 'height, width, ratio, derpicdn_link'
     init_db()
+    try:
+        cursor.execute("alter table images add column derpicdn_link")
+        conn.commit()
+    except Exception:
+        pass
     t = True
     for i in cursor.execute("select * from sqlite_master").fetchall():
         if settings_file.table_name in i:
@@ -78,7 +83,7 @@ def fill_db(file=settings_file.ids_file):
         elif len(k) > settings_file.tag_amount:
             k = k[:settings_file.tag_amount]
         k = str(k).strip("[]").replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}')".format(settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5])
+        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}', '{}')".format(settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], "http:"+i[2])
         cursor.execute(j)
         if cnt == 10:
             conn.commit()

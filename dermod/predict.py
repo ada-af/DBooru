@@ -6,7 +6,7 @@ def gen_list():
     halfparsed = []
     tags = []
     for i in unparsed:
-        halfparsed.append([x for x in i[1:-3] if x != 'None'])
+        halfparsed.append([x for x in i[1:-4] if x != 'None'])
     for i in halfparsed:
         for j in i:
             tags.append(j)
