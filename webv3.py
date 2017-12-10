@@ -182,7 +182,7 @@ class Handler(Thread):
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
                     /images/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
-                            .format(str(i[1:-3]).strip('()').replace("'", ''), i[0], i[0].split('.')[0])
+                            .format(str(i[1:-4]).strip('()').replace("'", ''), i[0], i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
                 elif i[0].split('.')[1] == 'webm':
@@ -190,7 +190,7 @@ class Handler(Thread):
                              <video class="img-fluid g-item" preload='auto' muted onclick="sclick('{}')">
                              <source src="{}{}"/>
                              </video>
-                             </abbr></div></div>""".format(str(i[1:-3]).strip('()').replace("'", ''),
+                             </abbr></div></div>""".format(str(i[1:-4]).strip('()').replace("'", ''),
                                                      i[0].split('.')[0],
                                                      settings_file.images_path, i[0])
             try:
@@ -211,14 +211,14 @@ class Handler(Thread):
         if len(tags) >= 1:
             tags = [x for x in tags[0] if x is not None]
             if tags[0].split('.')[1] != 'webm':
-                p = '<img src="/images/{}" class="img img-fluid">'.format(tags[0])
+                p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(tags[0])
             else:
                 p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
                                 <source src="/{}{}"/>
                                 </video>""".format(settings_file.images_path, tags[0])
-            data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0],
+            data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0], tags[-1], tags[-1],
                                                                str(["<a href='/?query={}&page=1'>{}</a>".format(f, f)
-                                                                    for f in [x for x in tags[1:-3]] if
+                                                                    for f in [x for x in tags[1:-4]] if
                                                                     f != "None"]).strip("[]").replace('"', ''))
             self.send_header(200)
             self.send_data(data)
