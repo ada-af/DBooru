@@ -34,8 +34,12 @@ class Predictor:
     def predict(self, string):
         self.inp, self.previous = input_parser.predictor_parser(string)
         for i in self.tags_cache[self.inp[1][0]]:
-            if self.inp[1] in i[:len(self.inp[1])]:
-                self.matching.append(i)
+            if self.inp[0].startswith('-') is False:
+                if self.inp[1] in i[:len(self.inp[1])]:
+                    self.matching.append(i)
+            else:
+                if (self.inp.strip('-') in i[:len(self.inp.strip('-'))]) is True:
+                    self.matching.append(i)
         self.matching = list(sorted(set(self.matching)))
         return self.compile_html()
 
