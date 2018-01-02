@@ -38,6 +38,6 @@ class Module:
             self.form.append(k)
             k = i.split('","full":"')[1]
             k = k.split('","webm":"')[0]
-            k = k.split('"},"is_rendered"')[0]
+            k = k.split('"},"is_rendered"')[0].replace("//", "https://")
             self.links.append(k)
             self.tags.append(i.split('"tags":"')[1].split('"')[0])
