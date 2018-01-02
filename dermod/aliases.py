@@ -1,4 +1,5 @@
 aliases = {
     "luna": "princess luna",
-    "celestia": "princess celestia"
+    "celestia": "princess celestia",
+    'chrysalis': "queen chrysalis"
 }

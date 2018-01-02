@@ -82,10 +82,10 @@ class Loader(Thread):
     def get_raw_image(self):
         if self.proxy is False:
             self.raw_data = requests.get(
-                "https:{}".format(self.url), verify=settings_file.ssl_verify).content
+                "{}".format(self.url), verify=settings_file.ssl_verify).content
         else:
             self.raw_data = requests.get(
-                "https:{}".format(self.url),
+                "{}".format(self.url),
                 proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify).content
 
     def writer(self):
@@ -191,7 +191,7 @@ def run(file, check_files=True, check_local=True):
                 t = Loader(parsed[i][2],
                            parsed[i][0],
                            parsed[i][1],
-                           settings_file.derpicdn_enable_proxy,
+                           settings_file.enable_proxy,
                            settings_file.socks5_proxy_ip,
                            settings_file.socks5_proxy_port,
                            k)
@@ -210,7 +210,7 @@ def run(file, check_files=True, check_local=True):
             t = Loader(parsed[i][2],
                        parsed[i][0],
                        parsed[i][1],
-                       settings_file.derpicdn_enable_proxy,
+                       settings_file.enable_proxy,
                        settings_file.socks5_proxy_ip,
                        settings_file.socks5_proxy_port,
                        k)

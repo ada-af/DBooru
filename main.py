@@ -2,9 +2,10 @@
 import os
 import shutil
 import webbrowser
+import importlib
 
 from dermod import input_parser as ip
-from dermod import db, derpilist_v2, derpiload_v3, follow
+from dermod import db, follow, listloader, imgloader
 import settings_file
 
 
@@ -100,22 +101,26 @@ def query_cycle(results):
 def main_cycle():
     inp = input("\nDB> ")  
     inp = inp.lower()
-    if inp == "get images":  
-        derpilist_v2.run()
-        derpiload_v3.run(settings_file.ids_file)
-        db.fill_db()
-        print("DB configured successfully")
-        shutil.rmtree('tmp')
-        os.remove(settings_file.ids_file)
-        print("Image index is up-to-date")
+    if inp == "get images":
+        for i in settings_file.modules:
+            module = importlib.import_module('dermod.sitesupport.{}'.format(i))
+            listloader.run(module=module)
+            imgloader.run(settings_file.ids_file)
+            db.fill_db()
+            print("DB configured successfully")
+            shutil.rmtree('tmp')
+            os.remove(settings_file.ids_file)
+            print("Image index is up-to-date")
     elif inp == "get images --force" or inp == "get images -f":  
-        derpilist_v2.run()
-        derpiload_v3.run(settings_file.ids_file, check_files=False)
-        db.fill_db()
-        print("DB configured successfully")
-        shutil.rmtree('tmp')
-        os.remove(settings_file.ids_file)
-        print("Image index is up-to-date")
+        for i in settings_file.modules:
+            module = importlib.import_module('dermod.sitesupport.{}'.format(i))
+            listloader.run(module=module)
+            imgloader.run(settings_file.ids_file, check_files=False)
+            db.fill_db()
+            print("DB configured successfully")
+            shutil.rmtree('tmp')
+            os.remove(settings_file.ids_file)
+            print("Image index is up-to-date")
     elif inp == "get images --fast":
         follow.run(run_once=True)
     elif inp == "total":  
