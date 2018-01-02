@@ -105,12 +105,18 @@
         </div>
     <script type="text/javascript">
     var mouse = false
-    document.onkeypress = function (e) {{
+    document.onkeydown = function (e) {{
         if (e.keyCode === 39 && e.target.className != "form-control") {{
             window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])+1)
         }}
         if (e.keyCode === 37 && e.target.className != "form-control") {{
-        window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])-1)
+            if (Number(String(window.location).split("&")[1].split('=')[1])-1 == 0){{
+                var pass = 1
+            }}
+            else
+            {{
+                window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])-1)
+            }}
     }}
     }}
     function dbclick(id){{

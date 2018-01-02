@@ -56,7 +56,7 @@
 1. If there brach like Exp/Fixes/Test then only working branch is [Master](#master)
 1. Nothing works
 1. Lots of commits
-1. Contains something new
+1. Contains something new or fixes
 
 ## Features
 ### Both versions
@@ -75,6 +75,7 @@
 1. Sharing images for LAN-clients (Turnable option)
 1. Tag predictions
 1. Change page with ← or → arrows
+1. Scroll through images with ← or → arrows
 
 
 ## Installation
@@ -154,18 +155,20 @@ Enter this commands if prompt starts with `Search@DB>`
 
 ### Web
 
-| Endpoint               | Method | Parameters                          | Description                      | Returns                                                   |
-| :----------------------: | :------: | ----------------------------------- | -------------------------------- | --------------------------------------------------------- |
-| "/"                    | GET    |                                     | Main page                        | HTML-page                                                 |
-| "/"                    | GET    | query=**search_query** page=**int** | Search images                    | HTML-page and HTTP headers and status code                |
-| "/export"              | GET    | id=**filename**                     | Exports image to <export_path>   | Plain text data ("Done") and HTTP headers and status code |
-| "/images/**filename**" | GET    |                                     | Access image file                | Image and/or HTTP headers and status code                 |
-| "/image/**int**"       | GET    |                                     | View image with tags             | HTML-page and HTTP headers and status code                |
-| "/dl"                  | GET    | id=**filename**                     | Browser-friendly download method | Image and HTTP headers and status code                    |
-| "/raw"                 | GET    | id=**filename**                     | Raw image data                   | Image without HTTP headers/status codes                   |
-| "/panic"               | GET    |                                     | Shuts down WebUI server          | Plain text data ("Done") and HTTP headers and status code |
-| "/shutdown"            | GET    |                                     | Shuts down WebUI server          | Plain text data ("Done") and HTTP headers and status code |
-| "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query    | Plain text data and HTTP headers and status code          |
+| Endpoint               | Method | Parameters (Body for POST)          | Description                              | Returns                                                   |
+| :--------------------: | :----: | ----------------------------------- | ---------------------------------------- | --------------------------------------------------------- |
+| "/"                    | GET    |                                     | Main page                                | HTML-page                                                 |
+| "/"                    | GET    | query=**search_query** page=**int** | Search images                            | HTML-page and HTTP headers and status code                |
+| "/export"              | GET    | id=**filename**                     | Exports image to <export_path>           | Plain text data ("Done") and HTTP headers and status code |
+| "/images/**filename**" | GET    |                                     | Access image file                        | Image and/or HTTP headers and status code                 |
+| "/image/**int**"       | GET    |                                     | View image with tags                     | HTML-page and HTTP headers and status code                |
+| "/dl"                  | GET    | id=**filename**                     | Browser-friendly download method         | Image and HTTP headers and status code                    |
+| "/raw"                 | GET    | id=**filename**                     | Raw image data                           | Image without HTTP headers/status codes                   |
+| "/panic"               | GET    |                                     | Shuts down WebUI server                  | Plain text data ("Done") and HTTP headers and status code |
+| "/shutdown"            | GET    |                                     | Shuts down WebUI server                  | Plain text data ("Done") and HTTP headers and status code |
+| "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query            | Plain text data and HTTP headers and status code          |
+| "/next"                | POST   | **int**                             | Tries to get id of next (older) image    | Plain text data (<id-of-image>) and status code           |
+| "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>) and status code           |
 
 
 ## Search basics and syntax

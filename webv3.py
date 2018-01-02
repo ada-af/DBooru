@@ -125,8 +125,8 @@ class Handler(Thread):
     def log_request(self):
         request = self.request
         t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
-        print("""[REQUEST] [{} @ {}] Made request: {} {} with params {{'params: {}', 'query: {}'}}""" \
-              .format(self.ip, t, request['method'], request['path'], request['params'], request['query']))
+        print("""[REQUEST] [{} @ {}] Made request: {} {} with params {{'params: {}', 'query: {}', 'post_data': {}}}""" \
+              .format(self.ip, t, request['method'], request['path'], request['params'], request['query'], request['post_data']))
 
     def index(self):
         with open("extra/index.html", 'rb') as j:
@@ -271,10 +271,48 @@ class Handler(Thread):
         except Exception:
             self.send_header(500)
 
+    def next(self):
+        f = []
+        starting = int(self.request['post_data'])
+        x = int(self.request['post_data'])-1
+        while True:
+            f = db.search_by_id(x)
+            if f != []:
+                self.send_header(200)
+                self.send_data(str(x))
+                break
+            elif (starting-x) >= 300:
+                self.send_header(200)
+                self.send_data(str(starting))
+                break
+            else:
+                x -= 1
+
+    def previous(self):
+        f = []
+        starting = int(self.request['post_data'])
+        x = int(self.request['post_data'])+1
+        while True:
+            f = db.search_by_id(x)
+            if f != []:
+                self.send_header(200)
+                self.send_data(str(x))
+                break
+            elif (x-starting) >= 300:
+                self.send_header(200)
+                self.send_data(str(starting))
+                break
+            else:
+                x += 1
+    
     def serve(self):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
             self.index()
+        elif self.request['path'] == '/next' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':
+            self.next()
+        elif self.request['path'] == '/previous' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':
+            self.previous()
         elif self.request['path'].split('/')[1] == 'images' and self.request['path'].split('/')[2] is not '':
             self.show_img()
         elif self.request['path'] == '/export' and self.request['params']['id'] is not None:

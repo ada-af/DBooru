@@ -107,6 +107,7 @@ def web_arg_parser_v2(params):
 def request_parser(request):
     request = request.decode()
     splitted = request.split("\r\n")
+    post_data = splitted[-1]
     path = splitted[0].split(" ")[1].split('?')[0]
     try:
         params = splitted[0].split(" ")[1].split('?')[1]
@@ -125,6 +126,7 @@ def request_parser(request):
         i = i.split(':', maxsplit=1)
         tmp = {i[0].lower(): i[1].strip()}
         parsed_request = dict(parsed_request, **tmp)
+    parsed_request['post_data'] = post_data
     return parsed_request
 
 
