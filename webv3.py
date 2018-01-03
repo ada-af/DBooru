@@ -273,6 +273,7 @@ class Handler(Thread):
 
     def next(self):
         f = []
+        self.request['post_data'] = self.request['post_data'].split('_')[1]
         starting = int(self.request['post_data'])
         x = int(self.request['post_data'])-1
         while True:
@@ -290,6 +291,7 @@ class Handler(Thread):
 
     def previous(self):
         f = []
+        self.request['post_data'] = self.request['post_data'].split('_')[1]
         starting = int(self.request['post_data'])
         x = int(self.request['post_data'])+1
         while True:
