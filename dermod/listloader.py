@@ -32,7 +32,7 @@ class Checker(Thread):
             with requests.Session() as s:
                 s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
                 self.raw_data = s.get(
-                    "{domain}{endpoint}{params}&{paginator}".format(domain=self.module.domain,
+                    "{domain}{endpoint}{paginator}{params}".format(domain=self.module.domain,
                     endpoint=self.module.endpoint,
                     params=self.module.params,
                     paginator=self.module.paginator.format(self.page)),
@@ -42,7 +42,7 @@ class Checker(Thread):
             with requests.Session() as s:
                 s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
                 self.raw_data = s.get(
-                    "{domain}{endpoint}{params}&{paginator}".format(domain=self.module.domain,
+                    "{domain}{endpoint}{paginator}{params}".format(domain=self.module.domain,
                     endpoint=self.module.endpoint,
                     params=self.module.params,
                     paginator=self.module.paginator.format(self.page)),
@@ -100,7 +100,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
             pages_num += 50
             print('\rFinding max page... (Checking Page {})'.format(pages_num), flush=True, end='')
             dat = requests.get(
-                "{domain}{endpoint}{params}&{paginator}".format(domain=module.domain,
+                "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
                 endpoint=module.endpoint,
                 params=module.params,
                 paginator=module.paginator.format(pages_num)),

@@ -1,11 +1,14 @@
+query = "my:faves" # "my:upvotes"
+api_key = "API-KEY GOES HERE"
+
+# Do not change values below line 4
+
 domain = 'https://derpibooru.org'
-query = "my:faves"
 endpoint = "/search.json?q={}".format(query)
-paginator = "page={}"
+paginator = "&page={}"
 # Must be regexp
 empty_page = '{"search":\[\]'
 slp = 0.1 # Defines delay between requests
-api_key = ""
 params = "&key={}".format(api_key)
 
 class Module:
