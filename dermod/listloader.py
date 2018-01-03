@@ -101,7 +101,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
         k = False
         while k is False:
             pages_num += 50
-            print('\rFinding max page... (Checking Page {})'.format(pages_num), flush=True, end='')
+            print('\rFinding max page... (Checking Page {})'.format(pages_num-1), flush=True, end='')
             with requests.Session() as s:
                 s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
                 dat = s.get(
@@ -124,17 +124,18 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
                 pass
     tc = TC.ThreadController()
     tc.start()
-    try:
-        slp = module.slp
-    except Exception:
-        if "PyPy" in sys.version:
-            slp = 0.1
-        else:
-            slp = 0.2
+    if "PyPy" in sys.version:
+        slp = 0.1
+    else:
+        slp = 0.2
     for i in range(1, pages_num+1):
         gc.collect()
         print("\rChecking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end='')
-        t = Checker(page=i, proxy_ip=settings_file.socks5_proxy_ip, proxy_port=settings_file.socks5_proxy_port, proxy_enabled=settings_file.enable_proxy, module=module)
+        t = Checker(page=i,
+        proxy_ip=settings_file.socks5_proxy_ip,
+        proxy_port=settings_file.socks5_proxy_port,
+        proxy_enabled=settings_file.enable_proxy,
+        module=module)
         t.start()
         tc.threads.append(t)
         if empties == 1:
