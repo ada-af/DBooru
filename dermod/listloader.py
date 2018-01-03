@@ -93,22 +93,24 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
     global empties
     empties = 0
     print("Searching for max page")
-    pages_num = 0
+    pages_num = 1
     if follower is True:
         pass
     else:
-        pages_num = 0
+        pages_num = 1
         k = False
         while k is False:
             pages_num += 50
             print('\rFinding max page... (Checking Page {})'.format(pages_num), flush=True, end='')
-            dat = requests.get(
+            with requests.Session() as s:
+                s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
+                dat = s.get(
                 "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
                 endpoint=module.endpoint,
                 params=module.params,
                 paginator=module.paginator.format(pages_num)),
                 verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
-            if type(re.match("{}".format(module.empty_page), dat.content.decode())) is not None:
+            if re.search("{}".format(module.empty_page), dat.content.decode()) is not None:
                 k = True
     k = False
     while k is False:
