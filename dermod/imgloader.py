@@ -186,10 +186,10 @@ def run(file, check_files=True, check_local=True):
                 "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             try:
-                open(settings_file.images_path + parsed[i][0] + '.' + parsed[i][1], 'rb').close()
+                open(settings_file.images_path + str(parsed[i][7] + parsed[i][0]) + '.' + parsed[i][1], 'rb').close()
             except FileNotFoundError:
                 t = Loader(parsed[i][2],
-                           parsed[i][0],
+                           str(parsed[i][7] + parsed[i][0]),
                            parsed[i][1],
                            settings_file.enable_proxy,
                            settings_file.socks5_proxy_ip,
@@ -208,7 +208,7 @@ def run(file, check_files=True, check_local=True):
                 "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
                 flush=True, end='')
             t = Loader(parsed[i][2],
-                       parsed[i][0],
+                       str(parsed[i][7] + parsed[i][0]),
                        parsed[i][1],
                        settings_file.enable_proxy,
                        settings_file.socks5_proxy_ip,

@@ -182,7 +182,7 @@ class Handler(Thread):
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
                     /images/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
-                            .format(str(i[1:-4]).strip('()').replace("'", ''), i[0], i[0].split('.')[0])
+                            .format(str(i[1:-5]).strip('()').replace("'", ''), i[-1]+i[0], i[-1]+i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
                 elif i[0].split('.')[1] == 'webm':
@@ -191,8 +191,8 @@ class Handler(Thread):
                              <source src="{}{}"/>
                              </video>
                              </abbr></div></div>""".format(str(i[1:-4]).strip('()').replace("'", ''),
-                                                     i[0].split('.')[0],
-                                                     settings_file.images_path, i[0])
+                                                     i[-1]+i[0].split('.')[0],
+                                                     settings_file.images_path, i[-1]+i[0])
             try:
                 p = open("extra/results.html", 'r').read().format(self.request['params']['query'],
                                                                   p,
@@ -206,19 +206,19 @@ class Handler(Thread):
                 self.send_data(p)
 
     def details(self):
-        img_id = self.request['path'].split("/")[-1]
-        tags = db.search_by_id(img_id)
+        img_id = self.request['path'].split("/")[-1].split("_")
+        tags = db.search_by_id(img_id[1], img_id[0])
         if len(tags) >= 1:
             tags = [x for x in tags[0] if x is not None]
             if tags[0].split('.')[1] != 'webm':
-                p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(tags[0])
+                p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(tags[-1]+tags[0])
             else:
                 p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
                                 <source src="/{}{}"/>
-                                </video>""".format(settings_file.images_path, tags[0])
-            data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0], tags[-1], tags[-1],
+                                </video>""".format(settings_file.images_path, tags[-1]+tags[0])
+            data = open('extra/image.html', 'r').read().format(img_id, p, tags[-1]+tags[0], tags[-1]+tags[0], tags[-2], tags[-2],
                                                                str(["<a href='/?query={}&page=1'>{}</a>".format(f, f)
-                                                                    for f in [x for x in tags[1:-4]] if
+                                                                    for f in [x for x in tags[1:-5]] if
                                                                     f != "None"]).strip("[]").replace('"', ''))
             self.send_header(200)
             self.send_data(data)

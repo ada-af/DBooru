@@ -6,6 +6,9 @@ from dermod import input_parser as ip
 import settings_file
 
 
+# TODO: Prefix field in DB
+
+
 def precomp():
     global tag_col, tag_col_full, tag_col_serv
     tag_col = 'fname, '
@@ -13,11 +16,12 @@ def precomp():
     for i in range(1, settings_file.tag_amount+1):
         tag_col += h.format(i)
     tag_col = tag_col[:-2]
-    tag_col_full = tag_col + ', height, width, ratio, derpicdn_link'
-    tag_col_serv = 'height, width, ratio, derpicdn_link'
+    tag_col_full = tag_col + ', height, width, ratio, source_link, prefix'
+    tag_col_serv = 'height, width, ratio, source_link, prefix'
     init_db()
     try:
-        cursor.execute("alter table images add column derpicdn_link")
+        cursor.execute("alter table images add column source_link")
+        cursor.execute("alter table images add column prefix")
         conn.commit()
     except Exception:
         pass
@@ -83,7 +87,7 @@ def fill_db(file=settings_file.ids_file):
         elif len(k) > settings_file.tag_amount:
             k = k[:settings_file.tag_amount]
         k = str(k).strip("[]").replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}', '{}')".format(settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], "http:"+i[2])
+        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}', '{}', '{}')".format(settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], i[2], i[7])
         cursor.execute(j)
         if cnt == 10:
             conn.commit()
@@ -187,9 +191,9 @@ def special_f(specials):
     return results
 
 
-def search_by_id(img_id):
+def search_by_id(img_id, prefix="%"):
     init_db()
-    result = list(cursor.execute("SELECT * FROM {} WHERE fname like '{}.%'".format(settings_file.table_name, img_id)))
+    result = list(cursor.execute("SELECT * FROM {} WHERE fname like '{}.%' and prefix = '{}_'".format(settings_file.table_name, img_id, prefix)))
 
     return result
 

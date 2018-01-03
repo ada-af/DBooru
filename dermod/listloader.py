@@ -55,15 +55,16 @@ class Checker(Thread):
         self.module_data.parse(self, string=self.raw_data)
 
     def compile(self):
-        digest = sha384(self.module.__name__.encode()).hexdigest()[:6]
+        digest = str(sha384(self.module.__name__.encode()).hexdigest())[:6] + "_"
         for i in range(0, len(self.ids)):
-            tmp = str(str((str(digest)+"_"+str(self.ids[i])) + ",,," +
-                          self.form[i] + ",,," +
-                          self.links[i] + ",,," +
-                          self.width[i] + ",,," +
-                          self.height[i] + ",,," +
-                          str(int(self.width[i])/int(self.height[i])) + ",,," +
-                          self.tags[i]).encode("utf8", errors='ignore'))[2:-1] + "\n"
+            tmp = str(str(self.ids[i] + ",,," +
+                      self.form[i] + ",,," +
+                      self.links[i] + ",,," +
+                      self.width[i] + ",,," +
+                      self.height[i] + ",,," +
+                      str(int(self.width[i])/int(self.height[i])) + ",,," +
+                      self.tags[i] + ",,," +
+                      digest).encode("utf8", errors='ignore'))[2:-1] + "\n"
             self.compiled += tmp
 
     def writer(self):
@@ -128,7 +129,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
             slp = 0.1
         else:
             slp = 0.2
-    for i in range(pages_num+1):
+    for i in range(1, pages_num+1):
         gc.collect()
         print("\rChecking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end='')
         t = Checker(page=i, proxy_ip=settings_file.socks5_proxy_ip, proxy_port=settings_file.socks5_proxy_port, proxy_enabled=settings_file.enable_proxy, module=module)
