@@ -5,6 +5,7 @@ import shutil
 import sys
 import time
 import importlib
+from hashlib import sha384
 from threading import Thread
 
 import requests
@@ -54,8 +55,9 @@ class Checker(Thread):
         self.module_data.parse(self, string=self.raw_data)
 
     def compile(self):
+        digest = sha384(self.module.__name__.encode()).hexdigest()[:6]
         for i in range(0, len(self.ids)):
-            tmp = str(str(self.ids[i] + ",,," +
+            tmp = str(str((str(digest)+"_"+str(self.ids[i])) + ",,," +
                           self.form[i] + ",,," +
                           self.links[i] + ",,," +
                           self.width[i] + ",,," +
