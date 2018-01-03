@@ -180,6 +180,9 @@ Module must contain:
     > Such as api keys
     >> params = '&key={}&username={}'.format(apikey, username)
 
+    Parser Configuration
+    > No time to explain
+
 
 ## Commands and Web-endpoints
 
