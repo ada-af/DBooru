@@ -63,7 +63,7 @@ class Checker(Thread):
                       self.width[i] + ",,," +
                       self.height[i] + ",,," +
                       str(int(self.width[i])/int(self.height[i])) + ",,," +
-                      self.tags[i] + ",,," +
+                      self.module.__name__.split(".")[-1] + ',' + self.tags[i] + ",,," +
                       digest).encode("utf8", errors='ignore'))[2:-1] + "\n"
             self.compiled += tmp
 
