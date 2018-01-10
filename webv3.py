@@ -280,11 +280,12 @@ class Handler(Thread):
             f = db.search_by_id(x)
             if f != []:
                 self.send_header(200)
-                self.send_data(str(x))
+                self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
             elif (starting-x) >= 300:
                 self.send_header(200)
-                self.send_data(str(starting))
+                g = db.search_by_id(x)
+                self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
                 break
             else:
                 x -= 1
@@ -298,11 +299,12 @@ class Handler(Thread):
             f = db.search_by_id(x)
             if f != []:
                 self.send_header(200)
-                self.send_data(str(x))
+                self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
             elif (x-starting) >= 300:
                 self.send_header(200)
-                self.send_data(str(starting))
+                g = db.search_by_id(x)
+                self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
                 break
             else:
                 x += 1
