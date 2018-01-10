@@ -1,5 +1,6 @@
 #!python
 import os
+import sys
 import shutil
 import webbrowser
 import importlib
@@ -56,32 +57,33 @@ def query_cycle(results):
             elif inp.isnumeric():  
                 try:
                     for i in results[(int(inp)-1)]:
-                        
-                        i = [x for x in i if x != "None"][:-3]
-                        print(str(i[0]) + " "*(15 - len(i[0])) + " => " + str(i[1:settings_file.showing_tags]).strip("()"))
+                        i = [x for x in i if x != "None"][:-5]
+                        tmp = db.search_by_id(str(i[0]).split(".")[0])
+                        print(str(tmp[0][-1]+i[0]) + " "*(15 - len(i[0])) + " => " + str(i[1:settings_file.showing_tags]).strip("()"))
                 except KeyError:
                     print('There is no page named {}'.format(inp))
 
             elif "show" in inp:  
                 inp = inp.split("show")[1]
-                inp = db.search_by_id(inp.strip())[0][0]
                 try:
                     if os.name != "nt":
-                        webbrowser.open(str(settings_file.images_path + inp.strip()))
+                        webbrowser.open(os.path.dirname(os.path.realpath(__file__)) + str(settings_file.images_path + inp.strip()))
                     else:
-                        os.system(str("explorer.exe " + settings_file.images_path + inp.strip()))
+                        os.system(str("explorer.exe " + os.path.dirname(
+                            os.path.realpath(__file__)) + settings_file.images_path + inp.strip()))
                 except FileNotFoundError:
                     print("File doesn't exist.")
 
-            elif "export" in inp:  
-                for i in results.keys():
-                    for k in results[i]:
-                        try:
-                            shutil.copy(str(settings_file.images_path + k[0]), str(settings_file.export_path + k[0]))
-                        except FileNotFoundError:
-                            os.mkdir(settings_file.export_path)
-                        else:
-                            pass
+            elif "export" in inp:
+                try:
+                    shutil.copy(os.path.dirname(os.path.realpath(__file__)) + str(settings_file.images_path +
+                                                                                  inp.split(" ")[1]),
+                                os.path.dirname(os.path.realpath(__file__)) + str(settings_file.export_path +
+                                                                                  inp.split(" ")[1]))
+                except FileNotFoundError:
+                    os.mkdir(settings_file.export_path)
+                else:
+                    pass
 
             elif inp == '':  
                 pass
@@ -132,18 +134,27 @@ def main_cycle():
         main_cycle()
     elif "show" in inp:  
         inp = inp.split("show")[1]
-        inp = db.search_by_id(inp.strip())[0][0]
         try:
-            if os.name != "nt":
-                webbrowser.open(str(settings_file.images_path + inp.strip()))
+            if os.name == "nt":
+                webbrowser.open(os.path.dirname(os.path.realpath(__file__)) + str(settings_file.images_path + inp.strip()))
             else:
-                os.system(str("explorer.exe " + settings_file.images_path + inp.strip()))
+                os.system(str("explorer.exe " + os.path.dirname(os.path.realpath(__file__)) + settings_file.images_path + inp.strip()))
         except FileNotFoundError:
             print("File doesn't exist.")
     elif inp == 'quit' or inp == 'exit':  
         os._exit(0)
     elif inp == "help":  
         show_help(1)
+    elif "export" in inp:
+        try:
+            shutil.copy(os.path.dirname(os.path.realpath(__file__)) + str(settings_file.images_path +
+                                                                          inp.split(" ")[1]),
+                        os.path.dirname(os.path.realpath(__file__)) + str(settings_file.export_path +
+                                                                          inp.split(" ")[1]))
+        except FileNotFoundError:
+            os.mkdir(settings_file.export_path)
+        else:
+            pass
     else:  
         query = ip.parser(inp)
         results = db.search(query['search'], query['remove'])

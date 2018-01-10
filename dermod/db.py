@@ -193,7 +193,7 @@ def special_f(specials):
 
 def search_by_id(img_id, prefix="%"):
     init_db()
-    result = list(cursor.execute("SELECT * FROM {} WHERE fname like '{}.%' and prefix = '{}_'".format(settings_file.table_name, img_id, prefix)))
+    result = list(cursor.execute("SELECT * FROM {} WHERE fname like '{}.%' and prefix like '{}_'".format(settings_file.table_name, img_id, prefix)))
 
     return result
 
