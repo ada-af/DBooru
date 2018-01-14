@@ -89,7 +89,7 @@ class Checker(Thread):
         quit()
 
 
-def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
+def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwith="\r"):
     global empties
     empties = 0
     print("Searching for max page")
@@ -101,7 +101,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
         k = False
         while k is False:
             pages_num += 50
-            print('\rFinding max page... (Checking Page {})'.format(pages_num-1), flush=True, end='')
+            print('Finding max page... (Checking Page {})'.format(pages_num-1), flush=True, end=endwith)
             with requests.Session() as s:
                 s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
                 dat = s.get(
@@ -130,7 +130,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
         slp = 0.2
     for i in range(1, pages_num+1):
         gc.collect()
-        print("\rChecking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end='')
+        print("Checking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end=endwith)
         t = Checker(page=i,
         proxy_ip=settings_file.socks5_proxy_ip,
         proxy_port=settings_file.socks5_proxy_port,
@@ -144,17 +144,17 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file):
     c = 0
     while len(tc.threads) > 0:
         gc.collect()
-        print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " "*16, flush=True, end='')
+        print("Waiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 32, flush=True, end=endwith)
         if c >= 5 and len(tc.threads) < 10:
             tc.threads = []
         else:
             time.sleep(1)
             c += 1
     del tc
-    print("Concatenating files...")
+    print("\rConcatenating files..."+" "*32)
     with open(file, 'w') as f:
         for i in range(pages_num):
-            print("\rProcessing file {}.txt  ".format(i), end='', flush=True)
+            print("Processing file {}.txt  ".format(i), end=endwith, flush=True)
             try:
                 with open('tmp/{}.txt'.format(i), 'r') as tmp:
                     f.write(tmp.read())

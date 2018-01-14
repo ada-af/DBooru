@@ -100,29 +100,26 @@ def query_cycle(results):
                 query_cycle(results)
 
 
+def update_db(endwith="\r"):
+    for i in settings_file.modules:
+        module = importlib.import_module('dermod.sitesupport.{}'.format(i))
+        print("\nChecking updates for "+module.__name__.split('.')[-1])
+        listloader.run(module=module, endwith=endwith)
+        imgloader.run(settings_file.ids_file, endwith=endwith)
+        db.fill_db()
+        print("DB configured successfully")
+        shutil.rmtree('tmp')
+        os.remove(settings_file.ids_file)
+        print("Image index is up-to-date\n")
+
+
 def main_cycle():
     inp = input("\nDB> ")  
     inp = inp.lower()
     if inp == "get images":
-        for i in settings_file.modules:
-            module = importlib.import_module('dermod.sitesupport.{}'.format(i))
-            listloader.run(module=module)
-            imgloader.run(settings_file.ids_file)
-            db.fill_db()
-            print("DB configured successfully")
-            shutil.rmtree('tmp')
-            os.remove(settings_file.ids_file)
-            print("Image index is up-to-date")
+        update_db()
     elif inp == "get images --force" or inp == "get images -f":  
-        for i in settings_file.modules:
-            module = importlib.import_module('dermod.sitesupport.{}'.format(i))
-            listloader.run(module=module)
-            imgloader.run(settings_file.ids_file, check_files=False)
-            db.fill_db()
-            print("DB configured successfully")
-            shutil.rmtree('tmp')
-            os.remove(settings_file.ids_file)
-            print("Image index is up-to-date")
+        update_db()
     elif inp == "get images --fast":
         follow.run(run_once=True)
     elif inp == "total":  
@@ -163,6 +160,12 @@ def main_cycle():
     
     
 try:
+    try:
+        if sys.argv[1] == "update":
+            update_db(endwith="\n")
+            os._exit(0)
+    except IndexError:
+        pass
     main_cycle()
 except KeyboardInterrupt:
     os._exit(0)

@@ -10,29 +10,7 @@ import requests
 import settings_file
 
 from . import input_parser as ip
-
-
-class Error(Exception):
-    pass
-
-
-class Timeouted(Error):
-    def __init__(self):
-        pass
-
-
-class Timer(Thread):
-    def __init__(self, to):
-        Thread.__init__(self)
-        self.time = to
-
-    def run(self):
-        time.sleep(self.time)
-        if self.done == 0:
-            raise Timeouted
-
-    def stop(self):
-        self.done = 1
+from . import threads as TC
 
 
 class Loader(Thread):
@@ -99,7 +77,7 @@ class Loader(Thread):
 
 def udp_check():
     if settings_file.discover_servers is True:
-        print("\rChecking for local servers..." + " " * 16, flush=True, end='')
+        print("Checking for local servers..." + " " * 32, flush=True)
         sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         p = socket.gethostname()
@@ -121,45 +99,18 @@ def udp_check():
             pass
         del sock, sock1
         if k == '' or socket.gethostbyname(socket.gethostname()) == k[0]:
-            print("\rNo servers found                 ", flush=True, end='')
+            print("No servers found                 ", flush=True)
             k = False
         else:
-            print("\rServer found                     ", flush=True, end='')
+            print("Server found                     ", flush=True)
         return k
     else:
         k = False
         return k
 
 
-class ThreadController(Thread):
-    @staticmethod
-    def log_debug(*args):
-        j = ''
-        for i in args:
-            j += str(i)
-        print("[DEBUG] " + str(j))
-
-    def __init__(self):
-        Thread.__init__(self)
-        self.threads = []
-
-    def run(self):
-        self.watcher()
-
-    def watcher(self):
-        while True:
-            time.sleep(1)
-            p = 0
-            for i in self.threads:
-                if i.readiness == 1:
-                    self.threads.remove(i)
-                    i.join()
-                    del i
-                    p = p + 1
-
-
-def run(file, check_files=True, check_local=True):
-    tc = ThreadController()
+def run(file, check_files=True, check_local=True, endwith="\r"):
+    tc = TC.ThreadController()
     tc.start()
     if settings_file.suppressor is True:
         suppress = open(os.devnull, 'w')
@@ -174,7 +125,7 @@ def run(file, check_files=True, check_local=True):
         k = False
     parsed = ip.name_tag_parser(file)
     chk = len(parsed)
-    print("\rLoading Images" + " " * 16, flush=True, end='')
+    print("Loading Images" + " " * 32, flush=True, end=endwith)
     c = 0
     if "PyPy" in sys.version:
         slp = 0.1
@@ -183,8 +134,8 @@ def run(file, check_files=True, check_local=True):
     if check_files is True:
         for i in range(chk):
             print(
-                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
-                flush=True, end='')
+                "Loading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
+                flush=True, end=endwith)
             try:
                 open(settings_file.images_path + str(parsed[i][7] + parsed[i][0]) + '.' + parsed[i][1], 'rb').close()
             except FileNotFoundError:
@@ -205,8 +156,8 @@ def run(file, check_files=True, check_local=True):
     else:
         for i in range(chk):
             print(
-                "\rLoading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 16,
-                flush=True, end='')
+                "Loading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
+                flush=True, end=endwith)
             t = Loader(parsed[i][2],
                        str(parsed[i][7] + parsed[i][0]),
                        parsed[i][1],
@@ -223,7 +174,7 @@ def run(file, check_files=True, check_local=True):
                 time.sleep(settings_file.sleep_time)
     while len(tc.threads) > 0:
         gc.collect()
-        print("\rWaiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 16, flush=True, end='')
+        print("Waiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 32, flush=True, end=endwith)
         if c >= 15 and len(tc.threads) < 5:
             tc.threads = []
         elif len(tc.threads) < 5:
