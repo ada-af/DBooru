@@ -332,12 +332,17 @@ class Handler(Thread):
         p += ex.format('', self.request['params']['query'], int(list(dct.keys())[-1])+1, 'Last')
         return p
 
-
+    def random_image(self):
+        img = db.random_img()[0]
+        self.send_header(200)
+        self.send_data("/image/"+img[-1]+img[0].split('.')[0])
 
     def serve(self):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
             self.index()
+        if self.request['path'] == '/random':
+            self.random_image()
         elif self.request['path'] == '/next' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':
             self.next()
         elif self.request['path'] == '/previous' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':

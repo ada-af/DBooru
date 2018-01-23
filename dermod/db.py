@@ -198,4 +198,9 @@ def search_by_id(img_id, prefix="%"):
 
     return result
 
+def random_img():
+    init_db()
+    result = list(cursor.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT 1".format(settings_file.table_name)))
+    return result
+
 precomp()

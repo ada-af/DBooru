@@ -63,27 +63,30 @@
         }}
         document.getElementById('inp').addEventListener('input', update_datalist)
         document.onkeydown = function (e) {{
-        if (e.keyCode === 39 && e.target.className != "form-control") {{
-            xhr = new XMLHttpRequest();
-            xhr.open("POST", '/next', true);
-            body = String(window.location).split("/")
-            xhr.send(body[Number(body.length)-1]);
-            xhr.onreadystatechange = function () {{
-                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
-                window.location = String(window.location).replace(String(body[Number(body.length)-1]), xhr.responseText)
-                }}
+            if (e.keyCode === 39 && e.target.className != "form-control") {{
+                xhr = new XMLHttpRequest();
+                xhr.open("POST", '/next', true);
+                body = String(window.location).split("/")
+                xhr.send(body[Number(body.length)-1]);
+                xhr.onreadystatechange = function () {{
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
+                        window.location = String(window.location).replace(String(body[Number(body.length)-1]), xhr.responseText)
+                    }}
                 }}
             }}
-        if (e.keyCode === 37 && e.target.className != "form-control") {{
-            xhr = new XMLHttpRequest();
-            xhr.open("POST", '/previous', true);
-            body = String(window.location).split("/")
-            xhr.send(body[Number(body.length)-1]);
-            xhr.onreadystatechange = function () {{
-                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
-                window.location = String(window.location).replace(String(body[Number(body.length)-1]), xhr.responseText)
+            if (e.keyCode === 37 && e.target.className != "form-control") {{
+                xhr = new XMLHttpRequest();
+                xhr.open("POST", '/previous', true);
+                body = String(window.location).split("/")
+                xhr.send(body[Number(body.length)-1]);
+                xhr.onreadystatechange = function () {{
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
+                        window.location = String(window.location).replace(String(body[Number(body.length)-1]), xhr.responseText)
+                    }}
                 }}
-                }}
+            }}
+            if (e.keyCode === 82 && e.target.className != "form-control") {{
+                rand_img()
             }}
         }}
         function dbclick(id){{
@@ -124,6 +127,16 @@
             img.classList.toggle("img")
             img.classList.toggle("img-fluid")
             img.classList.toggle("ft")
+        }}
+        function rand_img(){{
+            xhr = new XMLHttpRequest;
+            xhr.open("GET", '/random', true);
+            xhr.send()
+            xhr.onreadystatechange = function (e) {{
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
+                    window.location.href = xhr.responseText;
+                }}
+            }}
         }}
     </script>
 </body>
