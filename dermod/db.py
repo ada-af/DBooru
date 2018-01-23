@@ -78,6 +78,7 @@ def fill_db(file=settings_file.ids_file):
     halfparsed = unparsed.strip("\n").split("\n")
     cnt = 0
     for i in halfparsed:
+        i = i.replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'').replace("'", '').replace("\"","")
         i = i.split(",,,")
         k = i[6].split(",")
         if len(k) < settings_file.tag_amount:
