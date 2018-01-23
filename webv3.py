@@ -62,7 +62,11 @@ class UDPHandler(Thread):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((self.ip, self.port))
         while True:
-            h = sock.recv(1024)
+            h = b''
+            t = None
+            while t != b'':
+                t = sock.recv(16)
+                h = h + t
             if h != b'':
                 h = h.decode()
                 host = h
@@ -163,9 +167,9 @@ class Handler(Thread):
 
     def results(self):
         try:
-            results = list(db.search(self.request["query"]['search'],
-                                     self.request["query"]['remove'])
-                           [int(self.request['params']['page']) - 1])
+            results = db.search(self.request["query"]['search'], self.request["query"]['remove'])
+            paginator = self.gen_paginator(results)
+            results = list(results[int(self.request['params']['page']) - 1])
         except (IndexError, KeyError):
             self.send_header(404)
         except Exception:
@@ -196,9 +200,7 @@ class Handler(Thread):
             try:
                 p = open("extra/results.html", 'r').read().format(self.request['params']['query'],
                                                                   p,
-                                                                  int(self.request['params']['page']) - 1,
-                                                                  self.request['params']['query'],
-                                                                  int(self.request['params']['page']) + 1)
+                                                                  paginator)
             except Exception:
                 self.send_header(500)
             else:
@@ -309,6 +311,29 @@ class Handler(Thread):
             else:
                 x += 1
     
+    def gen_paginator(self, dct):
+        ex = """<li class="page-item{}"><a class="page-link" href="/?query={}&page={}">{}</a></li>"""
+        p = "" + ex.format('',self.request['params']['query'], '1', 'First')
+        list_of_pages = list(dct.keys())
+        cur_pg = int(self.request['params']['page'])
+
+        if int(self.request['params']['page']) >= 4:
+            for i in list_of_pages[cur_pg-3:cur_pg+4]:
+                if int(i)+1 == cur_pg:
+                    p += ex.format(" disabled", self.request['params']['query'], i+1, i+1)
+                else:
+                    p += ex.format("", self.request['params']['query'], i+1, i+1)
+        elif int(self.request['params']['page']) < 4:
+            for i in list_of_pages[0:cur_pg+4]:
+                if int(i)+1 == cur_pg:
+                    p += ex.format(" disabled", self.request['params']['query'], i+1, i+1)
+                else:
+                    p += ex.format("", self.request['params']['query'], i+1, i+1)
+        p += ex.format('', self.request['params']['query'], int(list(dct.keys())[-1])+1, 'Last')
+        return p
+
+
+
     def serve(self):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
