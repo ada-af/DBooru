@@ -112,15 +112,31 @@ class Handler(Thread):
             self.conn.send(data.encode())
         except AttributeError:
             self.conn.send(data)
+
+    def close_connection(self):
         self.conn.close()
 
-    def send_header(self, code, mime='html'):
+    def get_len(self, fileobject):
+        if fileobject is None:
+            return 0
+        elif type(fileobject) is str or type(fileobject) is bytes:
+            ln = len(fileobject)
+        elif type(fileobject) is int:
+            ln = fileobject
+        else:
+            ln = str(fileobject.seek(0,2))
+            fileobject.seek(0)
+        return ln
+
+    def send_header(self, code, mime='html', fileobject=None):
+        content_len = self.get_len(fileobject)
         mime = mimes.types[mime]
         if code == 200:
-            self.conn.sendall("""HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: I'm working hard for you\n\n""".format(mime).encode())
+            self.conn.sendall("""HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nContent-Length: {}\nX-HTTP-Pony: I'm working hard for you\n\n""".format(mime, content_len).encode())
         elif code == 404:
             self.conn.sendall("""HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.send_data("<html><head><meta http-equiv='refresh' content='1; url=/' </head><body>404 Not Found</body></html>".encode())
+            self.close_connection()
         elif code == 500:
             self.conn.sendall("""HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
             self.send_data("500 Internal Server Error")
@@ -134,19 +150,27 @@ class Handler(Thread):
 
     def index(self):
         with open("extra/index.html", 'rb') as j:
-            self.send_header(200)
-            self.send_data(j.read())
+            self.send_header(200, fileobject=j)
+            while True:
+                i = j.read(1024)
+                self.send_data(i)
+                if not i:
+                    break
+        self.close_connection()
 
     def show_img(self):
         try:
             f_type = self.request['path'].split('.')[-1]
             with open("{}".format(settings_file.images_path + self.request['path'].split('/')[-1]), 'rb') as j:
-                f = j.read()
+                self.send_header(200, f_type, j)
+                while True:
+                    i = j.read(1024)
+                    self.send_data(i)
+                    if not i:
+                        break
         except FileNotFoundError:
             self.send_header(404)
-        else:
-            self.send_header(200, f_type)
-            self.send_data(f)
+        self.close_connection()
 
     def exporter(self):
         try:
@@ -162,8 +186,9 @@ class Handler(Thread):
             except Exception:
                 self.send_header(500)
             else:
-                self.send_header(200)
+                self.send_header(200, fileobject=4)
                 self.send_data('Done')
+        self.close_connection()
 
     def results(self):
         try:
@@ -204,8 +229,9 @@ class Handler(Thread):
             except Exception:
                 self.send_header(500)
             else:
-                self.send_header(200)
+                self.send_header(200, fileobject=len(p))
                 self.send_data(p)
+        self.close_connection()
 
     def details(self):
         img_id = self.request['path'].split("/")[-1].split("_")
@@ -222,40 +248,43 @@ class Handler(Thread):
                                                                str(['<a href="/?query={}&page=1">{}</a>'.format(f, f)
                                                                     for f in [x for x in tags[1:-5]] if
                                                                     f != "None"]).strip("[]").replace("'", ''))
-            self.send_header(200)
+            self.send_header(200, fileobject=len(data))
             self.send_data(data)
         else:
             self.send_header(404)
+        self.close_connection()
 
     def die(self):
-        self.send_header(200)
+        self.send_header(200, fileobject=4)
         self.send_data("Done")
+        self.close_connection()
         os._exit(0)
 
     def dl(self):
         try:
             with open(str(settings_file.images_path + self.request['params']['id']), 'rb') as t:
-                temp = t.read()
+                self.send_header(200, self.request['params']['id'].split('.')[-1], fileobject=t)
+                for i in t:
+                    self.send_data(i)
         except FileNotFoundError:
             self.send_header(404)
         except KeyError:
             self.send_header(404)
         except Exception:
             self.send_header(500)
-        else:
-            self.send_header(200, self.request['params']['id'].split('.')[-1])
-            self.send_data(temp)
-            del temp
+        self.close_connection()
 
     def raw_dl(self):
         try:
             with open(str(settings_file.images_path + self.request['params']['id']), 'rb') as j:
-                temp = j.read()
+                self.send_header(200, self.request['params']['id'].split('.')[-1], fileobject=j)
+                while True:
+                    i = j.read(1024)
+                    self.send_data(i)
+                    if not i:
+                        break
         except Exception:
             self.send_data(str(500))
-        else:
-            self.send_data(temp)
-            del temp
 
     def predictor(self):
         if "mobile" in self.request['user-agent'].lower():
@@ -265,13 +294,14 @@ class Handler(Thread):
         try:
             matched = predictor.predict(self.request['params']['phrase'])
             if len(matched) == 0 or len(matched) == 1:
-                self.send_header(200)
+                self.send_header(200, fileobject=0)
                 self.send_data('')
             else:
-                self.send_header(200)
+                self.send_header(200, fileobject=str(matched))
                 self.send_data(str(matched))
         except Exception:
             self.send_header(500)
+        self.close_connection()
 
     def next(self):
         f = []
@@ -281,16 +311,17 @@ class Handler(Thread):
         while True:
             f = db.search_by_id(x)
             if f != []:
-                self.send_header(200)
+                self.send_header(200, fileobject=str(f[0][-1]+f[0][0].split('.')[0]))
                 self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
             elif (starting-x) >= 300:
-                self.send_header(200)
                 g = db.search_by_id(x)
+                self.send_header(200, fileobject=str(g[0][-1]+g[0][0].split('.')[0]))
                 self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
                 break
             else:
                 x -= 1
+        self.close_connection()
 
     def previous(self):
         f = []
@@ -335,8 +366,10 @@ class Handler(Thread):
 
     def random_image(self):
         img = db.random_img()[0]
-        self.send_header(200)
-        self.send_data("/image/"+img[-1]+img[0].split('.')[0])
+        result = str("/image/"+img[-1]+img[0].split('.')[0])
+        self.send_header(200, fileobject=result)
+        self.send_data(result)
+        self.close_connection()
 
     def serve(self):
         self.log_request()
@@ -369,14 +402,14 @@ class Handler(Thread):
                 self.request['path'] = self.request['path'].replace('..', '')
                 f_type = self.request['path'].split('.')[-1]
                 with open(os.curdir + self.request['path'], 'rb') as j:
-                    data = j.read()
+                    self.send_header(200, f_type, fileobject=j)
+                    for i in j:
+                        self.send_data(i)
             except FileNotFoundError:
                 self.send_header(404)
             except Exception:
                 self.send_header(500)
-            else:
-                self.send_header(200, f_type)
-                self.send_data(data)
+            self.close_connection()
 
 
 def run():
