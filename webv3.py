@@ -313,23 +313,24 @@ class Handler(Thread):
     
     def gen_paginator(self, dct):
         ex = """<li class="page-item{}"><a class="page-link" href="/?query={}&page={}">{}</a></li>"""
-        p = "" + ex.format('',self.request['params']['query'], '1', 'First')
+        query = self.request['params']['query'].replace("=", "%3D")
+        p = "" + ex.format('',query, '1', 'First')
         list_of_pages = list(dct.keys())
         cur_pg = int(self.request['params']['page'])
 
         if int(self.request['params']['page']) >= 4:
             for i in list_of_pages[cur_pg-3:cur_pg+4]:
                 if int(i)+1 == cur_pg:
-                    p += ex.format(" disabled", self.request['params']['query'], i+1, i+1)
+                    p += ex.format(" disabled", query, i+1, i+1)
                 else:
-                    p += ex.format("", self.request['params']['query'], i+1, i+1)
+                    p += ex.format("", query, i+1, i+1)
         elif int(self.request['params']['page']) < 4:
             for i in list_of_pages[0:cur_pg+4]:
                 if int(i)+1 == cur_pg:
-                    p += ex.format(" disabled", self.request['params']['query'], i+1, i+1)
+                    p += ex.format(" disabled", query, i+1, i+1)
                 else:
-                    p += ex.format("", self.request['params']['query'], i+1, i+1)
-        p += ex.format('', self.request['params']['query'], int(list(dct.keys())[-1])+1, 'Last')
+                    p += ex.format("", query, i+1, i+1)
+        p += ex.format('', query, int(list(dct.keys())[-1])+1, 'Last')
         return p
 
     def random_image(self):
