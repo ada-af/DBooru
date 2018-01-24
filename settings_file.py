@@ -2,12 +2,13 @@
 # NEVER DELETE/SET TO WRONG FORMAT OR LEAVE VARIABLES EMPTY! OTHER WAY EVERYTHING WILL FUCK UP!
 
 
-# Api Key
-# Can be found here: https://derpibooru.org/users/edit
-# Looks like: "R5bBvcs788sds86j327D"
-# Format: user_api_key = string
-# Example: (user_api_key = "R5bBvcs788sds86j327D")
-user_api_key = "KEY GOES HERE"
+# Define modules to work with
+# Module name is case sensetive
+# Available modules placed in dermod/sitesupport
+# Some modules may require changing settings
+# Format: modules = list(string, string)
+# Example: (modules = ['derpibooru', 'e621'])
+modules = ['derpibooru']
 
 # Output Errors
 # There will be over 9000 errors. Do not set False unless you are developer or someone who know programming
@@ -22,24 +23,13 @@ suppress_errors = True
 # Example: Use custom CA Cert (ssl_verify = 'cacert.pem')
 ssl_verify = True
 
-# Set derpibooru domain
-# Format: domain = string
-# Example: (domain = "trixiebooru.org")
-domain = "derpibooru.org"
-
 # Proxy Settings
 # Useful if connection to derpibooru is blocked by anything
 
-# Enable proxy for connections to derpibooru.org itself
+# Enable proxy for connections
 # Format: enable_proxy = bool
 # Example: (enable_proxy = True)
 enable_proxy = False
-
-# Enable proxy for connections to derpicdn.net
-# Sometimes derpibooru.org is blocked, but derpicdn is freely accessible
-# Format: derpicdn_enable_proxy = bool
-# Example: (derpicdn_enable_proxy = True)
-derpicdn_enable_proxy = False
 
 
 # Proxy IP/Port Settings
@@ -67,12 +57,7 @@ web_ip = "0.0.0.0"
 web_port = 9000
 
 
-# Derpibooru/database specific settings
-
-# Defines if download only favorited or both upvoted and favorited
-# Format: vote = string
-# Example: (vote = "faves")
-vote = "upvotes"
+# Database specific settings
 
 # Defines how many "Tag*" fields database must have
 # Format: tag_amount = int
@@ -133,12 +118,12 @@ table_name = 'images'
 # Turns on/off local servers discovery
 # Format: discover_servers = bool
 # Example: (discover_servers = False)
-discover_servers = True
+discover_servers = False
 
 # Turns on/off sharing images in lan
 # Format: discover_servers = bool
 # Example: (share_images = False)
-share_images = True
+share_images = False
 
 
 # Following settings
@@ -146,7 +131,7 @@ share_images = True
 # Enable or Disable running follower with webUI
 # Format: run_follower = bool
 # Example: (run_follower = False)
-run_follower = True
+run_follower = False
 
 # Defines amount of pages to check
 # Format: checked_pages = int

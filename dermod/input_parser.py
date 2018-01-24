@@ -26,37 +26,6 @@ def parser(string):
     return {"search": search, "remove": [x for x in remove if x != '']}
 
 
-def json_parser_v2(string):
-    string = string.split('"id":"')[1:]
-    ids = []
-    form = []
-    links = []
-    tags = []
-    height = []
-    width = []
-    ratio = []
-    for i in string:
-        k = i.split('"width":')[1]
-        k = k.split(',')[0]
-        width.append(k)
-        k = i.split('"height":')[1]
-        k = k.split(',')[0]
-        height.append(k)
-        k = i.split('"aspect_ratio":')[1]
-        k = k.split(',')[0][:10]
-        ratio.append(k)
-        ids.append(i.split('","')[0])
-        k = i.split('original_format')[1]
-        k = k.split('":"')[1].split('","')[0]
-        form.append(k)
-        k = i.split('","full":"')[1]
-        k = k.split('","webm":"')[0]
-        k = k.split('"},"is_rendered"')[0]
-        links.append(k)
-        tags.append(i.split('"tags":"')[1].split('"')[0])
-    return ids, form, links, tags, height, width, ratio
-
-
 def results_parser(list_tuple):
     results = list_tuple
     res_num = (len(list(results)) / settings_file.showing_imgs) + 1

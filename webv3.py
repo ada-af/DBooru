@@ -62,7 +62,11 @@ class UDPHandler(Thread):
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((self.ip, self.port))
         while True:
-            h = sock.recv(1024)
+            h = b''
+            t = None
+            while t != b'':
+                t = sock.recv(16)
+                h = h + t
             if h != b'':
                 h = h.decode()
                 host = h
@@ -163,9 +167,9 @@ class Handler(Thread):
 
     def results(self):
         try:
-            results = list(db.search(self.request["query"]['search'],
-                                     self.request["query"]['remove'])
-                           [int(self.request['params']['page']) - 1])
+            results = db.search(self.request["query"]['search'], self.request["query"]['remove'])
+            paginator = self.gen_paginator(results)
+            results = list(results[int(self.request['params']['page']) - 1])
         except (IndexError, KeyError):
             self.send_header(404)
         except Exception:
@@ -182,7 +186,7 @@ class Handler(Thread):
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
                     /images/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
-                            .format(str(i[1:-4]).strip('()').replace("'", ''), i[0], i[0].split('.')[0])
+                            .format(str(i[1:-5]).strip('()').replace("'", ''), i[-1]+i[0], i[-1]+i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
                 elif i[0].split('.')[1] == 'webm':
@@ -191,14 +195,12 @@ class Handler(Thread):
                              <source src="{}{}"/>
                              </video>
                              </abbr></div></div>""".format(str(i[1:-4]).strip('()').replace("'", ''),
-                                                     i[0].split('.')[0],
-                                                     settings_file.images_path, i[0])
+                                                     i[-1]+i[0].split('.')[0],
+                                                     settings_file.images_path, i[-1]+i[0])
             try:
                 p = open("extra/results.html", 'r').read().format(self.request['params']['query'],
                                                                   p,
-                                                                  int(self.request['params']['page']) - 1,
-                                                                  self.request['params']['query'],
-                                                                  int(self.request['params']['page']) + 1)
+                                                                  paginator)
             except Exception:
                 self.send_header(500)
             else:
@@ -206,20 +208,20 @@ class Handler(Thread):
                 self.send_data(p)
 
     def details(self):
-        img_id = self.request['path'].split("/")[-1]
-        tags = db.search_by_id(img_id)
+        img_id = self.request['path'].split("/")[-1].split("_")
+        tags = db.search_by_id(img_id[1], img_id[0])
         if len(tags) >= 1:
             tags = [x for x in tags[0] if x is not None]
             if tags[0].split('.')[1] != 'webm':
-                p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(tags[0])
+                p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(tags[-1]+tags[0])
             else:
                 p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
                                 <source src="/{}{}"/>
-                                </video>""".format(settings_file.images_path, tags[0])
-            data = open('extra/image.html', 'r').read().format(img_id, p, tags[0], tags[0], tags[-1], tags[-1],
-                                                               str(["<a href='/?query={}&page=1'>{}</a>".format(f, f)
-                                                                    for f in [x for x in tags[1:-4]] if
-                                                                    f != "None"]).strip("[]").replace('"', ''))
+                                </video>""".format(settings_file.images_path, tags[-1]+tags[0])
+            data = open('extra/image.html', 'r').read().format(img_id[1], p, tags[-1]+tags[0], tags[-1]+tags[0], tags[-1]+tags[0], tags[-2], tags[-2],
+                                                               str(['<a href="/?query={}&page=1">{}</a>'.format(f, f)
+                                                                    for f in [x for x in tags[1:-5]] if
+                                                                    f != "None"]).strip("[]").replace("'", ''))
             self.send_header(200)
             self.send_data(data)
         else:
@@ -273,42 +275,74 @@ class Handler(Thread):
 
     def next(self):
         f = []
+        self.request['post_data'] = self.request['post_data'].split('_')[1]
         starting = int(self.request['post_data'])
         x = int(self.request['post_data'])-1
         while True:
             f = db.search_by_id(x)
             if f != []:
                 self.send_header(200)
-                self.send_data(str(x))
+                self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
             elif (starting-x) >= 300:
                 self.send_header(200)
-                self.send_data(str(starting))
+                g = db.search_by_id(x)
+                self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
                 break
             else:
                 x -= 1
 
     def previous(self):
         f = []
+        self.request['post_data'] = self.request['post_data'].split('_')[1]
         starting = int(self.request['post_data'])
         x = int(self.request['post_data'])+1
         while True:
             f = db.search_by_id(x)
             if f != []:
                 self.send_header(200)
-                self.send_data(str(x))
+                self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
             elif (x-starting) >= 300:
                 self.send_header(200)
-                self.send_data(str(starting))
+                g = db.search_by_id(x)
+                self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
                 break
             else:
                 x += 1
     
+    def gen_paginator(self, dct):
+        ex = """<li class="page-item{}"><a class="page-link" href="/?query={}&page={}">{}</a></li>"""
+        p = "" + ex.format('',self.request['params']['query'], '1', 'First')
+        list_of_pages = list(dct.keys())
+        cur_pg = int(self.request['params']['page'])
+
+        if int(self.request['params']['page']) >= 4:
+            for i in list_of_pages[cur_pg-3:cur_pg+4]:
+                if int(i)+1 == cur_pg:
+                    p += ex.format(" disabled", self.request['params']['query'], i+1, i+1)
+                else:
+                    p += ex.format("", self.request['params']['query'], i+1, i+1)
+        elif int(self.request['params']['page']) < 4:
+            for i in list_of_pages[0:cur_pg+4]:
+                if int(i)+1 == cur_pg:
+                    p += ex.format(" disabled", self.request['params']['query'], i+1, i+1)
+                else:
+                    p += ex.format("", self.request['params']['query'], i+1, i+1)
+        p += ex.format('', self.request['params']['query'], int(list(dct.keys())[-1])+1, 'Last')
+        return p
+
+    def random_image(self):
+        img = db.random_img()[0]
+        self.send_header(200)
+        self.send_data("/image/"+img[-1]+img[0].split('.')[0])
+
     def serve(self):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
             self.index()
+        if self.request['path'] == '/random':
+            self.random_image()
         elif self.request['path'] == '/next' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':
             self.next()
         elif self.request['path'] == '/previous' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':
