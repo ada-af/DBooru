@@ -6,7 +6,7 @@ buildOptions = {
     'includes': ['requests', 'dermod', 'queue', 'idna', 'gc', 'pysocks'],
     "excludes": ["tkinter"],
     'include_files': ["extra/", (requests.certs.where(), 'cacert.pem')]
-    }
+}
 
 setup(
     name="DBooru",

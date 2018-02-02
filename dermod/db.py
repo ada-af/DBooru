@@ -33,35 +33,37 @@ def precomp():
         mkdb(settings_file.table_name)
 
 
-def suppress_errs(supp):  
+def suppress_errs(supp):
     if supp is True:
         suppressor = open(os.devnull, 'w')
         sys.stderr = suppressor
 
 
-def errors_init():  
+def errors_init():
     suppress_errs(settings_file.suppressor)
 
 
-def init_db():  
+def init_db():
     global cursor
     global conn
     conn = sqlite3.connect(settings_file.db_name)
     cursor = conn.cursor()
 
 
-def total_found():  
+def total_found():
     init_db()
-    print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM {} WHERE {}".format(settings_file.table_name, settings_file.columns[0])).fetchone()[0])
+    print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM {} WHERE {}".format(
+        settings_file.table_name, settings_file.columns[0])).fetchone()[0])
 
 
 def get_all_entries():
     init_db()
-    result = list(cursor.execute("SELECT * from {}".format(settings_file.table_name)))
+    result = list(cursor.execute(
+        "SELECT * from {}".format(settings_file.table_name)))
     return result
 
 
-def mkdb(table_name):  
+def mkdb(table_name):
     init_db()
     cursor.execute('drop table IF EXISTS {}'.format(table_name))
 
@@ -71,14 +73,15 @@ def mkdb(table_name):
     conn.commit()
 
 
-def fill_db(file=settings_file.ids_file):  
+def fill_db(file=settings_file.ids_file):
     print("\nFilling DB")
     init_db()
     unparsed = open(file).read()
     halfparsed = unparsed.strip("\n").split("\n")
     cnt = 0
     for i in halfparsed:
-        i = i.replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'').replace("'", '').replace("\"","")
+        i = i.replace('" ', '"').replace(' "', '"').replace(
+            '\' ', '\'').replace(' \'', '\'').replace("'", '').replace("\"", "")
         i = i.split(",,,")
         k = i[6].split(",")
         if len(k) < settings_file.tag_amount:
@@ -87,26 +90,31 @@ def fill_db(file=settings_file.ids_file):
             pass
         elif len(k) > settings_file.tag_amount:
             k = k[:settings_file.tag_amount]
-        k = str(k).strip("[]").replace('" ', '"').replace(' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}', '{}', '{}')".format(settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], i[2], i[7])
+        k = str(k).strip("[]").replace('" ', '"').replace(
+            ' "', '"').replace('\' ', '\'').replace(' \'', '\'')
+        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}', '{}', '{}')".format(
+            settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], i[2], i[7])
         cursor.execute(j)
         if cnt == 10:
             conn.commit()
             cnt = 0
     conn.commit()
-    cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(table_name=settings_file.table_name))
+    cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(
+        table_name=settings_file.table_name))
     conn.commit()
 
 
 def count_tag(tag_to_count):
     init_db()
 
-    sample = """select count(*) FROM {} where '{}' in ({})""".format(settings_file.table_name, tag_to_count, tag_col)
+    sample = """select count(*) FROM {} where '{}' in ({})""".format(
+        settings_file.table_name, tag_to_count, tag_col)
     output = list(cursor.execute(sample))
-    print(str(output[0]).strip("()").replace(",", "") + " images tagged {}".format(tag_to_count))
+    print(str(output[0]).strip("()").replace(",", "") +
+          " images tagged {}".format(tag_to_count))
 
 
-def search(list_search, list_remove):  
+def search(list_search, list_remove):
     init_db()
     special_fields = []
     for i in list_search:
@@ -116,27 +124,35 @@ def search(list_search, list_remove):
 
     if len(list_search) != 0:
         mkdb('temp1')
-        sample = "INSERT INTO temp1 SELECT * FROM {} WHERE '{}' in ({})".format(settings_file.table_name, list_search[0], tag_col)
+        sample = "INSERT INTO temp1 SELECT * FROM {} WHERE '{}' in ({})".format(
+            settings_file.table_name, list_search[0], tag_col)
         cursor.execute(sample)
-        cursor.execute("delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
-        results = list(cursor.execute("SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
+        cursor.execute(
+            "delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
+        results = list(cursor.execute(
+            "SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
     else:
         mkdb('temp1')
-        sample = "INSERT INTO temp1 SELECT * FROM {}".format(settings_file.table_name)
+        sample = "INSERT INTO temp1 SELECT * FROM {}".format(
+            settings_file.table_name)
         cursor.execute(sample)
-        cursor.execute("delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
-        results = list(cursor.execute("SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
+        cursor.execute(
+            "delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
+        results = list(cursor.execute(
+            "SELECT * FROM temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
 
     for i in list_search[1:]:
         mkdb('temp')
-        smp = "INSERT INTO temp SELECT * FROM temp1 where '{}' in ({})".format(i, tag_col)
+        smp = "INSERT INTO temp SELECT * FROM temp1 where '{}' in ({})".format(
+            i, tag_col)
         cursor.execute(smp)
         conn.commit()
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
+        results = list(cursor.execute(
+            "select * from temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
     results = ip.results_parser(results)
 
@@ -144,9 +160,11 @@ def search(list_search, list_remove):
         pass
     else:
         for i in list_remove:
-            cursor.execute("DELETE FROM temp1 WHERE '{}' in ({})".format(i, tag_col))
+            cursor.execute(
+                "DELETE FROM temp1 WHERE '{}' in ({})".format(i, tag_col))
             conn.commit()
-        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
+        results = list(cursor.execute(
+            "select * from temp1 order by CAST(fname as integer) DESC"))
         results = ip.results_parser(results)
         conn.commit()
 
@@ -162,12 +180,14 @@ def special_f(specials):
 
     def src(value, field, sym):
         mkdb('temp')
-        smp = "INSERT INTO temp SELECT * FROM temp1 where cast({} as REAL) {} {}".format(field, sym, value)
+        smp = "INSERT INTO temp SELECT * FROM temp1 where cast({} as REAL) {} {}".format(
+            field, sym, value)
         cursor.execute(smp)
         conn.commit()
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute("select * from temp1 order by CAST(fname as integer) DESC"))
+        results = list(cursor.execute(
+            "select * from temp1 order by CAST(fname as integer) DESC"))
         conn.commit()
         return results
 
@@ -194,13 +214,17 @@ def special_f(specials):
 
 def search_by_id(img_id, prefix="%"):
     init_db()
-    result = list(cursor.execute("SELECT * FROM {} WHERE fname like '{}.%' and prefix like '{}_'".format(settings_file.table_name, img_id, prefix)))
+    result = list(cursor.execute(
+        "SELECT * FROM {} WHERE fname like '{}.%' and prefix like '{}_'".format(settings_file.table_name, img_id, prefix)))
 
     return result
+
 
 def random_img():
     init_db()
-    result = list(cursor.execute("SELECT * FROM {} ORDER BY RANDOM() LIMIT 1".format(settings_file.table_name)))
+    result = list(cursor.execute(
+        "SELECT * FROM {} ORDER BY RANDOM() LIMIT 1".format(settings_file.table_name)))
     return result
+
 
 precomp()

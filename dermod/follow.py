@@ -16,8 +16,10 @@ def run(run_once=False):
         print("Checking new images")
         try:
             for i in settings_file.modules:
-                module = importlib.import_module('dermod.sitesupport.{}'.format(i))
-                listloader.run(follower=True, pages_num=settings_file.checked_pages, module=module)
+                module = importlib.import_module(
+                    'dermod.sitesupport.{}'.format(i))
+                listloader.run(
+                    follower=True, pages_num=settings_file.checked_pages, module=module)
                 imgloader.run(file=settings_file.ids_file, check_local=False)
                 db.fill_db(file=settings_file.ids_file)
         except Exception as exc:

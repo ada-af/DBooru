@@ -43,31 +43,33 @@ def show_help(case):
 
 
 def query_cycle(results):
-    if len(results) == 0:  
+    if len(results) == 0:
         print("Nothing found.")
         main_cycle()
     else:
         print("Found {} pages".format(len(results.keys())))
         while True:
-            inp = input("\nSearch@DB> ")  
+            inp = input("\nSearch@DB> ")
             inp = inp.lower()
             if inp == "back":
                 main_cycle()
 
-            elif inp.isnumeric():  
+            elif inp.isnumeric():
                 try:
                     for i in results[(int(inp)-1)]:
                         i = [x for x in i if x != "None"][:-5]
                         tmp = db.search_by_id(str(i[0]).split(".")[0])
-                        print(str(tmp[0][-1]+i[0]) + " "*(15 - len(i[0])) + " => " + str(i[1:settings_file.showing_tags]).strip("()"))
+                        print(str(tmp[0][-1]+i[0]) + " "*(15 - len(i[0])) +
+                              " => " + str(i[1:settings_file.showing_tags]).strip("()"))
                 except KeyError:
                     print('There is no page named {}'.format(inp))
 
-            elif "show" in inp:  
+            elif "show" in inp:
                 inp = inp.split("show")[1]
                 try:
                     if os.name != "nt":
-                        webbrowser.open(os.path.dirname(os.path.realpath(__file__)) + str(settings_file.images_path + inp.strip()))
+                        webbrowser.open(os.path.dirname(os.path.realpath(
+                            __file__)) + str(settings_file.images_path + inp.strip()))
                     else:
                         os.system(str("explorer.exe " + os.path.dirname(
                             os.path.realpath(__file__)) + settings_file.images_path + inp.strip()))
@@ -85,16 +87,16 @@ def query_cycle(results):
                 else:
                     pass
 
-            elif inp == '':  
+            elif inp == '':
                 pass
 
-            elif inp == "help":  
+            elif inp == "help":
                 show_help(2)
 
-            elif inp == 'quit' or inp == 'exit':  
+            elif inp == 'quit' or inp == 'exit':
                 os._exit(0)
 
-            else:  
+            else:
                 query = ip.parser(inp)
                 results = db.search(query['search'], query['remove'])
                 query_cycle(results)
@@ -114,33 +116,35 @@ def update_db(endwith="\r"):
 
 
 def main_cycle():
-    inp = input("\nDB> ")  
+    inp = input("\nDB> ")
     inp = inp.lower()
     if inp == "get images":
         update_db()
-    elif inp == "get images --force" or inp == "get images -f":  
+    elif inp == "get images --force" or inp == "get images -f":
         update_db()
     elif inp == "get images --fast":
         follow.run(run_once=True)
-    elif inp == "total":  
+    elif inp == "total":
         db.total_found()
-    elif "count" in inp:  
+    elif "count" in inp:
         counttag = inp.strip().split("count")[1].strip()
         db.count_tag(counttag)
-    elif inp == '':  
+    elif inp == '':
         main_cycle()
-    elif "show" in inp:  
+    elif "show" in inp:
         inp = inp.split("show")[1]
         try:
             if os.name == "nt":
-                webbrowser.open(os.path.dirname(os.path.realpath(__file__)) + str(settings_file.images_path + inp.strip()))
+                webbrowser.open(os.path.dirname(os.path.realpath(
+                    __file__)) + str(settings_file.images_path + inp.strip()))
             else:
-                os.system(str("explorer.exe " + os.path.dirname(os.path.realpath(__file__)) + settings_file.images_path + inp.strip()))
+                os.system(str("explorer.exe " + os.path.dirname(os.path.realpath(__file__)
+                                                                ) + settings_file.images_path + inp.strip()))
         except FileNotFoundError:
             print("File doesn't exist.")
-    elif inp == 'quit' or inp == 'exit':  
+    elif inp == 'quit' or inp == 'exit':
         os._exit(0)
-    elif inp == "help":  
+    elif inp == "help":
         show_help(1)
     elif "export" in inp:
         try:
@@ -152,13 +156,13 @@ def main_cycle():
             os.mkdir(settings_file.export_path)
         else:
             pass
-    else:  
+    else:
         query = ip.parser(inp)
         results = db.search(query['search'], query['remove'])
         query_cycle(results)
     main_cycle()
-    
-    
+
+
 try:
     try:
         if sys.argv[1] == "update":

@@ -68,7 +68,8 @@ class Loader(Thread):
 
     def writer(self):
         try:
-            open(settings_file.images_path + self.id + '.' + self.format, 'rb').close()
+            open(settings_file.images_path + self.id +
+                 '.' + self.format, 'rb').close()
         except FileNotFoundError:
             with open(settings_file.images_path + self.id + '.' + self.format, 'wb') as file:
                 file.write(self.raw_data)
@@ -78,14 +79,16 @@ class Loader(Thread):
 def udp_check():
     if settings_file.discover_servers is True:
         print("Checking for local servers..." + " " * 32, flush=True)
-        sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
+        sock = socket.socket(
+            socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         p = socket.gethostname()
         p = socket.gethostbyname(p)
         h = str.encode(p)
         broadcast_ip = '255.255.255.255'
         sock.sendto(h, (broadcast_ip, 29888))
-        sock1 = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
+        sock1 = socket.socket(
+            socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock1.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock1.bind(('0.0.0.0', 29889))
         sock1.settimeout(2)
@@ -94,7 +97,8 @@ def udp_check():
             k = sock1.recv(1024)
             if k is not '' and k is not b'':
                 k = k.decode()
-                k = (socket.gethostbyname(k.split(":")[0]), int(k.split(":")[1]))
+                k = (socket.gethostbyname(
+                    k.split(":")[0]), int(k.split(":")[1]))
         except socket.timeout:
             pass
         del sock, sock1
@@ -134,10 +138,12 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
     if check_files is True:
         for i in range(chk):
             print(
-                "Loading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
+                "Loading image {} of {} ({}% done) (Running threads {})".format(
+                    i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
                 flush=True, end=endwith)
             try:
-                open(settings_file.images_path + str(parsed[i][7] + parsed[i][0]) + '.' + parsed[i][1], 'rb').close()
+                open(settings_file.images_path +
+                     str(parsed[i][7] + parsed[i][0]) + '.' + parsed[i][1], 'rb').close()
             except FileNotFoundError:
                 t = Loader(parsed[i][2],
                            str(parsed[i][7] + parsed[i][0]),
@@ -156,7 +162,8 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
     else:
         for i in range(chk):
             print(
-                "Loading image {} of {} ({}% done) (Running threads {})".format(i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
+                "Loading image {} of {} ({}% done) (Running threads {})".format(
+                    i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
                 flush=True, end=endwith)
             t = Loader(parsed[i][2],
                        str(parsed[i][7] + parsed[i][0]),
@@ -174,7 +181,8 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
                 time.sleep(settings_file.sleep_time)
     while len(tc.threads) > 0:
         gc.collect()
-        print("Waiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 32, flush=True, end=endwith)
+        print("Waiting {} thread(s) to end routine".format(
+            len(tc.threads)) + " " * 32, flush=True, end=endwith)
         if c >= 15 and len(tc.threads) < 5:
             tc.threads = []
         elif len(tc.threads) < 5:
