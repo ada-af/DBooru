@@ -29,10 +29,16 @@ class Module:
         self.width = []
         for i in string:
             self.ids.append(i.split(',"')[0])
-            self.tags.append(i.split('"tags":"')[1]\
-            .split('",')[0]\
-            .replace(" ", ', ')\
-            .replace('_', ' '))
+            k = i.split('"artist":[')[1]
+            j = k.split(']')[0]
+            j = str([str("artist:"+x.strip(' " ')) for x in j.split(',')]).strip("[]").replace(r"\'", "")
+            j = j.replace('_', ' ')
+            k = i.split('"tags":"')[1]
+            k = k.split('",')[0]
+            k = k.replace(" ", ', ')
+            k = k.replace('_', ' ')
+            k = j + "," + k 
+            self.tags.append(k)
             k = i.split('"width":')[1]
             k = k.split(',')[0]
             self.width.append(k)
