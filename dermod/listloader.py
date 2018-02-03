@@ -31,40 +31,44 @@ class Checker(Thread):
     def get_data(self):
         if self.proxy_enabled is False:
             with requests.Session() as s:
-                s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
+                s.headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
                 self.raw_data = s.get(
                     "{domain}{endpoint}{paginator}{params}".format(domain=self.module.domain,
-                    endpoint=self.module.endpoint,
-                    params=self.module.params,
-                    paginator=self.module.paginator.format(self.page)),
+                                                                   endpoint=self.module.endpoint,
+                                                                   params=self.module.params,
+                                                                   paginator=self.module.paginator.format(self.page)),
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             self.raw_data = self.raw_data.content.decode()
         else:
             with requests.Session() as s:
-                s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
+                s.headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
                 self.raw_data = s.get(
                     "{domain}{endpoint}{paginator}{params}".format(domain=self.module.domain,
-                    endpoint=self.module.endpoint,
-                    params=self.module.params,
-                    paginator=self.module.paginator.format(self.page)),
-                proxies=dict(https='socks5://{}:{}'.format(self.proxy_ip, self.proxy_port)),
-                verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
+                                                                   endpoint=self.module.endpoint,
+                                                                   params=self.module.params,
+                                                                   paginator=self.module.paginator.format(self.page)),
+                    proxies=dict(
+                        https='socks5://{}:{}'.format(self.proxy_ip, self.proxy_port)),
+                    verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
         self.module_data.parse(self, string=self.raw_data)
 
     def compile(self):
-        digest = str(sha384(self.module.__name__.encode()).hexdigest())[:6] + "_"
+        digest = str(sha384(self.module.__name__.encode()).hexdigest())[
+            :6] + "_"
         for i in range(0, len(self.ids)):
             tmp = str(str(self.ids[i] + ",,," +
-                      self.form[i] + ",,," +
-                      self.links[i] + ",,," +
-                      self.width[i] + ",,," +
-                      self.height[i] + ",,," +
-                      str(int(self.width[i])/int(self.height[i])) + ",,," +
-                      self.module.__name__.split(".")[-1] + ',' + self.tags[i] + ",,," +
-                      digest).encode("utf8", errors='ignore'))[2:-1] + "\n"
+                          self.form[i] + ",,," +
+                          self.links[i] + ",,," +
+                          self.width[i] + ",,," +
+                          self.height[i] + ",,," +
+                          str(int(self.width[i])/int(self.height[i])) + ",,," +
+                          self.module.__name__.split(".")[-1] + ',' + self.tags[i] + ",,," +
+                          digest).encode("utf8", errors='ignore'))[2:-1] + "\n"
             self.compiled += tmp
 
     def writer(self):
@@ -101,15 +105,17 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
         k = False
         while k is False:
             pages_num += 50
-            print('Finding max page... (Checking Page {})'.format(pages_num-1), flush=True, end=endwith)
+            print('Finding max page... (Checking Page {})'.format(
+                pages_num-1), flush=True, end=endwith)
             with requests.Session() as s:
-                s.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
+                s.headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
                 dat = s.get(
-                "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
-                endpoint=module.endpoint,
-                params=module.params,
-                paginator=module.paginator.format(pages_num)),
-                verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
+                    "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
+                                                                   endpoint=module.endpoint,
+                                                                   params=module.params,
+                                                                   paginator=module.paginator.format(pages_num)),
+                    verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             if re.search("{}".format(module.empty_page), dat.content.decode()) is not None:
                 k = True
     k = False
@@ -130,12 +136,13 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
         slp = 0.2
     for i in range(1, pages_num+1):
         gc.collect()
-        print("Checking page {} of {} ({}% done)(Running threads {})          ".format(i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end=endwith)
+        print("Checking page {} of {} ({}% done)(Running threads {})          ".format(
+            i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end=endwith)
         t = Checker(page=i,
-        proxy_ip=settings_file.socks5_proxy_ip,
-        proxy_port=settings_file.socks5_proxy_port,
-        proxy_enabled=settings_file.enable_proxy,
-        module=module)
+                    proxy_ip=settings_file.socks5_proxy_ip,
+                    proxy_port=settings_file.socks5_proxy_port,
+                    proxy_enabled=settings_file.enable_proxy,
+                    module=module)
         t.start()
         tc.threads.append(t)
         if empties == 1:
@@ -144,7 +151,8 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
     c = 0
     while len(tc.threads) > 0:
         gc.collect()
-        print("Waiting {} thread(s) to end routine".format(len(tc.threads)) + " " * 32, flush=True, end=endwith)
+        print("Waiting {} thread(s) to end routine".format(
+            len(tc.threads)) + " " * 32, flush=True, end=endwith)
         if c >= 5 and len(tc.threads) < 10:
             tc.threads = []
         else:

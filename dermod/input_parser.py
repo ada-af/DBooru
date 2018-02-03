@@ -1,6 +1,7 @@
 import settings_file
 from dermod.aliases import aliases
 
+
 def parser(string):
     string = string.replace("%2C", ',').replace("+", " ").replace("%25", "%")
     string = string.lower().split(',')
@@ -19,7 +20,7 @@ def parser(string):
             remove.append(i.replace('-', ''))
         else:
             search.append(i)
-    search = [x for x in search if x != ''] # remove empty strings
+    search = [x for x in search if x != '']  # remove empty strings
     for i in remove:
         if i in search:
             search.remove(i)
@@ -86,11 +87,13 @@ def request_parser(request):
             query = None
             p = {}
             for i in params.split("&"):
-                p = dict(p, **{i.lower().split('=')[0]: i.lower().split('=')[1]})
+                p = dict(p, **{i.lower().split('=')
+                               [0]: i.lower().split('=')[1]})
             params = p
     except IndexError:
         params, query = (None, None)
-    parsed_request = {'method': splitted[0].split(" ")[0], 'path': path, 'params': params, 'query': query}
+    parsed_request = {'method': splitted[0].split(
+        " ")[0], 'path': path, 'params': params, 'query': query}
     for i in splitted[1:-2]:
         i = i.split(':', maxsplit=1)
         tmp = {i[0].lower(): i[1].strip()}

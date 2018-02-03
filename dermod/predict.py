@@ -48,5 +48,6 @@ class Predictor:
             if len(self.previous) == 0:
                 self.compiled += '<option value="{}{}">'.format(self.inp[0], i)
             else:
-                self.compiled += '<option value="{}, {}{}">'.format(",".join(self.previous), self.inp[0], i)
+                self.compiled += '<option value="{}, {}{}">'.format(
+                    ",".join(self.previous), self.inp[0], i)
         return self.compiled

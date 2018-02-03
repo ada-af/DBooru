@@ -40,7 +40,8 @@ class ThreadController(Thread):
             if p == 0:
                 pass
             else:
-                self.log_debug("Running threads {} ({} threads destroyed)".format(len(self.threads), p))
+                self.log_debug("Running threads {} ({} threads destroyed)".format(
+                    len(self.threads), p))
 
 
 class UDPHandler(Thread):
@@ -58,7 +59,8 @@ class UDPHandler(Thread):
         self.ip = '0.0.0.0'
 
     def start_listener(self):
-        sock = socket.socket(socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
+        sock = socket.socket(
+            socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((self.ip, self.port))
         while True:
@@ -71,9 +73,11 @@ class UDPHandler(Thread):
                 h = h.decode()
                 host = h
                 try:
-                    self.log_debug("[UDP] Received discovery from {} ({})".format(host, socket.gethostbyname(host)))
+                    self.log_debug("[UDP] Received discovery from {} ({})".format(
+                        host, socket.gethostbyname(host)))
                 except Exception:
-                    self.log_debug("[UDP] Received discovery from '' ({})".format(host))
+                    self.log_debug(
+                        "[UDP] Received discovery from '' ({})".format(host))
                 h = str(socket.gethostbyname(socket.gethostname()))
                 h = h + ":" + str(settings_file.web_port)
                 sock.sendto(h.encode(), (host, 29889))
@@ -124,7 +128,7 @@ class Handler(Thread):
         elif type(fileobject) is int:
             ln = fileobject
         else:
-            ln = str(fileobject.seek(0,2))
+            ln = str(fileobject.seek(0, 2))
             fileobject.seek(0)
         return ln
 
@@ -132,20 +136,24 @@ class Handler(Thread):
         content_len = self.get_len(fileobject)
         mime = mimes.types[mime]
         if code == 200:
-            self.conn.sendall("""HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nContent-Length: {}\nX-HTTP-Pony: I'm working hard for you\n\n""".format(mime, content_len).encode())
+            self.conn.sendall(
+                """HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nContent-Length: {}\nX-HTTP-Pony: I'm working hard for you\n\n""".format(mime, content_len).encode())
         elif code == 404:
-            self.conn.sendall("""HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
-            self.send_data("<html><head><meta http-equiv='refresh' content='1; url=/' </head><body>404 Not Found</body></html>".encode())
+            self.conn.sendall(
+                """HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
+            self.send_data(
+                "<html><head><meta http-equiv='refresh' content='1; url=/' </head><body>404 Not Found</body></html>".encode())
             self.close_connection()
         elif code == 500:
-            self.conn.sendall("""HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
+            self.conn.sendall(
+                """HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
             self.send_data("500 Internal Server Error")
             self.conn.close()
 
     def log_request(self):
         request = self.request
         t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
-        print("""[REQUEST] [{} @ {}] Made request: {} {} with params {{'params: {}', 'query: {}', 'post_data': {}}}""" \
+        print("""[REQUEST] [{} @ {}] Made request: {} {} with params {{'params: {}', 'query: {}', 'post_data': {}}}"""
               .format(self.ip, t, request['method'], request['path'], request['params'], request['query'], request['post_data']))
 
     def index(self):
@@ -174,15 +182,18 @@ class Handler(Thread):
 
     def exporter(self):
         try:
-            src_file = open(str(settings_file.images_path + self.request['params']['id']), 'rb').read()
+            src_file = open(str(settings_file.images_path +
+                                self.request['params']['id']), 'rb').read()
         except FileNotFoundError:
             self.send_header(404)
         else:
             try:
-                open(str(settings_file.export_path + self.request['params']['id']), 'wb').write(src_file)
+                open(str(settings_file.export_path +
+                         self.request['params']['id']), 'wb').write(src_file)
             except FileNotFoundError:
                 os.mkdir(settings_file.export_path)
-                open(str(settings_file.export_path + self.request['params']['id']), 'wb').write(src_file)
+                open(str(settings_file.export_path +
+                         self.request['params']['id']), 'wb').write(src_file)
             except Exception:
                 self.send_header(500)
             else:
@@ -192,7 +203,8 @@ class Handler(Thread):
 
     def results(self):
         try:
-            results = db.search(self.request["query"]['search'], self.request["query"]['remove'])
+            results = db.search(
+                self.request["query"]['search'], self.request["query"]['remove'])
             paginator = self.gen_paginator(results)
             results = list(results[int(self.request['params']['page']) - 1])
         except (IndexError, KeyError):
@@ -220,8 +232,9 @@ class Handler(Thread):
                              <source src="{}{}"/>
                              </video>
                              </abbr></div></div>""".format(str(i[1:-4]).strip('()').replace("'", ''),
-                                                     i[-1]+i[0].split('.')[0],
-                                                     settings_file.images_path, i[-1]+i[0])
+                                                           i[-1] +
+                                                           i[0].split('.')[0],
+                                                           settings_file.images_path, i[-1]+i[0])
             try:
                 p = open("extra/results.html", 'r').read().format(self.request['params']['query'],
                                                                   p,
@@ -239,7 +252,8 @@ class Handler(Thread):
         if len(tags) >= 1:
             tags = [x for x in tags[0] if x is not None]
             if tags[0].split('.')[1] != 'webm':
-                p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(tags[-1]+tags[0])
+                p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(
+                    tags[-1]+tags[0])
             else:
                 p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
                                 <source src="/{}{}"/>
@@ -263,7 +277,8 @@ class Handler(Thread):
     def dl(self):
         try:
             with open(str(settings_file.images_path + self.request['params']['id']), 'rb') as t:
-                self.send_header(200, self.request['params']['id'].split('.')[-1], fileobject=t)
+                self.send_header(
+                    200, self.request['params']['id'].split('.')[-1], fileobject=t)
                 for i in t:
                     self.send_data(i)
         except FileNotFoundError:
@@ -277,7 +292,8 @@ class Handler(Thread):
     def raw_dl(self):
         try:
             with open(str(settings_file.images_path + self.request['params']['id']), 'rb') as j:
-                self.send_header(200, self.request['params']['id'].split('.')[-1], fileobject=j)
+                self.send_header(
+                    200, self.request['params']['id'].split('.')[-1], fileobject=j)
                 while True:
                     i = j.read(1024)
                     self.send_data(i)
@@ -311,12 +327,14 @@ class Handler(Thread):
         while True:
             f = db.search_by_id(x)
             if f != []:
-                self.send_header(200, fileobject=str(f[0][-1]+f[0][0].split('.')[0]))
+                self.send_header(200, fileobject=str(
+                    f[0][-1]+f[0][0].split('.')[0]))
                 self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
             elif (starting-x) >= 300:
                 g = db.search_by_id(x)
-                self.send_header(200, fileobject=str(g[0][-1]+g[0][0].split('.')[0]))
+                self.send_header(200, fileobject=str(
+                    g[0][-1]+g[0][0].split('.')[0]))
                 self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
                 break
             else:
@@ -341,11 +359,11 @@ class Handler(Thread):
                 break
             else:
                 x += 1
-    
+
     def gen_paginator(self, dct):
         ex = """<li class="page-item{}"><a class="page-link" href="/?query={}&page={}">{}</a></li>"""
         query = self.request['params']['query'].replace("=", "%3D")
-        p = "" + ex.format('',query, '1', 'First')
+        p = "" + ex.format('', query, '1', 'First')
         list_of_pages = list(dct.keys())
         cur_pg = int(self.request['params']['page'])
 
@@ -425,7 +443,8 @@ def run():
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((settings_file.web_ip, settings_file.web_port))
     sock.listen(64)
-    print("Server started at http://{}:{}".format(settings_file.web_ip, settings_file.web_port))
+    print("Server started at http://{}:{}".format(settings_file.web_ip,
+                                                  settings_file.web_port))
     while True:
         try:
             conn, addr = sock.accept()
