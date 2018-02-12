@@ -460,9 +460,12 @@ def run(request_debug=False):
 
 if __name__ == "__main__":
     try:
-        if sys.argv[1] == "debug":
-            run(request_debug=True)
-        else:
+        try:
+            if sys.argv[1] == "debug":
+                run(request_debug=True)
+            else:
+                run()
+        except IndexError:
             run()
     except KeyboardInterrupt:
         os._exit(0)
