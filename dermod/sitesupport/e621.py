@@ -38,7 +38,7 @@ class Module:
                 r = "explicit"
             elif r == "q":
                 r = "questionable"
-            elif r = "s":
+            elif r == "s":
                 r = "safe"
             k = i.split('"tags":"')[1]
             k = k.split('",')[0]
