@@ -94,17 +94,20 @@ class Handler(Thread):
         for i in args:
             print("[DEBUG] @ [{}] ".format(t) + str(i))
 
-    def __init__(self, csock, ip):
+    def __init__(self, csock, ip, request_debug=False):
         Thread.__init__(self)
         self.conn = csock
         self.req = csock.recv(1024)
         self.ip = ip
         self.request = None
         self.readiness = 0
+        self.request_debug = request_debug
 
     def run(self):
         try:
             self.request = ip.request_parser(self.req)
+            if self.request_debug is True:
+                self.log_debug(self.request, "\n\n")
             self.serve()
         except Exception:
             pass
@@ -430,7 +433,7 @@ class Handler(Thread):
             self.close_connection()
 
 
-def run():
+def run(request_debug=False):
     tc = ThreadController()
     tc.start()
     if settings_file.share_images is True:
@@ -448,7 +451,7 @@ def run():
     while True:
         try:
             conn, addr = sock.accept()
-            newT = Handler(conn, addr[0])
+            newT = Handler(conn, addr[0], request_debug=request_debug)
             newT.start()
             tc.threads.append(newT)
         except ConnectionResetError:
@@ -457,6 +460,9 @@ def run():
 
 if __name__ == "__main__":
     try:
-        run()
+        if sys.argv[1] == "debug":
+            run(request_debug=True)
+        else:
+            run()
     except KeyboardInterrupt:
         os._exit(0)
