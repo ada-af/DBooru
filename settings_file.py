@@ -56,6 +56,12 @@ web_ip = "0.0.0.0"
 # Example: web_port = 1337
 web_port = 9000
 
+# Defines tool to make thumbnails
+# Can be "ffmpeg" or "PIL"
+# Format: thumbnailer = string
+# Example: thumbnailer = "PIL"
+thumbnailer = "ffmpeg"
+
 
 # Database specific settings
 

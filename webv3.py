@@ -5,6 +5,12 @@ import time
 import sys
 from datetime import datetime
 from threading import Thread
+import tempfile
+import plumbum
+try:
+    import PIL.Image as Image
+except ModuleNotFoundError:
+    pass
 
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
@@ -225,7 +231,7 @@ class Handler(Thread):
                 if i[0].split('.')[1] != 'webm':
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
-                    /images/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
+                    /thumb/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
                             .format(str(i[1:-5]).strip('()').replace("'", ''), i[-1]+i[0], i[-1]+i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
@@ -385,6 +391,29 @@ class Handler(Thread):
         p += ex.format('', query, int(list(dct.keys())[-1])+1, 'Last')
         return p
 
+    def thumb(self):
+        fname = self.request['path'].split("/")[-1]
+        tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
+        tf.close()
+        if settings_file.thumbnailer.lower() == "ffmpeg":
+            cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f mjpeg {tempname}".format(fname=settings_file.images_path+fname, tempname=tf.name)
+            proc = os.system(cmd)
+        else:
+            img = Image.open(settings_file.images_path+fname)
+            img.thumbnail((500,500), Image.ANTIALIAS)
+            img.save(tf.name, "JPEG")
+        with open(tf.name, 'rb') as nm:
+            self.send_header(200, mime="jpg", fileobject=nm.seek(0, 2))
+            nm.seek(0)
+            while True:
+                i = nm.read(1024)
+                self.send_data(i)
+                if not i:
+                    break
+        nm.close()
+        os.remove(tf.name)
+        self.close_connection()
+
     def random_image(self):
         img = db.random_img()[0]
         result = str("/image/"+img[-1]+img[0].split('.')[0])
@@ -408,6 +437,8 @@ class Handler(Thread):
             self.exporter()
         elif self.request['path'] == '/' and self.request['query'] is not None:
             self.results()
+        elif "/thumb/" in self.request['path']:
+            self.thumb()
         elif "/image/" in self.request['path']:
             self.details()
         elif self.request['path'] == '/panic' or self.request['path'] == '/shutdown':

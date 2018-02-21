@@ -72,11 +72,10 @@
 ### CLI-version
 1. Loading images from *booru
     1. Even with proxy (socks5 only)
-1. Discovering of databases in case of using in LAN (Turnable option)
+
 ### Web-Interface
 1. Downloading images
 1. Exporting images
-1. Sharing images for LAN-clients (Turnable option)
 1. Tag predictions
 1. Change page with ← or → arrows
 1. Scroll through images with ← or → arrows
@@ -91,6 +90,7 @@
 >- pysocks
 >- idna
 >- cryptography
+>- ffmpeg or pillow
 >
 >If you have PyOpenSSL installed - remove it
 >
@@ -232,6 +232,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query            | Plain text data and HTTP headers and status code          |
 | "/next"                | POST   | **int**                             | Tries to get id of next (older) image    | Plain text data (<id-of-image>) and status code           |
 | "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>) and status code           |
+| "/thumb/**filename**   | GET    |                                     | Makes thumbnail (500px) of image         | Image
 
 
 ## Search basics and syntax
