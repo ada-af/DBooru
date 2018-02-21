@@ -186,6 +186,7 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
         if c >= settings_file.time_wait and len(tc.threads) < 5:
             tc.threads = []
         elif len(tc.threads) < 5:
+            print("Left to download {}".format(str([x.id for x in [x for x in tc.threads]]))+ " "*32, end=endwith)
             time.sleep(1)
             c += 1
     del tc
