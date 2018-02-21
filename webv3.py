@@ -8,7 +8,7 @@ from threading import Thread
 import tempfile
 try:
     import PIL.Image as Image
-except ModuleNotFoundError:
+except ImportError:
     pass
 
 from dermod import input_parser as ip
