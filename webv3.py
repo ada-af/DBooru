@@ -6,7 +6,6 @@ import sys
 from datetime import datetime
 from threading import Thread
 import tempfile
-import plumbum
 try:
     import PIL.Image as Image
 except ModuleNotFoundError:
