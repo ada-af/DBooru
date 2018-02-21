@@ -183,7 +183,7 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
         gc.collect()
         print("Waiting {} thread(s) to end routine".format(
             len(tc.threads)) + " " * 32, flush=True, end=endwith)
-        if c >= 15 and len(tc.threads) < 5:
+        if c >= settings_file.time_wait and len(tc.threads) < 5:
             tc.threads = []
         elif len(tc.threads) < 5:
             time.sleep(1)
