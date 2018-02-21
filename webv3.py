@@ -396,14 +396,24 @@ class Handler(Thread):
         tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
         tf.close()
         if settings_file.thumbnailer.lower() == "ffmpeg":
-            cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f mjpeg {tempname}".format(fname=settings_file.images_path+fname, tempname=tf.name)
+            if fname.split('.')[-1] == 'gif':
+                form = "gif"
+            else:
+                form = 'mjpeg'
+            cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}".format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
             proc = os.system(cmd)
         else:
             img = Image.open(settings_file.images_path+fname)
             img.thumbnail((500,500), Image.ANTIALIAS)
-            img.save(tf.name, "JPEG")
+            if fname.split('.')[-1] == 'gif':
+                img.save(tf.name, "GIF")
+            else:
+                img.save(tf.name, "JPEG")
         with open(tf.name, 'rb') as nm:
-            self.send_header(200, mime="jpg", fileobject=nm.seek(0, 2))
+            if fname.split('.')[-1] == 'gif':
+                self.send_header(200, mime="gif", fileobject=nm.seek(0, 2))
+            else:
+                self.send_header(200, mime="jpg", fileobject=nm.seek(0, 2))
             nm.seek(0)
             while True:
                 i = nm.read(1024)
