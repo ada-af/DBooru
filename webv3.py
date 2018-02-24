@@ -49,48 +49,6 @@ class ThreadController(Thread):
                     len(self.threads), p))
 
 
-class UDPHandler(Thread):
-    @staticmethod
-    def log_debug(*args):
-        t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
-        j = ''
-        for i in args:
-            j += str(i)
-        print("[DEBUG] @ [{}] ".format(t) + str(j))
-
-    def __init__(self):
-        Thread.__init__(self)
-        self.port = 29888
-        self.ip = '0.0.0.0'
-
-    def start_listener(self):
-        sock = socket.socket(
-            socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((self.ip, self.port))
-        while True:
-            h = b''
-            t = None
-            while t != b'':
-                t = sock.recv(16)
-                h = h + t
-            if h != b'':
-                h = h.decode()
-                host = h
-                try:
-                    self.log_debug("[UDP] Received discovery from {} ({})".format(
-                        host, socket.gethostbyname(host)))
-                except Exception:
-                    self.log_debug(
-                        "[UDP] Received discovery from '' ({})".format(host))
-                h = str(socket.gethostbyname(socket.gethostname()))
-                h = h + ":" + str(settings_file.web_port)
-                sock.sendto(h.encode(), (host, 29889))
-
-    def run(self):
-        self.start_listener()
-
-
 class Handler(Thread):
 
     @staticmethod
@@ -401,13 +359,16 @@ class Handler(Thread):
                 form = 'mjpeg'
             cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}".format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
             proc = os.system(cmd)
-        else:
+        elif settings_file.thumbnailer.lower() == "pil":
             img = Image.open(settings_file.images_path+fname)
             img.thumbnail((500,500), Image.ANTIALIAS)
             if fname.split('.')[-1] == 'gif':
                 img.save(tf.name, "GIF")
             else:
                 img.save(tf.name, "JPEG")
+        else:
+            os.remove(tf.name)
+            tf.name = settings_file.images_path+fname
         with open(tf.name, 'rb') as nm:
             if fname.split('.')[-1] == 'gif':
                 self.send_header(200, mime="gif", fileobject=nm.seek(0, 2))
@@ -420,7 +381,10 @@ class Handler(Thread):
                 if not i:
                     break
         nm.close()
-        os.remove(tf.name)
+        if settings_file.thumbnailer.lower() == "ffmpeg" or settings_file.thumbnailer.lower() == "pil":
+            os.remove(tf.name)
+        else:
+            pass
         self.close_connection()
 
     def random_image(self):
@@ -476,9 +440,6 @@ class Handler(Thread):
 def run(request_debug=False):
     tc = ThreadController()
     tc.start()
-    if settings_file.share_images is True:
-        UDPsrv = UDPHandler()
-        UDPsrv.start()
     if settings_file.run_follower is True:
         follower = Thread(target=follow.run)
         follower.start()
