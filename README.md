@@ -68,15 +68,13 @@
     1. By tags
     1. By image dimensions
 1. Viewing images
-1. Multithreading
 ### CLI-version
 1. Loading images from *booru
     1. Even with proxy (socks5 only)
-1. Discovering of databases in case of using in LAN (Turnable option)
+
 ### Web-Interface
 1. Downloading images
 1. Exporting images
-1. Sharing images for LAN-clients (Turnable option)
 1. Tag predictions
 1. Change page with ← or → arrows
 1. Scroll through images with ← or → arrows
@@ -91,6 +89,7 @@
 >- pysocks
 >- idna
 >- cryptography
+>- ffmpeg or pillow
 >
 >If you have PyOpenSSL installed - remove it
 >
@@ -232,6 +231,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query            | Plain text data and HTTP headers and status code          |
 | "/next"                | POST   | **int**                             | Tries to get id of next (older) image    | Plain text data (<id-of-image>) and status code           |
 | "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>) and status code           |
+| "/thumb/**filename**   | GET    |                                     | Makes thumbnail (500px) of image         | Image
 
 
 ## Search basics and syntax
@@ -293,8 +293,6 @@ Enter this commands if prompt starts with `Search@DB>`
 | ids_file              | String ("Path/Filename")      | Name for tempfile (No need to change)                    |
 | db_name               | String ("Path/Filename")      | Where to store DB file                                   |
 | table_name            | String ("Text")               | Sets name for main table (No need to change)             |
-| discover_servers      | Bool (True/False)             | Enable checking for servers in LAN                       |
-| share_images          | Bool (True/False)             | Enable sharing in LAN                                    |
 | run_follower          | Bool (True/False)             | Enable checking for new images while webUI runs          |
 | checked_pages         | Integer (number)              | How many pages should be checked                         |
 | follower_sleep        | Integer (seconds)             | Defines time between checking for images                 |

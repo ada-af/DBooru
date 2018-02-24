@@ -134,7 +134,7 @@ def main_cycle():
     elif "show" in inp:
         inp = inp.split("show")[1]
         try:
-            if os.name == "nt":
+            if os.name != "nt":
                 webbrowser.open(os.path.dirname(os.path.realpath(
                     __file__)) + str(settings_file.images_path + inp.strip()))
             else:

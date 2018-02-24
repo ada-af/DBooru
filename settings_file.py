@@ -56,6 +56,12 @@ web_ip = "0.0.0.0"
 # Example: web_port = 1337
 web_port = 9000
 
+# Defines tool to make thumbnails
+# Can be "disabled", "ffmpeg" or "PIL"
+# Format: thumbnailer = string
+# Example: thumbnailer = "PIL"
+thumbnailer = "ffmpeg"
+
 
 # Database specific settings
 
@@ -111,19 +117,6 @@ db_name = "sqlite.db"
 # Format: table_name = string
 # Example: (table_name = 'images')
 table_name = 'images'
-
-
-# Servers discovery options
-
-# Turns on/off local servers discovery
-# Format: discover_servers = bool
-# Example: (discover_servers = False)
-discover_servers = False
-
-# Turns on/off sharing images in lan
-# Format: discover_servers = bool
-# Example: (share_images = False)
-share_images = False
 
 
 # Following settings

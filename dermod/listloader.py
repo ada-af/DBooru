@@ -153,7 +153,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
         gc.collect()
         print("Waiting {} thread(s) to end routine".format(
             len(tc.threads)) + " " * 32, flush=True, end=endwith)
-        if c >= 5 and len(tc.threads) < 10:
+        if c >= 15 and len(tc.threads) < 10:
             tc.threads = []
         else:
             time.sleep(1)

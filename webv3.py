@@ -5,6 +5,11 @@ import time
 import sys
 from datetime import datetime
 from threading import Thread
+import tempfile
+try:
+    import PIL.Image as Image
+except ImportError:
+    pass
 
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
@@ -42,48 +47,6 @@ class ThreadController(Thread):
             else:
                 self.log_debug("Running threads {} ({} threads destroyed)".format(
                     len(self.threads), p))
-
-
-class UDPHandler(Thread):
-    @staticmethod
-    def log_debug(*args):
-        t = datetime.now().strftime('%d.%m.%Y %H:%M:%S.%f')
-        j = ''
-        for i in args:
-            j += str(i)
-        print("[DEBUG] @ [{}] ".format(t) + str(j))
-
-    def __init__(self):
-        Thread.__init__(self)
-        self.port = 29888
-        self.ip = '0.0.0.0'
-
-    def start_listener(self):
-        sock = socket.socket(
-            socket.SOCK_DGRAM, socket.AF_INET, socket.IPPROTO_UDP)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((self.ip, self.port))
-        while True:
-            h = b''
-            t = None
-            while t != b'':
-                t = sock.recv(16)
-                h = h + t
-            if h != b'':
-                h = h.decode()
-                host = h
-                try:
-                    self.log_debug("[UDP] Received discovery from {} ({})".format(
-                        host, socket.gethostbyname(host)))
-                except Exception:
-                    self.log_debug(
-                        "[UDP] Received discovery from '' ({})".format(host))
-                h = str(socket.gethostbyname(socket.gethostname()))
-                h = h + ":" + str(settings_file.web_port)
-                sock.sendto(h.encode(), (host, 29889))
-
-    def run(self):
-        self.start_listener()
 
 
 class Handler(Thread):
@@ -225,7 +188,7 @@ class Handler(Thread):
                 if i[0].split('.')[1] != 'webm':
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
-                    /images/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
+                    /thumb/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
                             .format(str(i[1:-5]).strip('()').replace("'", ''), i[-1]+i[0], i[-1]+i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
@@ -385,6 +348,45 @@ class Handler(Thread):
         p += ex.format('', query, int(list(dct.keys())[-1])+1, 'Last')
         return p
 
+    def thumb(self):
+        fname = self.request['path'].split("/")[-1]
+        tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
+        tf.close()
+        if settings_file.thumbnailer.lower() == "ffmpeg":
+            if fname.split('.')[-1] == 'gif':
+                form = "gif"
+            else:
+                form = 'mjpeg'
+            cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}".format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
+            proc = os.system(cmd)
+        elif settings_file.thumbnailer.lower() == "pil":
+            img = Image.open(settings_file.images_path+fname)
+            img.thumbnail((500,500), Image.ANTIALIAS)
+            if fname.split('.')[-1] == 'gif':
+                img.save(tf.name, "GIF")
+            else:
+                img.save(tf.name, "JPEG")
+        else:
+            os.remove(tf.name)
+            tf.name = settings_file.images_path+fname
+        with open(tf.name, 'rb') as nm:
+            if fname.split('.')[-1] == 'gif':
+                self.send_header(200, mime="gif", fileobject=nm.seek(0, 2))
+            else:
+                self.send_header(200, mime="jpg", fileobject=nm.seek(0, 2))
+            nm.seek(0)
+            while True:
+                i = nm.read(1024)
+                self.send_data(i)
+                if not i:
+                    break
+        nm.close()
+        if settings_file.thumbnailer.lower() == "ffmpeg" or settings_file.thumbnailer.lower() == "pil":
+            os.remove(tf.name)
+        else:
+            pass
+        self.close_connection()
+
     def random_image(self):
         img = db.random_img()[0]
         result = str("/image/"+img[-1]+img[0].split('.')[0])
@@ -408,6 +410,8 @@ class Handler(Thread):
             self.exporter()
         elif self.request['path'] == '/' and self.request['query'] is not None:
             self.results()
+        elif "/thumb/" in self.request['path']:
+            self.thumb()
         elif "/image/" in self.request['path']:
             self.details()
         elif self.request['path'] == '/panic' or self.request['path'] == '/shutdown':
@@ -436,9 +440,6 @@ class Handler(Thread):
 def run(request_debug=False):
     tc = ThreadController()
     tc.start()
-    if settings_file.share_images is True:
-        UDPsrv = UDPHandler()
-        UDPsrv.start()
     if settings_file.run_follower is True:
         follower = Thread(target=follow.run)
         follower.start()
