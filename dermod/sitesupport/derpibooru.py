@@ -7,7 +7,7 @@ domain = 'https://derpibooru.org'
 endpoint = "/search.json?q={}".format(query)
 paginator = "&page={}"
 # Must be regexp
-empty_page = '\{\}$'
+empty_page = '\{"search":\[\],"'
 slp = 0.1 # Defines delay between requests
 params = "&key={}".format(api_key)
 
