@@ -7,56 +7,6 @@
     <link rel='stylesheet' href="/extra/bootstrap.min.css">
     <script src="/extra/bootstrap.min.js"></script>
     <script src="/extra/clipboard.min.js" type="application/javascript"></script>
-    <script type="text/javascript">
-        function dbclick(id){{
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '/export?id='+id, true);
-        xhr.send();
-        xhr.timeout = 1000;
-        xhr.onreadystatechange = function () {{
-            console.log(this.status);
-            if (this.status === 200 | this.status === 0){{
-                document.getElementById('export').innerHTML = "Done";
-                document.getElementById('export').classList.remove('btn-info');
-                document.getElementById('export').classList.add('btn-success');
-                }}
-            if (this.status !== 200) {{
-                document.getElementById('export').innerHTML = "Error";
-                document.getElementById('export').classList.remove('btn-info');
-                document.getElementById('export').classList.add('btn-danger')
-                }}
-            }}
-        }}
-    function dl(id){{
-        var req = new XMLHttpRequest();
-        req.open('GET', '/dl?id='+id, true);
-        req.responseType = 'blob';
-        req.send();
-        req.timeout = 1000;
-        req.onload = function (e) {{
-            if (req.status == 200) {{
-                var blob = new Blob([this.response], {{'type': this.getResponseHeader('content-type')}})
-                var a = document.createElement('a');
-                a.style = 'display: none';
-                document.body.appendChild(a);
-                var url = URL.createObjectURL(blob);
-                a.href = url;
-                a.download = id;
-                a.click();
-            }}
-        }}
-    }}
-    function dcdn(link){{
-        win = window.open(link, '_blank');
-        win.focus()
-    }}
-    function sw(){{
-            var img = document.getElementById('image')
-            img.classList.toggle("img")
-            img.classList.toggle("img-fluid")
-            img.classList.toggle("ft")
-        }}
-    </script>
     <style>
     .ft{{
         max-height: 80vh;
@@ -86,8 +36,9 @@
         <div align="center">
             <button class="btn btn-info" onclick="dl('{}')">Download</button>
             <button class="btn btn-info" id="export" onclick="dbclick('{}')">Export</button>
-            <button class="btn btn-info" id="export" onclick="dcdn('{}')">View on Derpicdn</button>
-            <button class="btn btn-info" data-clipboard-text="{}" id='clip'>Copy Derpicdn link</button>
+            <button class="btn btn-info" id="open" onclick="view('{}')">View</button>
+            <button class="btn btn-info" onclick="dcdn('{}')">View on Source</button>
+            <button class="btn btn-info" data-clipboard-text="{}" id='clip'>Copy Source link</button>
         </div>
         <div><h3>Tags: {}</h3></div>
     </div>
@@ -96,6 +47,9 @@
     <script type="application/javascript">
         var btn = document.getElementById('clip');
         var clipboard = new Clipboard(btn);
+        function view(id){{
+            location.href = "/images/"+id
+        }}
         function update_datalist() {{
             document.getElementById('search').innerHTML = '';
             //phrase = document.getElementById('inp').value;
@@ -108,6 +62,82 @@
             }}
         }}
         document.getElementById('inp').addEventListener('input', update_datalist)
+        document.onkeydown = function (e) {{
+            if (e.keyCode === 39 && e.target.className != "form-control") {{
+                xhr = new XMLHttpRequest();
+                xhr.open("POST", '/next', true);
+                body = String(window.location).split("/")
+                xhr.send(body[Number(body.length)-1]);
+                xhr.onreadystatechange = function () {{
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
+                        window.location = String(window.location).replace(String(body[Number(body.length)-1]), xhr.responseText)
+                    }}
+                }}
+            }}
+            if (e.keyCode === 37 && e.target.className != "form-control") {{
+                xhr = new XMLHttpRequest();
+                xhr.open("POST", '/previous', true);
+                body = String(window.location).split("/")
+                xhr.send(body[Number(body.length)-1]);
+                xhr.onreadystatechange = function () {{
+                    if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
+                        window.location = String(window.location).replace(String(body[Number(body.length)-1]), xhr.responseText)
+                    }}
+                }}
+            }}
+            if (e.keyCode === 82 && e.target.className != "form-control") {{
+                rand_img()
+            }}
+        }}
+        function dbclick(id){{
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/export?id='+id, true);
+        xhr.send();
+        xhr.timeout = 1000;
+        xhr.onreadystatechange = function () {{
+            console.log(this.status);
+            if (this.status === 200 | this.status === 0){{
+                document.getElementById('export').innerHTML = "Done";
+                document.getElementById('export').classList.remove('btn-info');
+                document.getElementById('export').classList.add('btn-success');
+                }}
+            if (this.status !== 200) {{
+                document.getElementById('export').innerHTML = "Error";
+                document.getElementById('export').classList.remove('btn-info');
+                document.getElementById('export').classList.add('btn-danger')
+                }}
+            }}
+        }}
+        function dl(id){{
+            var a = document.createElement("a")
+            a.style.display = 'none'
+            a.href = "/dl?id="+id
+            a.setAttribute('download', id)
+            document.body.appendChild(a)
+            a.click()
+            document.body.removeChild(a)
+            delete a
+        }}
+        function dcdn(link){{
+            win = window.open(link, '_blank');
+            win.focus()
+        }}
+        function sw(){{
+            var img = document.getElementById('image')
+            img.classList.toggle("img")
+            img.classList.toggle("img-fluid")
+            img.classList.toggle("ft")
+        }}
+        function rand_img(){{
+            xhr = new XMLHttpRequest;
+            xhr.open("GET", '/random', true);
+            xhr.send()
+            xhr.onreadystatechange = function (e) {{
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
+                    window.location.href = xhr.responseText;
+                }}
+            }}
+        }}
     </script>
 </body>
 </html>

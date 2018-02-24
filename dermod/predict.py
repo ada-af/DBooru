@@ -6,7 +6,7 @@ def gen_list():
     halfparsed = []
     tags = []
     for i in unparsed:
-        halfparsed.append([x for x in i[1:-4] if x != 'None'])
+        halfparsed.append([x for x in i[1:-5] if x != 'None'])
     for i in halfparsed:
         for j in i:
             tags.append(j)
@@ -34,8 +34,12 @@ class Predictor:
     def predict(self, string):
         self.inp, self.previous = input_parser.predictor_parser(string)
         for i in self.tags_cache[self.inp[1][0]]:
-            if self.inp[1] in i[:len(self.inp[1])]:
-                self.matching.append(i)
+            if self.inp[0].startswith('-') is False:
+                if self.inp[1] in i[:len(self.inp[1])]:
+                    self.matching.append(i)
+            else:
+                if (self.inp.strip('-') in i[:len(self.inp.strip('-'))]) is True:
+                    self.matching.append(i)
         self.matching = list(sorted(set(self.matching)))
         return self.compile_html()
 
@@ -44,5 +48,6 @@ class Predictor:
             if len(self.previous) == 0:
                 self.compiled += '<option value="{}{}">'.format(self.inp[0], i)
             else:
-                self.compiled += '<option value="{}, {}{}">'.format(",".join(self.previous), self.inp[0], i)
+                self.compiled += '<option value="{}, {}{}">'.format(
+                    ",".join(self.previous), self.inp[0], i)
         return self.compiled

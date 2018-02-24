@@ -1,6 +1,7 @@
 import settings_file
 from dermod.aliases import aliases
 
+
 def parser(string):
     string = string.replace("%2C", ',').replace("+", " ").replace("%25", "%")
     string = string.lower().split(',')
@@ -19,42 +20,11 @@ def parser(string):
             remove.append(i.replace('-', ''))
         else:
             search.append(i)
-    search = [x for x in search if x != ''] # remove empty strings
+    search = [x for x in search if x != '']  # remove empty strings
     for i in remove:
         if i in search:
             search.remove(i)
     return {"search": search, "remove": [x for x in remove if x != '']}
-
-
-def json_parser_v2(string):
-    string = string.split('"id":"')[1:]
-    ids = []
-    form = []
-    links = []
-    tags = []
-    height = []
-    width = []
-    ratio = []
-    for i in string:
-        k = i.split('"width":')[1]
-        k = k.split(',')[0]
-        width.append(k)
-        k = i.split('"height":')[1]
-        k = k.split(',')[0]
-        height.append(k)
-        k = i.split('"aspect_ratio":')[1]
-        k = k.split(',')[0][:10]
-        ratio.append(k)
-        ids.append(i.split('","')[0])
-        k = i.split('original_format')[1]
-        k = k.split('":"')[1].split('","')[0]
-        form.append(k)
-        k = i.split('","full":"')[1]
-        k = k.split('","webm":"')[0]
-        k = k.split('"},"is_rendered"')[0]
-        links.append(k)
-        tags.append(i.split('"tags":"')[1].split('"')[0])
-    return ids, form, links, tags, height, width, ratio
 
 
 def results_parser(list_tuple):
@@ -107,6 +77,7 @@ def web_arg_parser_v2(params):
 def request_parser(request):
     request = request.decode()
     splitted = request.split("\r\n")
+    post_data = splitted[-1]
     path = splitted[0].split(" ")[1].split('?')[0]
     try:
         params = splitted[0].split(" ")[1].split('?')[1]
@@ -116,15 +87,18 @@ def request_parser(request):
             query = None
             p = {}
             for i in params.split("&"):
-                p = dict(p, **{i.lower().split('=')[0]: i.lower().split('=')[1]})
+                p = dict(p, **{i.lower().split('=')
+                               [0]: i.lower().split('=')[1]})
             params = p
     except IndexError:
         params, query = (None, None)
-    parsed_request = {'method': splitted[0].split(" ")[0], 'path': path, 'params': params, 'query': query}
+    parsed_request = {'method': splitted[0].split(
+        " ")[0], 'path': path, 'params': params, 'query': query}
     for i in splitted[1:-2]:
         i = i.split(':', maxsplit=1)
         tmp = {i[0].lower(): i[1].strip()}
         parsed_request = dict(parsed_request, **tmp)
+    parsed_request['post_data'] = post_data
     return parsed_request
 
 

@@ -1,10 +1,12 @@
-#!python
+#!/usr/bin/env python3
 import os
+import sys
 import shutil
 import webbrowser
+import importlib
 
 from dermod import input_parser as ip
-from dermod import db, derpilist_v2, derpiload_v3, follow
+from dermod import db, follow, listloader, imgloader
 import settings_file
 
 
@@ -41,112 +43,133 @@ def show_help(case):
 
 
 def query_cycle(results):
-    if len(results) == 0:  
+    if len(results) == 0:
         print("Nothing found.")
         main_cycle()
     else:
         print("Found {} pages".format(len(results.keys())))
         while True:
-            inp = input("\nSearch@DB> ")  
+            inp = input("\nSearch@DB> ")
             inp = inp.lower()
             if inp == "back":
                 main_cycle()
 
-            elif inp.isnumeric():  
+            elif inp.isnumeric():
                 try:
                     for i in results[(int(inp)-1)]:
-                        
-                        i = [x for x in i if x != "None"][:-3]
-                        print(str(i[0]) + " "*(15 - len(i[0])) + " => " + str(i[1:settings_file.showing_tags]).strip("()"))
+                        i = [x for x in i if x != "None"][:-5]
+                        tmp = db.search_by_id(str(i[0]).split(".")[0])
+                        print(str(tmp[0][-1]+i[0]) + " "*(15 - len(i[0])) +
+                              " => " + str(i[1:settings_file.showing_tags]).strip("()"))
                 except KeyError:
                     print('There is no page named {}'.format(inp))
 
-            elif "show" in inp:  
+            elif "show" in inp:
                 inp = inp.split("show")[1]
-                inp = db.search_by_id(inp.strip())[0][0]
                 try:
                     if os.name != "nt":
-                        webbrowser.open(str(settings_file.images_path + inp.strip()))
+                        webbrowser.open(os.path.dirname(os.path.realpath(
+                            __file__)) + str(settings_file.images_path + inp.strip()))
                     else:
-                        os.system(str("explorer.exe " + settings_file.images_path + inp.strip()))
+                        os.system(str("explorer.exe " + os.path.dirname(
+                            os.path.realpath(__file__)) + settings_file.images_path + inp.strip()))
                 except FileNotFoundError:
                     print("File doesn't exist.")
 
-            elif "export" in inp:  
-                for i in results.keys():
-                    for k in results[i]:
-                        try:
-                            shutil.copy(str(settings_file.images_path + k[0]), str(settings_file.export_path + k[0]))
-                        except FileNotFoundError:
-                            os.mkdir(settings_file.export_path)
-                        else:
-                            pass
+            elif "export" in inp:
+                try:
+                    shutil.copy(os.path.dirname(os.path.realpath(__file__)) + str(settings_file.images_path +
+                                                                                  inp.split(" ")[1]),
+                                os.path.dirname(os.path.realpath(__file__)) + str(settings_file.export_path +
+                                                                                  inp.split(" ")[1]))
+                except FileNotFoundError:
+                    os.mkdir(settings_file.export_path)
+                else:
+                    pass
 
-            elif inp == '':  
+            elif inp == '':
                 pass
 
-            elif inp == "help":  
+            elif inp == "help":
                 show_help(2)
 
-            elif inp == 'quit' or inp == 'exit':  
+            elif inp == 'quit' or inp == 'exit':
                 os._exit(0)
 
-            else:  
+            else:
                 query = ip.parser(inp)
                 results = db.search(query['search'], query['remove'])
                 query_cycle(results)
 
 
+def update_db(endwith="\r"):
+    for i in settings_file.modules:
+        module = importlib.import_module('dermod.sitesupport.{}'.format(i))
+        print("\nChecking updates for "+module.__name__.split('.')[-1])
+        listloader.run(module=module, endwith=endwith)
+        imgloader.run(settings_file.ids_file, endwith=endwith)
+        db.fill_db()
+        print("DB configured successfully")
+        shutil.rmtree('tmp')
+        os.remove(settings_file.ids_file)
+        print("Image index is up-to-date\n")
+
+
 def main_cycle():
-    inp = input("\nDB> ")  
+    inp = input("\nDB> ")
     inp = inp.lower()
-    if inp == "get images":  
-        derpilist_v2.run()
-        derpiload_v3.run(settings_file.ids_file)
-        db.fill_db()
-        print("DB configured successfully")
-        shutil.rmtree('tmp')
-        os.remove(settings_file.ids_file)
-        print("Image index is up-to-date")
-    elif inp == "get images --force" or inp == "get images -f":  
-        derpilist_v2.run()
-        derpiload_v3.run(settings_file.ids_file, check_files=False)
-        db.fill_db()
-        print("DB configured successfully")
-        shutil.rmtree('tmp')
-        os.remove(settings_file.ids_file)
-        print("Image index is up-to-date")
+    if inp == "get images":
+        update_db()
+    elif inp == "get images --force" or inp == "get images -f":
+        update_db()
     elif inp == "get images --fast":
         follow.run(run_once=True)
-    elif inp == "total":  
+    elif inp == "total":
         db.total_found()
-    elif "count" in inp:  
+    elif "count" in inp:
         counttag = inp.strip().split("count")[1].strip()
         db.count_tag(counttag)
-    elif inp == '':  
+    elif inp == '':
         main_cycle()
-    elif "show" in inp:  
+    elif "show" in inp:
         inp = inp.split("show")[1]
-        inp = db.search_by_id(inp.strip())[0][0]
         try:
             if os.name != "nt":
-                webbrowser.open(str(settings_file.images_path + inp.strip()))
+                webbrowser.open(os.path.dirname(os.path.realpath(
+                    __file__)) + str(settings_file.images_path + inp.strip()))
             else:
-                os.system(str("explorer.exe " + settings_file.images_path + inp.strip()))
+                os.system(str("explorer.exe " + os.path.dirname(os.path.realpath(__file__)
+                                                                ) + settings_file.images_path + inp.strip()))
         except FileNotFoundError:
             print("File doesn't exist.")
-    elif inp == 'quit' or inp == 'exit':  
+    elif inp == 'quit' or inp == 'exit':
         os._exit(0)
-    elif inp == "help":  
+    elif inp == "help":
         show_help(1)
-    else:  
+    elif "export" in inp:
+        try:
+            shutil.copy(os.path.dirname(os.path.realpath(__file__)) + str(settings_file.images_path +
+                                                                          inp.split(" ")[1]),
+                        os.path.dirname(os.path.realpath(__file__)) + str(settings_file.export_path +
+                                                                          inp.split(" ")[1]))
+        except FileNotFoundError:
+            os.mkdir(settings_file.export_path)
+        else:
+            pass
+    else:
         query = ip.parser(inp)
         results = db.search(query['search'], query['remove'])
         query_cycle(results)
     main_cycle()
-    
-    
+
+
 try:
+    try:
+        if sys.argv[1] == "update":
+            update_db(endwith="\n")
+            os._exit(0)
+    except IndexError:
+        pass
     main_cycle()
 except KeyboardInterrupt:
     os._exit(0)

@@ -98,21 +98,28 @@
                 </div>
             </div>
         </div>
-        <div style="margin-top: 1%;" align="center">
-            <form action="/" style="z-index: 9000">
-                <button type="submit" class="btn btn-primary" name='page' value="{}">Prev page</button><input type="text" name="query" value="{}" style="width: 0; height: 0; border: hidden; visibility: hidden"><button type="submit" class="btn btn-primary" name=page value="{}">Next page</button>
-            </form>
+        <div class='centered' align='center'>
+            <ul class="pagination flex-wrap centered" align='center'>
+                {}
+            </ul>
         </div>
     <script type="text/javascript">
     var mouse = false
-    document.onkeypress = function (e) {{
+    document.onkeydown = function (e) {{
         if (e.keyCode === 39 && e.target.className != "form-control") {{
             window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])+1)
         }}
         if (e.keyCode === 37 && e.target.className != "form-control") {{
-        window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])-1)
-    }}
-    }}
+            if (Number(String(window.location).split("&")[1].split('=')[1])-1 == 0){{
+                var pass = 1
+            }}else{{
+                window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])-1)
+            }}
+        }}
+        if (e.keyCode === 82 && e.target.className != "form-control") {{
+                rand_img()
+            }}
+        }}
     function dbclick(id){{
         myWindow = window.open("/export?id="+id, "myWindow", "width=200, height=100");
         setTimeout(function(){{myWindow.close()}}, 1000);
@@ -136,6 +143,16 @@
             }}
         }}
         document.getElementById('inp').addEventListener('input', update_datalist)
+        function rand_img(){{
+            xhr = new XMLHttpRequest;
+            xhr.open("GET", '/random', true);
+            xhr.send()
+            xhr.onreadystatechange = function (e) {{
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
+                    window.location.href = xhr.responseText;
+                }}
+            }}
+        }}
     </script>
 </body>
 </html>
