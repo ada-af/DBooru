@@ -21,7 +21,7 @@ class Module:
         self.width = []
 
     def parse(self, string):
-        string = string.split('"id":"')[1:]
+        string = string.split('"id":')[1:]
         self.ids = []
         self.form = []
         self.links = []
