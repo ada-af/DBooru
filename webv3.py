@@ -98,12 +98,12 @@ class Handler(Thread):
             fileobject.seek(0)
         return ln
 
-    def send_header(self, code, mime='html', fileobject=None):
+    def send_header(self, code, mime='html', fileobject=None, cache="no-cache"):
         content_len = self.get_len(fileobject)
         mime = mimes.types[mime]
         if code == 200:
             self.conn.sendall(
-                """HTTP/1.1 200 OK\nServer: PyWeb/3.0\nContent-Type: {}\nContent-Length: {}\nX-HTTP-Pony: I'm working hard for you\n\n""".format(mime, content_len).encode())
+                """HTTP/1.1 200 OK\nServer: PyWeb/3.0\nCache-Control: {}\nContent-Type: {}\nContent-Length: {}\nX-HTTP-Pony: I'm working hard for you\n\n""".format(cache, mime, content_len).encode())
         elif code == 404:
             self.conn.sendall(
                 """HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
@@ -124,7 +124,7 @@ class Handler(Thread):
 
     def index(self):
         with open("extra/index.html", 'rb') as j:
-            self.send_header(200, fileobject=j)
+            self.send_header(200, fileobject=j, cache="private, max-age=86400")
             while True:
                 i = j.read(1024)
                 self.send_data(i)
@@ -371,9 +371,9 @@ class Handler(Thread):
             tf.name = settings_file.images_path+fname
         with open(tf.name, 'rb') as nm:
             if fname.split('.')[-1] == 'gif':
-                self.send_header(200, mime="gif", fileobject=nm.seek(0, 2))
+                self.send_header(200, mime="gif", fileobject=nm.seek(0, 2), cache="private, max-age=86400")
             else:
-                self.send_header(200, mime="jpg", fileobject=nm.seek(0, 2))
+                self.send_header(200, mime="jpg", fileobject=nm.seek(0, 2), cache="private, max-age=86400")
             nm.seek(0)
             while True:
                 i = nm.read(1024)
@@ -427,7 +427,7 @@ class Handler(Thread):
                 self.request['path'] = self.request['path'].replace('..', '')
                 f_type = self.request['path'].split('.')[-1]
                 with open(os.curdir + self.request['path'], 'rb') as j:
-                    self.send_header(200, f_type, fileobject=j)
+                    self.send_header(200, f_type, fileobject=j, cache="private, max-age=86400")
                     for i in j:
                         self.send_data(i)
             except FileNotFoundError:
