@@ -358,7 +358,7 @@ class Handler(Thread):
             else:
                 form = 'mjpeg'
             cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}".format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
-            proc = os.system(cmd)
+            os.system(cmd)
         elif settings_file.thumbnailer.lower() == "pil":
             img = Image.open(settings_file.images_path+fname)
             img.thumbnail((500,500), Image.ANTIALIAS)
