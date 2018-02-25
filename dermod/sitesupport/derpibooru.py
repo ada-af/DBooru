@@ -30,7 +30,7 @@ class Module:
         self.height = []
         self.width = []
         for i in string:
-            self.ids.append(i.split('","')[0])
+            self.ids.append(i.split(',"created_at"')[0])
             k = i.split('"width":')[1]
             k = k.split(',')[0]
             self.width.append(k)
