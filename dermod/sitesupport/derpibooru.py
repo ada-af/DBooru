@@ -21,7 +21,8 @@ class Module:
         self.width = []
 
     def parse(self, string):
-        string = string.split('"id":"')[1:]
+        string = string.split('interactions":[{"')[0]
+        string = string.split('"id":')[1:]
         self.ids = []
         self.form = []
         self.links = []
@@ -29,7 +30,7 @@ class Module:
         self.height = []
         self.width = []
         for i in string:
-            self.ids.append(i.split('","')[0])
+            self.ids.append(i.split(',"created_at"')[0])
             k = i.split('"width":')[1]
             k = k.split(',')[0]
             self.width.append(k)
