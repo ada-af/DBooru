@@ -193,10 +193,10 @@ Enter this commands if prompt starts with `DB>`
 | Command            | Description                                                                             |
 | ------------------ | --------------------------------------------------------------------------------------- |
 | help               | Shows in-app help                                                                       |
-| get images         | Downloads images that you liked/favorited on *booru                                 |
-| get images -f      | Downloads images without checking file existance                                        |
-| get images --force | Same as get images -f                                                                   |
-| get images --fast  | Checks for new images and downloads them using follower's settings
+| get images         | Downloads images that you liked/favorited on *booru                                     |
+| get images -f      | Same as get images --fast                                                                |
+| get images --force | Downloads images without checking file existance                                        |
+| get images --fast  | Checks for new images and downloads them using follower's settings                      |
 | total              | Prints amount of entries in local DB                                                    |
 | count \<tag\>      | Prints amount of entries tagged with \<tag\>                                            |
 | show \<image_id>   | Opens image in image viewer or browser if no viewers found                              |
