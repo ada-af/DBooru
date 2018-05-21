@@ -97,7 +97,6 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
     global empties
     empties = 0
     print("Searching for max page")
-    pages_num = 1
     if follower is True:
         pass
     else:
