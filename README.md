@@ -232,6 +232,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | "/next"                | POST   | **int**                             | Tries to get id of next (older) image    | Plain text data (<id-of-image>) and status code           |
 | "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>) and status code           |
 | "/thumb/**filename**   | GET    |                                     | Makes thumbnail (500px) of image         | Image
+| "/api/search?query=**query**&page=**optional**| GET |   | Searches images and returns json result of search |
 
 
 ## Search basics and syntax
