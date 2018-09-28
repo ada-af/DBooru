@@ -62,6 +62,7 @@ def web_arg_parser_v2(params):
         .replace("%3E", ">")\
         .replace("%20", " ")\
         .replace("%3F", "?")\
+        .replace("%2F", "/")\
         .split("&")
     temp = {}
     for i in params:
@@ -114,6 +115,7 @@ def predictor_parser(string):
         .replace("%20", " ")\
         .replace("%3F", "?")\
         .replace("%5C", "\\")\
+        .replace("%2F", "/")\
         .replace("%21", "!")
     previous = string.split(',')[:-1]
     string = string.split(',')[-1].strip()

@@ -318,7 +318,7 @@ class Handler(Thread):
                 self.send_header(200)
                 self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
-            elif (x-starting) >= 300:
+            elif (x-starting) >= 1000:
                 self.send_header(200)
                 g = db.search_by_id(x)
                 self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
