@@ -3,6 +3,7 @@ import os
 import socket
 import time
 import sys
+import json
 from datetime import datetime
 from threading import Thread
 import tempfile
@@ -72,8 +73,8 @@ class Handler(Thread):
             if self.request_debug is True:
                 self.log_debug(self.request, "\n\n")
             self.serve()
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
         self.readiness = 1
         quit(0)
 
@@ -108,7 +109,7 @@ class Handler(Thread):
             self.conn.sendall(
                 """HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.send_data(
-                "<html><head><meta http-equiv='refresh' content='1; url=/' </head><body>404 Not Found</body></html>".encode())
+                "<html><body>404 Not Found</body></html>".encode())
             self.close_connection()
         elif code == 500:
             self.conn.sendall(
@@ -130,6 +131,38 @@ class Handler(Thread):
                 self.send_data(i)
                 if not i:
                     break
+        self.close_connection()
+
+    def api_search(self, page=0):
+        try:
+            results = db.search(
+                self.request["query"]['search'],
+                self.request["query"]['remove'])
+            p = results[int(page)]
+            true_results = {}
+            k = 0
+            for _ in p:
+                fname = {'filename': _[0]}
+                tags = {'tags': [x for x in _[1:settings_file.tag_amount]]}
+                height = {'height': _[settings_file.tag_amount+1]}
+                width = {'widht': _[settings_file.tag_amount+2]}
+                ratio = {'ratio': _[settings_file.tag_amount+3]}
+                source_link = {'source_link': _[settings_file.tag_amount+4]}
+                prefix = {'prefix': _[settings_file.tag_amount+5]}
+                thumbnail = {'thumb': "//"+self.request['host']+"/thumb/"+prefix['prefix']+fname['filename']}
+                full = {'full': "//"+self.request['host']+"/raw/"+prefix['prefix']+fname['filename']}
+                __ = dict(fname, **tags, **height, **width,**ratio,**source_link, **prefix, **thumbnail)
+                __.update(full)
+                true_results[k] = __
+                k += 1
+            p = json.dumps(true_results)
+        except (IndexError, KeyError) as e:
+            self.send_header(404)
+        except Exception as e:
+            self.send_header(500)
+        else:
+            self.send_header(200, fileobject=len(p), mime="json")
+            self.send_data(p)
         self.close_connection()
 
     def show_img(self):
@@ -315,16 +348,20 @@ class Handler(Thread):
         while True:
             f = db.search_by_id(x)
             if f != []:
-                self.send_header(200)
+                self.send_header(200, fileobject=str(
+                    f[0][-1]+f[0][0].split('.')[0]))
                 self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
-            elif (x-starting) >= 1000:
+            elif (starting-x) >= 300:
                 self.send_header(200)
                 g = db.search_by_id(x)
+                self.send_header(200, fileobject=str(
+                    g[0][-1]+g[0][0].split('.')[0]))
                 self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
                 break
             else:
                 x += 1
+        self.close_connection()
 
     def gen_paginator(self, dct):
         ex = """<li class="page-item{}"><a class="page-link" href="/?query={}&page={}">{}</a></li>"""
@@ -398,7 +435,12 @@ class Handler(Thread):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
             self.index()
-        if self.request['path'] == '/random':
+        elif self.request['path'] == '/api/search' and self.request['query'] is not None:
+            if 'page' in self.request['params']:
+                self.api_search(page=self.request['params']['page'])
+            else:
+                self.api_search()
+        elif self.request['path'] == '/random':
             self.random_image()
         elif self.request['path'] == '/next' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':
             self.next()
