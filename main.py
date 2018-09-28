@@ -69,7 +69,7 @@ def query_cycle(results):
                 try:
                     if os.name != "nt":
                         webbrowser.open(os.path.dirname(os.path.realpath(
-                            __file__)) + str(settings_file.images_path + inp.strip()))
+                            __file__)) + "/" + str(settings_file.images_path + inp.strip()))
                     else:
                         os.system(str("explorer.exe " + os.path.dirname(
                             os.path.realpath(__file__)) + settings_file.images_path + inp.strip()))
@@ -136,7 +136,7 @@ def main_cycle():
         try:
             if os.name != "nt":
                 webbrowser.open(os.path.dirname(os.path.realpath(
-                    __file__)) + str(settings_file.images_path + inp.strip()))
+                    __file__))+ "/" + str(settings_file.images_path + inp.strip()))
             else:
                 os.system(str("explorer.exe " + os.path.dirname(os.path.realpath(__file__)
                                                                 ) + settings_file.images_path + inp.strip()))
