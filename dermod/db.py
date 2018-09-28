@@ -198,14 +198,14 @@ def special_f(specials):
             if k == "=" or k == "<" or k == ">":
                 splitter += str(k)
         i = i.split(splitter)
-        if i[0] == 'height':
+        if i[0] == 'height' or i[0] == 'h':
             results = src(i[1], i[0], splitter)
             conn.commit()
-        elif i[0] == 'width':
+        elif i[0] == 'width' or i[0] == 'w':
             results = src(i[1], i[0], splitter)
             conn.commit()
         elif i[0] == 'ratio' or i[0] == 'aspect_ratio':
-            results = src(i[1][:10], 'ratio', splitter)
+            results = src(eval(i[1].replace(":", "/")), 'ratio', splitter)
             conn.commit()
     if len(results) == 0:
         results = []

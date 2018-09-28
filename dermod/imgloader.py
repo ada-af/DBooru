@@ -57,6 +57,7 @@ class Loader(Thread):
 def run(file, check_files=True, check_local=True, endwith="\r"):
     tc = TC.ThreadController()
     tc.start()
+    old_out = sys.stderr
     if settings_file.suppressor is True:
         suppress = open(os.devnull, 'w')
         sys.stderr = suppress
@@ -125,3 +126,4 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
             time.sleep(1)
             c += 1
     del tc
+    sys.stderr = old_out
