@@ -12,6 +12,9 @@ import settings_file
 from . import input_parser as ip
 from . import threads as TC
 
+global is_error_code
+is_error_code = False
+
 
 class Loader(Thread):
     def __init__(self, url, fileid, fileform, is_proxy, proxy_ip, proxy_port):
@@ -24,6 +27,7 @@ class Loader(Thread):
         self.proxy = is_proxy
         self.ip = proxy_ip
         self.port = proxy_port
+        self.tmp = None
         if settings_file.suppressor is True:
             suppress = open(os.devnull, 'w')
             sys.stderr = suppress
@@ -36,13 +40,22 @@ class Loader(Thread):
         quit(0)
 
     def get_raw_image(self):
-        if self.proxy is False:
-            self.raw_data = requests.get(
-                "{}".format(self.url), verify=settings_file.ssl_verify).content
-        else:
-            self.raw_data = requests.get(
-                "{}".format(self.url),
-                proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify).content
+        with requests.Session() as s:
+            s.headers = {
+                'User-Agent': 'DBooru/2.0 (Image Loader module) (github.com/anon-a/DBooru)'}
+            if self.proxy is False:
+                self.tmp = s.get(
+                    "{}".format(self.url), verify=settings_file.ssl_verify)
+            else:
+                self.tmp = s.get(
+                    "{}".format(self.url),
+                    proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify)
+            if self.tmp.status_code >= 400:
+                global is_error_code
+                is_error_code = True
+                quit(1)
+            else:
+                self.raw_data = self.tmp.content
 
     def writer(self):
         try:
@@ -83,6 +96,8 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
                 open(settings_file.images_path +
                      str(parsed[i][7] + parsed[i][0]) + '.' + parsed[i][1], 'rb').close()
             except FileNotFoundError:
+                if is_error_code == True:
+                    break
                 t = Loader(parsed[i][2],
                            str(parsed[i][7] + parsed[i][0]),
                            parsed[i][1],
@@ -102,6 +117,8 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
                 "Loading image {} of {} ({}% done) (Running threads {})".format(
                     i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
                 flush=True, end=endwith)
+            if is_error_code == True:
+                break
             t = Loader(parsed[i][2],
                        str(parsed[i][7] + parsed[i][0]),
                        parsed[i][1],

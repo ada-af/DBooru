@@ -1,19 +1,21 @@
 import gc
+import importlib
 import os
 import re
 import shutil
 import sys
 import time
-import importlib
 from hashlib import sha384
 from threading import Thread
 
 import requests
 
 import settings_file
-from dermod import threads as TC
 from dermod import input_parser as ip
+from dermod import threads as TC
 
+global is_error_code
+is_error_code = False
 
 class Checker(Thread):
     def __init__(self, page, module, proxy_ip, proxy_port, proxy_enabled):
@@ -29,21 +31,17 @@ class Checker(Thread):
         self.readiness = 0
 
     def get_data(self):
-        if self.proxy_enabled is False:
-            with requests.Session() as s:
-                s.headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
+        with requests.Session() as s:
+            s.headers = {
+                'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/anon-a/DBooru)'}
+            if self.proxy_enabled is False:
                 self.raw_data = s.get(
                     "{domain}{endpoint}{paginator}{params}".format(domain=self.module.domain,
                                                                    endpoint=self.module.endpoint,
                                                                    params=self.module.params,
                                                                    paginator=self.module.paginator.format(self.page)),
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
-            self.raw_data = self.raw_data.content.decode()
-        else:
-            with requests.Session() as s:
-                s.headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
+            else:
                 self.raw_data = s.get(
                     "{domain}{endpoint}{paginator}{params}".format(domain=self.module.domain,
                                                                    endpoint=self.module.endpoint,
@@ -52,7 +50,10 @@ class Checker(Thread):
                     proxies=dict(
                         https='socks5://{}:{}'.format(self.proxy_ip, self.proxy_port)),
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
-            self.raw_data = self.raw_data.content.decode()
+        if self.raw_data.status_code >= 400:
+            global is_error_code
+            is_error_code = True
+        self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
         self.module_data.parse(self, string=self.raw_data)
@@ -88,7 +89,9 @@ class Checker(Thread):
         with open('tmp/{}.txt'.format(self.page), 'r') as f:
             tmp = f.read()
         if len(tmp) == 0 and re.match("{}".format(self.module.empty_page), self.raw_data) is None:
-            self.run()
+            global is_error_code
+            if is_error_code == False:
+                self.run()
         self.readiness = 1
         quit()
 
@@ -97,6 +100,11 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
     global empties
     empties = 0
     print("Searching for max page")
+    try:
+        hard_limit = module.hard_limit
+    except Exception:
+        pass
+    pages_num = 50
     if follower is True:
         pass
     else:
@@ -108,15 +116,21 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
                 pages_num-1), flush=True, end=endwith)
             with requests.Session() as s:
                 s.headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0'}
+                    'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/anon-a/DBooru)'}
                 dat = s.get(
                     "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
                                                                    endpoint=module.endpoint,
                                                                    params=module.params,
                                                                    paginator=module.paginator.format(pages_num)),
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
+            if dat.status_code >= 400:
+                break
             if re.search("{}".format(module.empty_page), dat.content.decode()) is not None:
                 k = True
+            if pages_num >= hard_limit:
+                k = True
+                pages_num = hard_limit
+                break
     k = False
     while k is False:
         try:
@@ -137,6 +151,8 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
         gc.collect()
         print("Checking page {} of {} ({}% done)(Running threads {})          ".format(
             i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end=endwith)
+        if is_error_code == True:
+            break
         t = Checker(page=i,
                     proxy_ip=settings_file.socks5_proxy_ip,
                     proxy_port=settings_file.socks5_proxy_port,
