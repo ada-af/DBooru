@@ -147,6 +147,7 @@ Module must contain:
 1. Paging parameter
 1. Empty page delimiter
 1. Additional parameters (such as API-key parameter)
+1. Hard limit
 1. Parser Configuration
 
 #### Examples
@@ -178,6 +179,11 @@ Module must contain:
     Additional params
     > Such as api keys
     >> params = '&key={}&username={}'.format(apikey, username)
+
+    Hard limit (for when your life is not limited enough)
+    >Use if api does not allow requesting pages after N
+    >tip: this is not mandatory, but if you don't want to be banned specify this
+    >> hard_limit = 750 [notice, this time we're not using quotes]
 
     Parser Configuration
     > No time to explain
@@ -254,9 +260,8 @@ Enter this commands if prompt starts with `Search@DB>`
 ### Special tags
 
 >Works only for filtering searches
->Example: width=100 (Works) while -width=100 (Doesn't works)
 
->Tip: `ratio` contains 10 symbols maximum
+>Example: width=100 (Works) while -width=100 (Doesn't works)
 
 1. `height`
 1. `width`
@@ -270,7 +275,7 @@ Enter this commands if prompt starts with `Search@DB>`
 1. **`<`** means less than \<value>
 1. **`>=`** or **`=>`** means bigger or equal to \<value>
 1. **`<=`** or **`=<`** means less or equal to \<value>
->Example: 'safe, width>100" will return images tagged with 'safe' tag and image width bigger than 100px
+>Example: 'safe, width>100" will return images tagged with 'safe' tag and image with width bigger than 100px
 
 
 ## Settings_file.py
