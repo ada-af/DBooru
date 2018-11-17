@@ -165,7 +165,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
         tc.threads.append(t)
         if empties == 1:
             break
-        time.sleep(slp)
+        time.sleep(module.slp)
     c = 0
     while len(tc.threads) > 0:
         gc.collect()

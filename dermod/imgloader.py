@@ -127,7 +127,7 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
                        settings_file.socks5_proxy_port)
             t.start()
             tc.threads.append(t)
-            time.sleep(slp)
+            time.sleep(module.slp)
             if len(tc.threads) < settings_file.thread_cap:
                 pass
             else:
