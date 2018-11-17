@@ -108,7 +108,7 @@ def update_db(endwith="\r"):
         module = importlib.import_module('dermod.sitesupport.{}'.format(i))
         print("\nChecking updates for "+module.__name__.split('.')[-1])
         listloader.run(module=module, endwith=endwith)
-        imgloader.run(settings_file.ids_file, endwith=endwith)
+        imgloader.run(module, settings_file.ids_file, endwith=endwith)
         db.fill_db()
         print("DB configured successfully")
         shutil.rmtree('tmp')

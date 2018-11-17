@@ -68,7 +68,7 @@ class Loader(Thread):
                 file.flush()
 
 
-def run(file, check_files=True, check_local=True, endwith="\r"):
+def run(module, file, check_files=True, check_local=True, endwith="\r"):
     tc = TC.ThreadController()
     tc.start()
     old_out = sys.stderr
