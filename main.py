@@ -69,10 +69,11 @@ def query_cycle(results):
                 try:
                     if os.name != "nt":
                         webbrowser.open(os.path.dirname(os.path.realpath(
-                            __file__)) + "/" + str(settings_file.images_path + inp.strip()))
+                            __file__)) + "/" + str(settings_file.images_path.replace('.','') + inp.strip()))
                     else:
-                        os.system(str("explorer.exe " + os.path.dirname(
-                            os.path.realpath(__file__)) + settings_file.images_path + inp.strip()))
+                        cmd = str("explorer.exe " + os.path.dirname(os.path.realpath(__file__)
+                                                                ) + settings_file.images_path.replace('.','') + inp.strip())
+                        os.system(cmd.replace("/", "\\"))
                 except FileNotFoundError:
                     print("File doesn't exist.")
 
@@ -136,10 +137,11 @@ def main_cycle():
         try:
             if os.name != "nt":
                 webbrowser.open(os.path.dirname(os.path.realpath(
-                    __file__))+ "/" + str(settings_file.images_path + inp.strip()))
+                    __file__))+ "/" + str(settings_file.images_path.replace('.','') + inp.strip()))
             else:
-                os.system(str("explorer.exe " + os.path.dirname(os.path.realpath(__file__)
-                                                                ) + settings_file.images_path + inp.strip()))
+                cmd = str("explorer.exe " + os.path.dirname(os.path.realpath(__file__)
+                                                                ) + settings_file.images_path.replace('.','') + inp.strip()).replace("/", "\\")
+                os.system(cmd)
         except FileNotFoundError:
             print("File doesn't exist.")
     elif inp == 'quit' or inp == 'exit':

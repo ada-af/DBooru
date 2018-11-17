@@ -3,6 +3,7 @@ import os
 import socket
 import sys
 import time
+import logging
 from threading import Thread
 
 import requests
@@ -72,8 +73,7 @@ def run(file, check_files=True, check_local=True, endwith="\r"):
     tc.start()
     old_out = sys.stderr
     if settings_file.suppressor is True:
-        suppress = open(os.devnull, 'w')
-        sys.stderr = suppress
+        logging.raiseExceptions = False
     try:
         os.mkdir(settings_file.images_path)
     except FileExistsError:

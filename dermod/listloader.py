@@ -127,10 +127,13 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
                 break
             if re.search("{}".format(module.empty_page), dat.content.decode()) is not None:
                 k = True
-            if pages_num >= hard_limit:
-                k = True
-                pages_num = hard_limit
-                break
+            try:
+                if pages_num >= hard_limit:
+                    k = True
+                    pages_num = hard_limit
+                    break
+            except UnboundLocalError:
+                pass
     k = False
     while k is False:
         try:
