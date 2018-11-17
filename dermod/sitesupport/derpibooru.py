@@ -8,7 +8,7 @@ endpoint = "/search.json?q={}".format(query)
 paginator = "&page={}"
 # Must be regexp
 empty_page = '\{"search":\[\],"'
-slp = 0.1 # Defines delay between requests
+slp = 0.2 # Defines delay between requests
 params = "&key={}".format(api_key)
 
 class Module:

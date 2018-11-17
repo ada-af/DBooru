@@ -31,7 +31,10 @@ class Checker(Thread):
         self.readiness = 0
 
     def get_data(self):
+        global is_error_code
         with requests.Session() as s:
+            if is_error_code is True:
+                quit(1)
             s.headers = {
                 'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/anon-a/DBooru)'}
             if self.proxy_enabled is False:
@@ -51,7 +54,6 @@ class Checker(Thread):
                         https='socks5://{}:{}'.format(self.proxy_ip, self.proxy_port)),
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
         if self.raw_data.status_code >= 400:
-            global is_error_code
             is_error_code = True
         self.raw_data = self.raw_data.content.decode()
 
@@ -154,7 +156,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
         gc.collect()
         print("Checking page {} of {} ({}% done)(Running threads {})          ".format(
             i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end=endwith)
-        if is_error_code == True:
+        if is_error_code is True:
             break
         t = Checker(page=i,
                     proxy_ip=settings_file.socks5_proxy_ip,
