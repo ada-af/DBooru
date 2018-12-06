@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import sys
+import logging
 
 from dermod import input_parser as ip
 import settings_file
@@ -35,8 +36,7 @@ def precomp():
 
 def suppress_errs(supp):
     if supp is True:
-        suppressor = open(os.devnull, 'w')
-        sys.stderr = suppressor
+        logging.raiseExceptions = False
 
 
 def errors_init():

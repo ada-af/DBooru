@@ -30,8 +30,7 @@ class Loader(Thread):
         self.port = proxy_port
         self.tmp = None
         if settings_file.suppressor is True:
-            suppress = open(os.devnull, 'w')
-            sys.stderr = suppress
+            logging.raiseExceptions = False
 
     def run(self):
         self.get_raw_image()
