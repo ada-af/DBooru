@@ -1,13 +1,11 @@
 import os
 import sqlite3
 import sys
+import codecs
 import logging
 
 from dermod import input_parser as ip
 import settings_file
-
-
-# TODO: Prefix field in DB
 
 
 def precomp():
@@ -81,7 +79,7 @@ def fill_db(file=settings_file.ids_file):
     cnt = 0
     for i in halfparsed:
         i = i.replace('" ', '"').replace(' "', '"').replace(
-            '\' ', '\'').replace(' \'', '\'').replace("'", '').replace("\"", "")
+            '\' ', '\'').replace(' \'', '\'').replace("'", '').replace("\"", "").replace(r"\xc3\xa9", "e")
         i = i.split(",,,")
         k = i[6].split(",")
         if len(k) < settings_file.tag_amount:
@@ -118,7 +116,9 @@ def search(list_search, list_remove):
     init_db()
     special_fields = []
     for i in list_search:
-        if '=' in i or '<' in i or '>' in i:
+        if "<3" in i:
+            pass
+        elif '=' in i or '<' in i or '>' in i:
             special_fields.append(i)
             list_search.remove(i)
 

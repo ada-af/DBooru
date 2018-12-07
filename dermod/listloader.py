@@ -55,7 +55,7 @@ class Checker(Thread):
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
         if self.raw_data.status_code >= 400:
             is_error_code = True
-        self.raw_data = self.raw_data.content.decode()
+        self.raw_data = self.raw_data.content.decode().encode('latin1').decode("unicode_escape")
 
     def parse_data(self):
         self.module_data.parse(self, string=self.raw_data)
@@ -71,7 +71,7 @@ class Checker(Thread):
                           self.height[i] + ",,," +
                           str(int(self.width[i])/int(self.height[i])) + ",,," +
                           self.module.__name__.split(".")[-1] + ',' + self.tags[i] + ",,," +
-                          digest).encode("utf8", errors='ignore'))[2:-1] + "\n"
+                          digest).encode("utf8", 'strict'))[2:-1] + "\n"
             self.compiled += tmp
 
     def writer(self):
