@@ -55,7 +55,10 @@ class Checker(Thread):
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
         if self.raw_data.status_code >= 400:
             is_error_code = True
-        self.raw_data = self.raw_data.content.decode().encode('latin1').decode("unicode_escape")
+        try:
+            self.raw_data = self.raw_data.content.decode().encode('latin1').decode("unicode_escape")
+        except UnicodeEncodeError:
+            self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
         self.module_data.parse(self, string=self.raw_data)
