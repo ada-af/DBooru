@@ -67,6 +67,11 @@ thumbnailer = "ffmpeg"
 # Exmaple: disable_mobile = True
 disable_mobile = False
 
+# Defines how many tags to show when predicting
+# Format: predict_tags = int
+# Example: predict_tags = 50
+predict_tags = 20
+
 # Database specific settings
 
 # Defines how many "Tag*" fields database must have
