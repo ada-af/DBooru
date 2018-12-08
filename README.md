@@ -291,6 +291,8 @@ Enter this commands if prompt starts with `Search@DB>`
 | web_ip                | String ("IP")                 | Set IP to bind Web interface                             |
 | web_port              | Integer (port)                | Sets port to bind Web interface                          |
 | tag_amount            | Integer (number)              | Maximum tags per image                                   |
+| disable_mobile        | Bool (True/False)             | Should tag prediction be disabled on mobile              |
+| predict_tags          | Integer (number)              | How many tags to show when predicting input              |
 | showing_imgs          | Integer (number)              | How many images to show per page                         |
 | showing_tags          | Integer (number)              | How many tags to **show** per image (CLI-only)           |
 | images_path           | String ("Path")               | Where to store loaded images                             |

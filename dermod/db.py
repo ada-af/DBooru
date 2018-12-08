@@ -116,11 +116,10 @@ def search(list_search, list_remove):
     init_db()
     special_fields = []
     for i in list_search:
-        if "<3" in i:
-            pass
-        elif '=' in i or '<' in i or '>' in i:
-            special_fields.append(i)
-            list_search.remove(i)
+        if 'ratio' in i or "height" in i or "width" in i:
+            if ">" in i or "<" in i or "=" in i:
+                special_fields.append(i)
+                list_search.remove(i)
 
     if len(list_search) != 0:
         mkdb('temp1')
@@ -198,14 +197,14 @@ def special_f(specials):
             if k == "=" or k == "<" or k == ">":
                 splitter += str(k)
         i = i.split(splitter)
-        if i[0] == 'height' or i[0] == 'h':
+        if i[0] == 'height':
             results = src(i[1], i[0], splitter)
             conn.commit()
-        elif i[0] == 'width' or i[0] == 'w':
+        elif i[0] == 'width':
             results = src(i[1], i[0], splitter)
             conn.commit()
         elif i[0] == 'ratio' or i[0] == 'aspect_ratio':
-            results = src(eval(i[1].replace(":", "/")), 'ratio', splitter)
+            results = src(eval(i[1].replace(":", "/").replace("(", '')), 'ratio', splitter)
             conn.commit()
     if len(results) == 0:
         results = []
