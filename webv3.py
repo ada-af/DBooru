@@ -75,7 +75,7 @@ class Handler(Thread):
         try:
             self.request = ip.request_parser(self.req)
             if self.request_debug is True:
-            self.log_debug(self.request, "\n\n")
+                self.log_debug(self.request, "\n\n")
             self.serve()
         except Exception as e:
             print(e)
