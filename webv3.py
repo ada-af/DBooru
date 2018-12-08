@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
+import json
+import math
 import os
 import socket
-import time
 import sys
-import json
+import tempfile
+import time
 from datetime import datetime
 from threading import Thread
-import tempfile
+
+import settings_file
+from dermod import db, follow
+from dermod import input_parser as ip
+from dermod import mime_types as mimes
+from dermod import predict
+
 try:
     import PIL.Image as Image
 except ImportError:
     pass
 
-from dermod import input_parser as ip
-from dermod import mime_types as mimes
-from dermod import db, predict, follow
-import settings_file
 
 
 class ThreadController(Thread):
@@ -71,7 +75,7 @@ class Handler(Thread):
         try:
             self.request = ip.request_parser(self.req)
             if self.request_debug is True:
-                self.log_debug(self.request, "\n\n")
+            self.log_debug(self.request, "\n\n")
             self.serve()
         except Exception as e:
             print(e)
@@ -137,7 +141,7 @@ class Handler(Thread):
         try:
             results = db.search(
                 self.request["query"]['search'],
-                self.request["query"]['remove'])
+                self.request["query"]['remove'], page)
             p = results[int(page)]
             true_results = {}
             k = 0
@@ -202,10 +206,9 @@ class Handler(Thread):
 
     def results(self):
         try:
-            results = db.search(
-                self.request["query"]['search'], self.request["query"]['remove'])
-            paginator = self.gen_paginator(results)
-            results = list(results[int(self.request['params']['page']) - 1])
+            results, total = db.search(
+                self.request["query"]['search'], self.request["query"]['remove'], page=int(self.request['params']['page'])-1)
+            paginator = self.gen_paginator(total[0])
         except (IndexError, KeyError):
             self.send_header(404)
         except Exception:
@@ -217,7 +220,8 @@ class Handler(Thread):
                 i = tuple([x for x in i if x != 'None'])
                 pictures.append(i)
             p = ''
-            for i in sorted(list(set(pictures)), key=lambda tup: tup[0], reverse=True):
+            # for i in sorted(list(set(pictures)), key=lambda tup: tup[0], reverse=True):
+            for i in list(set(pictures)):
                 if i[0].split('.')[1] != 'webm':
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
@@ -364,11 +368,11 @@ class Handler(Thread):
                 x += 1
         self.close_connection()
 
-    def gen_paginator(self, dct):
+    def gen_paginator(self, total):
         ex = """<li class="page-item{}"><a class="page-link" href="/?query={}&page={}">{}</a></li>"""
         query = self.request['params']['query'].replace("=", "%3D")
         p = "" + ex.format('', query, '1', 'First')
-        list_of_pages = list(dct.keys())
+        list_of_pages = range(0, math.ceil(total/settings_file.showing_imgs))
         cur_pg = int(self.request['params']['page'])
 
         if int(self.request['params']['page']) >= 4:
@@ -383,7 +387,7 @@ class Handler(Thread):
                     p += ex.format(" disabled", query, i+1, i+1)
                 else:
                     p += ex.format("", query, i+1, i+1)
-        p += ex.format('', query, int(list(dct.keys())[-1])+1, 'Last')
+        p += ex.format('', query, math.ceil(total/settings_file.showing_imgs), 'Last')
         return p
 
     def thumb(self):
