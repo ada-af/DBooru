@@ -302,9 +302,10 @@ class Handler(Thread):
             self.send_data(str(500))
 
     def predictor(self):
-        if "mobile" in self.request['user-agent'].lower():
-            self.readiness = 1
-            del self
+        if settings_file.disable_mobile is True:
+            if "mobile" in self.request['user-agent'].lower():
+                self.readiness = 1
+                del self
         predictor = predict.Predictor()
         try:
             matched = predictor.predict(self.request['params']['phrase'])
