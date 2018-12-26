@@ -129,7 +129,8 @@ def search(list_search, list_remove, page=0):
         cursor.execute(
             "delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
         results = list(cursor.execute(
-            "SELECT * FROM temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}".format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
+            "SELECT * FROM temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
         conn.commit()
     else:
@@ -140,7 +141,8 @@ def search(list_search, list_remove, page=0):
         cursor.execute(
             "delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
         results = list(cursor.execute(
-            "SELECT * FROM temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}".format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
+            "SELECT * FROM temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
         conn.commit()
 
@@ -153,7 +155,8 @@ def search(list_search, list_remove, page=0):
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
         results = list(cursor.execute(
-            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}".format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
+            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
         conn.commit()
     #results = ip.results_parser(results)
@@ -166,7 +169,8 @@ def search(list_search, list_remove, page=0):
                 "DELETE FROM temp1 WHERE '{}' in ({})".format(i, tag_col))
             conn.commit()
         results = list(cursor.execute(
-            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}".format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
+            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
         #results = ip.results_parser(results)
         conn.commit()
@@ -190,9 +194,11 @@ def special_f(specials, page):
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
         results = list(cursor.execute(
-            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}".format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
+            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         conn.commit()
-        return results
+        total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
+        return results, total
 
     for i in specials:
         i = i.replace("*", '%')
@@ -208,7 +214,8 @@ def special_f(specials, page):
             results, total = src(i[1], i[0], splitter)
             conn.commit()
         elif i[0] == 'ratio' or i[0] == 'aspect_ratio':
-            results, total = src(eval(i[1].replace(":", "/").replace("(", '')), 'ratio', splitter)
+            evaluated = eval(i[1].replace(":", "/").replace("(", ''))
+            results, total = src(evaluated, 'ratio', splitter)
             conn.commit()
     if len(results) == 0:
         results = []
@@ -229,5 +236,11 @@ def random_img():
         "SELECT * FROM {} ORDER BY RANDOM() LIMIT 1".format(settings_file.table_name)))
     return result
 
+
+def tagged_random(tag):
+    init_db()
+    result = list(cursor.execute("SELECT * FROM {}  WHERE '{tag}' in ({tag_col})  ORDER BY RANDOM() LIMIT 1"
+    .format(settings_file.table_name, tag=tag, tag_col=tag_col)))
+    return result
 
 precomp()

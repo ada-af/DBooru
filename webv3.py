@@ -436,6 +436,13 @@ class Handler(Thread):
         self.send_data(result)
         self.close_connection()
 
+    def tagged_random_image(self):
+        img = db.tagged_random(self.request['params']['query'])[0]
+        result = str("/slideshow/"+img[-1]+img[0].split('.')[0])
+        self.send_header(200, fileobject=result)
+        self.send_data(result)
+        self.close_connection()
+
     def serve(self):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
@@ -469,6 +476,8 @@ class Handler(Thread):
             self.raw_dl()
         elif self.request['path'] == '/predict' and 'phrase' in self.request['params']:
             self.predictor()
+        elif "/slideshow" in self.request['path'] and self.request:
+            pass
         else:
             try:
                 self.request['path'] = self.request['path'].replace('..', '')
