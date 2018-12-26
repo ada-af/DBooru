@@ -271,12 +271,6 @@ class Handler(Thread):
             self.send_header(404)
         self.close_connection()
 
-    def die(self):
-        self.send_header(200, fileobject=4)
-        self.send_data("Done")
-        self.close_connection()
-        os._exit(0)
-
     def dl(self):
         try:
             with open(str(settings_file.images_path + self.request['params']['id']), 'rb') as t:
@@ -468,8 +462,6 @@ class Handler(Thread):
             self.thumb()
         elif "/image/" in self.request['path']:
             self.details()
-        elif self.request['path'] == '/panic' or self.request['path'] == '/shutdown':
-            self.die()
         elif self.request['path'] == '/dl' and 'id' in self.request['params']:
             self.dl()
         elif self.request['path'] == '/raw' and 'id' in self.request['params']:
