@@ -432,7 +432,7 @@ class Handler(Thread):
 
     def tagged_random_image(self):
         img = db.tagged_random(self.request['params']['query'])[0]
-        result = str("/slideshow/"+img[-1]+img[0].split('.')[0])
+        result = str("/image/"+img[-1]+img[0])
         self.send_header(200, fileobject=result)
         self.send_data(result)
         self.close_connection()
@@ -446,6 +446,8 @@ class Handler(Thread):
                 self.api_search(page=self.request['params']['page'])
             else:
                 self.api_search()
+        elif self.request['path'] == '/random' and self.request['query'] is not None:
+            self.tagged_random_image()
         elif self.request['path'] == '/random':
             self.random_image()
         elif self.request['path'] == '/next' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':
@@ -468,8 +470,6 @@ class Handler(Thread):
             self.raw_dl()
         elif self.request['path'] == '/predict' and 'phrase' in self.request['params']:
             self.predictor()
-        elif "/slideshow" in self.request['path'] and self.request:
-            pass
         else:
             try:
                 self.request['path'] = self.request['path'].replace('..', '')
