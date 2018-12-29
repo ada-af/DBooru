@@ -232,13 +232,12 @@ Enter this commands if prompt starts with `Search@DB>`
 | "/image/**str**"       | GET    |                                     | View image with tags                     | HTML-page and HTTP headers and status code                |
 | "/dl"                  | GET    | id=**filename**                     | Browser-friendly download method         | Image and HTTP headers and status code                    |
 | "/raw"                 | GET    | id=**filename**                     | Raw image data                           | Image without HTTP headers/status codes                   |
-| "/panic"               | GET    |                                     | Shuts down WebUI server                  | Plain text data ("Done") and HTTP headers and status code |
-| "/shutdown"            | GET    |                                     | Shuts down WebUI server                  | Plain text data ("Done") and HTTP headers and status code |
 | "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query            | Plain text data and HTTP headers and status code          |
 | "/next"                | POST   | **int**                             | Tries to get id of next (older) image    | Plain text data (<id-of-image>) and status code           |
 | "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>) and status code           |
-| "/thumb/**filename**   | GET    |                                     | Makes thumbnail (500px) of image         | Image
-| "/api/search?query=**query**&page=**optional**| GET |   | Searches images and returns json result of search |
+| "/thumb/**filename**"  | GET    |                                     | Makes thumbnail (500px) of image         | Image                                                     |
+| "/api/search"          | GET    | query=**query** page=**int**        | Searches images and returns json result of search | JSON                                             |
+| "/random"              | GET    | query=**optional_tag**              | Returns path to image                    | Plain text data (<path-of-image-page>)                    | 
 
 
 ## Search basics and syntax
