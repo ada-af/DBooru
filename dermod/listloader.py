@@ -58,7 +58,10 @@ class Checker(Thread):
         try:
             self.raw_data = self.raw_data.content.decode().encode('latin1').decode("unicode_escape")
         except UnicodeEncodeError:
-            self.raw_data = self.raw_data.content.decode()
+            try:
+                self.raw_data = self.raw_data.content.decode("unicode_escape")
+            except UnicodeEncodeError:
+                self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
         self.module_data.parse(self, string=self.raw_data)
