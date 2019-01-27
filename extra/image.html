@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DBooru > {}</title>
     <link rel='stylesheet' href="/extra/bootstrap.min.css">
+    <script src='/extra/jquery.min.js'/>
     <script src="/extra/bootstrap.min.js"></script>
     <script src="/extra/clipboard.min.js" type="application/javascript"></script>
     <style>
@@ -37,8 +38,8 @@
             <button class="btn btn-info" onclick="dl('{}')">Download</button>
             <button class="btn btn-info" id="export" onclick="dbclick('{}')">Export</button>
             <button class="btn btn-info" id="open" onclick="view('{}')">View</button>
-            <button class="btn btn-info" onclick="dcdn('{}')">View on Source</button>
-            <button class="btn btn-info" data-clipboard-text="{}" id='clip'>Copy Source link</button>
+            <button class="btn btn-info" onclick="dcdn('{}')">View on CDN</button>
+            <button class="btn btn-info" data-clipboard-text="{}" id='clip'>Copy CDN link</button>
         </div>
         <div><h3>Tags: {}</h3></div>
     </div>

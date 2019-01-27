@@ -62,6 +62,15 @@ web_port = 9000
 # Example: thumbnailer = "PIL"
 thumbnailer = "ffmpeg"
 
+# Defines whether tag prediction should be disabled in webUI
+# Format: disable_mobile = Bool
+# Exmaple: disable_mobile = True
+disable_mobile = False
+
+# Defines how many tags to show when predicting
+# Format: predict_tags = int
+# Example: predict_tags = 50
+predict_tags = 20
 
 # Database specific settings
 

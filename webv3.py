@@ -1,20 +1,25 @@
 #!/usr/bin/env python3
+import json
+import math
 import os
 import socket
-import time
 import sys
+import tempfile
+import time
 from datetime import datetime
 from threading import Thread
-import tempfile
+
+import settings_file
+from dermod import db, follow
+from dermod import input_parser as ip
+from dermod import mime_types as mimes
+from dermod import predict
+
 try:
     import PIL.Image as Image
 except ImportError:
     pass
 
-from dermod import input_parser as ip
-from dermod import mime_types as mimes
-from dermod import db, predict, follow
-import settings_file
 
 
 class ThreadController(Thread):
@@ -72,8 +77,8 @@ class Handler(Thread):
             if self.request_debug is True:
                 self.log_debug(self.request, "\n\n")
             self.serve()
-        except Exception:
-            pass
+        except Exception as e:
+            print(e)
         self.readiness = 1
         quit(0)
 
@@ -108,7 +113,7 @@ class Handler(Thread):
             self.conn.sendall(
                 """HTTP/1.1 404 Not Found\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Looks like i'm pretty awful in searching things\n\n""".format(mime).encode())
             self.send_data(
-                "<html><head><meta http-equiv='refresh' content='1; url=/' </head><body>404 Not Found</body></html>".encode())
+                "<html><body>404 Not Found</body></html>".encode())
             self.close_connection()
         elif code == 500:
             self.conn.sendall(
@@ -130,6 +135,38 @@ class Handler(Thread):
                 self.send_data(i)
                 if not i:
                     break
+        self.close_connection()
+
+    def api_search(self, page=0):
+        try:
+            results = db.search(
+                self.request["query"]['search'],
+                self.request["query"]['remove'], page)
+            p = results[int(page)]
+            true_results = {}
+            k = 0
+            for _ in p:
+                fname = {'filename': _[0]}
+                tags = {'tags': [x for x in _[1:settings_file.tag_amount]]}
+                height = {'height': _[settings_file.tag_amount+1]}
+                width = {'widht': _[settings_file.tag_amount+2]}
+                ratio = {'ratio': _[settings_file.tag_amount+3]}
+                source_link = {'source_link': _[settings_file.tag_amount+4]}
+                prefix = {'prefix': _[settings_file.tag_amount+5]}
+                thumbnail = {'thumb': "//"+self.request['host']+"/thumb/"+prefix['prefix']+fname['filename']}
+                full = {'full': "//"+self.request['host']+"/raw/"+prefix['prefix']+fname['filename']}
+                __ = dict(fname, **tags, **height, **width,**ratio,**source_link, **prefix, **thumbnail)
+                __.update(full)
+                true_results[k] = __
+                k += 1
+            p = json.dumps(true_results)
+        except (IndexError, KeyError) as e:
+            self.send_header(404)
+        except Exception as e:
+            self.send_header(500)
+        else:
+            self.send_header(200, fileobject=len(p), mime="json")
+            self.send_data(p)
         self.close_connection()
 
     def show_img(self):
@@ -169,10 +206,9 @@ class Handler(Thread):
 
     def results(self):
         try:
-            results = db.search(
-                self.request["query"]['search'], self.request["query"]['remove'])
-            paginator = self.gen_paginator(results)
-            results = list(results[int(self.request['params']['page']) - 1])
+            results, total = db.search(
+                self.request["query"]['search'], self.request["query"]['remove'], page=int(self.request['params']['page'])-1)
+            paginator = self.gen_paginator(total[0])
         except (IndexError, KeyError):
             self.send_header(404)
         except Exception:
@@ -184,7 +220,8 @@ class Handler(Thread):
                 i = tuple([x for x in i if x != 'None'])
                 pictures.append(i)
             p = ''
-            for i in sorted(list(set(pictures)), key=lambda tup: tup[0], reverse=True):
+            # for i in sorted(list(set(pictures)), key=lambda tup: tup[0], reverse=True):
+            for i in list(set(pictures)):
                 if i[0].split('.')[1] != 'webm':
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
@@ -234,12 +271,6 @@ class Handler(Thread):
             self.send_header(404)
         self.close_connection()
 
-    def die(self):
-        self.send_header(200, fileobject=4)
-        self.send_data("Done")
-        self.close_connection()
-        os._exit(0)
-
     def dl(self):
         try:
             with open(str(settings_file.images_path + self.request['params']['id']), 'rb') as t:
@@ -269,9 +300,10 @@ class Handler(Thread):
             self.send_data(str(500))
 
     def predictor(self):
-        if "mobile" in self.request['user-agent'].lower():
-            self.readiness = 1
-            del self
+        if settings_file.disable_mobile is True:
+            if "mobile" in self.request['user-agent'].lower():
+                self.readiness = 1
+                del self
         predictor = predict.Predictor()
         try:
             matched = predictor.predict(self.request['params']['phrase'])
@@ -315,22 +347,26 @@ class Handler(Thread):
         while True:
             f = db.search_by_id(x)
             if f != []:
-                self.send_header(200)
+                self.send_header(200, fileobject=str(
+                    f[0][-1]+f[0][0].split('.')[0]))
                 self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
                 break
-            elif (x-starting) >= 300:
+            elif (starting-x) >= 300:
                 self.send_header(200)
                 g = db.search_by_id(x)
+                self.send_header(200, fileobject=str(
+                    g[0][-1]+g[0][0].split('.')[0]))
                 self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
                 break
             else:
                 x += 1
+        self.close_connection()
 
-    def gen_paginator(self, dct):
+    def gen_paginator(self, total):
         ex = """<li class="page-item{}"><a class="page-link" href="/?query={}&page={}">{}</a></li>"""
         query = self.request['params']['query'].replace("=", "%3D")
         p = "" + ex.format('', query, '1', 'First')
-        list_of_pages = list(dct.keys())
+        list_of_pages = range(0, math.ceil(total/settings_file.showing_imgs))
         cur_pg = int(self.request['params']['page'])
 
         if int(self.request['params']['page']) >= 4:
@@ -345,7 +381,7 @@ class Handler(Thread):
                     p += ex.format(" disabled", query, i+1, i+1)
                 else:
                     p += ex.format("", query, i+1, i+1)
-        p += ex.format('', query, int(list(dct.keys())[-1])+1, 'Last')
+        p += ex.format('', query, math.ceil(total/settings_file.showing_imgs), 'Last')
         return p
 
     def thumb(self):
@@ -394,11 +430,25 @@ class Handler(Thread):
         self.send_data(result)
         self.close_connection()
 
+    def tagged_random_image(self):
+        img = db.tagged_random(self.request['params']['query'])[0]
+        result = str("/image/"+img[-1]+img[0])
+        self.send_header(200, fileobject=result)
+        self.send_data(result)
+        self.close_connection()
+
     def serve(self):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
             self.index()
-        if self.request['path'] == '/random':
+        elif self.request['path'] == '/api/search' and self.request['query'] is not None:
+            if 'page' in self.request['params']:
+                self.api_search(page=self.request['params']['page'])
+            else:
+                self.api_search()
+        elif self.request['path'] == '/random' and self.request['query'] is not None:
+            self.tagged_random_image()
+        elif self.request['path'] == '/random':
             self.random_image()
         elif self.request['path'] == '/next' and self.request['method'].upper() == 'POST' and self.request['post_data'] != '':
             self.next()
@@ -414,8 +464,6 @@ class Handler(Thread):
             self.thumb()
         elif "/image/" in self.request['path']:
             self.details()
-        elif self.request['path'] == '/panic' or self.request['path'] == '/shutdown':
-            self.die()
         elif self.request['path'] == '/dl' and 'id' in self.request['params']:
             self.dl()
         elif self.request['path'] == '/raw' and 'id' in self.request['params']:

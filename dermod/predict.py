@@ -1,4 +1,5 @@
 from dermod import db, input_parser
+import settings_file
 
 
 def gen_list():
@@ -44,7 +45,7 @@ class Predictor:
         return self.compile_html()
 
     def compile_html(self):
-        for i in self.matching[:20]:
+        for i in self.matching[:settings_file.predict_tags]:
             if len(self.previous) == 0:
                 self.compiled += '<option value="{}{}">'.format(self.inp[0], i)
             else:

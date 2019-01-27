@@ -62,10 +62,13 @@ def web_arg_parser_v2(params):
         .replace("%3E", ">")\
         .replace("%20", " ")\
         .replace("%3F", "?")\
+        .replace("%2F", "/")\
+        .replace("%28", "(")\
+        .replace("%29", ")")\
         .split("&")
     temp = {}
     for i in params:
-        i = i.split('=')
+        i = i.replace("%26", "&").split('=')
         temp = dict(temp, **{i[0]: i[1]})
     params = temp
     del temp
@@ -114,7 +117,11 @@ def predictor_parser(string):
         .replace("%20", " ")\
         .replace("%3F", "?")\
         .replace("%5C", "\\")\
-        .replace("%21", "!")
+        .replace("%2F", "/")\
+        .replace("%21", "!")\
+        .replace("%26", "&")\
+        .replace("%28", "(")\
+        .replace("%29", ")")
     previous = string.split(',')[:-1]
     string = string.split(',')[-1].strip()
     if string.startswith('-'):

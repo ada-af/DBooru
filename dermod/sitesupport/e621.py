@@ -1,14 +1,15 @@
 username = "YOUR USERNAME GOES HERE"
 
-# Do not change values below line 3
+# Do not change values below this line (aka line 3)
 
 domain = 'https://e621.net'
 query = "fav:{}".format(username)
 endpoint = "/post/index.json?tags={}".format(query)
 paginator = "&page={}"
 empty_page = '\[\]$' # Must be regexp
-slp = 0.5 # Defines delay between requests
+slp = 1 # Defines delay between requests
 params = '' # Additional API params
+hard_limit = 750 # Max available page
 
 class Module:
     def __init__(self):

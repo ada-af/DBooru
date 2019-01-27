@@ -31,6 +31,7 @@ types = {
     'jpeg': 'image/jpeg',
     'jpg': 'image/jpeg',
     'js': 'application/x-javascript',
+    'json': 'application/json',
     'ksh': 'text/plain',
     'latex': 'application/x-latex',
     'm1v': 'video/mpeg',
