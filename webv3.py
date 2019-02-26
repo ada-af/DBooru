@@ -221,12 +221,12 @@ class Handler(Thread):
                 pictures.append(i)
             p = ''
             # for i in sorted(list(set(pictures)), key=lambda tup: tup[0], reverse=True):
-            for i in list(set(pictures)):
+            for i in list(pictures):
                 if i[0].split('.')[1] != 'webm':
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
                     /thumb/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
-                            .format(str(i[1:-5]).strip('()').replace("'", ''), i[-1]+i[0], i[-1]+i[0].split('.')[0])
+                            .format(str(i[1:-6]).strip('()').replace("'", ''), i[-2]+i[0], i[-2]+i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
                 elif i[0].split('.')[1] == 'webm':
@@ -234,10 +234,10 @@ class Handler(Thread):
                              <video class="img-fluid g-item" preload='auto' muted onclick="sclick('{}')">
                              <source src="{}{}"/>
                              </video>
-                             </abbr></div></div>""".format(str(i[1:-4]).strip('()').replace("'", ''),
-                                                           i[-1] +
+                             </abbr></div></div>""".format(str(i[1:-5]).strip('()').replace("'", ''),
+                                                           i[-2] +
                                                            i[0].split('.')[0],
-                                                           settings_file.images_path, i[-1]+i[0])
+                                                           settings_file.images_path, i[-2]+i[0])
             try:
                 p = open("extra/results.html", 'r').read().format(self.request['params']['query'],
                                                                   p,
@@ -256,14 +256,14 @@ class Handler(Thread):
             tags = [x for x in tags[0] if x is not None]
             if tags[0].split('.')[1] != 'webm':
                 p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(
-                    tags[-1]+tags[0])
+                    tags[-2]+tags[0])
             else:
                 p = """<video class="img img-fluid" preload='auto' autoplay controls muted loop>
                                 <source src="/{}{}"/>
-                                </video>""".format(settings_file.images_path, tags[-1]+tags[0])
-            data = open('extra/image.html', 'r').read().format(img_id[1], p, tags[-1]+tags[0], tags[-1]+tags[0], tags[-1]+tags[0], tags[-2], tags[-2],
+                                </video>""".format(settings_file.images_path, tags[-2]+tags[0])
+            data = open('extra/image.html', 'r').read().format(img_id[1], p, tags[-2]+tags[0], tags[-2]+tags[0], tags[-2]+tags[0], tags[-3], tags[-3],
                                                                str(['<a href="/?query={}&page=1">{}</a>'.format(f, f)
-                                                                    for f in [x for x in tags[1:-5]] if
+                                                                    for f in [x for x in tags[1:-6]] if
                                                                     f != "None"]).strip("[]").replace("'", ''))
             self.send_header(200, fileobject=len(data))
             self.send_data(data)

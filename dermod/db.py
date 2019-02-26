@@ -15,12 +15,13 @@ def precomp():
     for i in range(1, settings_file.tag_amount+1):
         tag_col += h.format(i)
     tag_col = tag_col[:-2]
-    tag_col_full = tag_col + ', height, width, ratio, source_link, prefix'
-    tag_col_serv = 'height, width, ratio, source_link, prefix'
+    tag_col_full = tag_col + ', height, width, ratio, source_link, prefix, id'
+    tag_col_serv = 'height, width, ratio, source_link, prefix, id'
     init_db()
     try:
         cursor.execute("alter table images add column source_link")
         cursor.execute("alter table images add column prefix")
+        cursor.execute("alter table images add column id")
         conn.commit()
     except Exception:
         pass
@@ -65,7 +66,7 @@ def mkdb(table_name):
     init_db()
     cursor.execute('drop table IF EXISTS {}'.format(table_name))
 
-    sample = """CREATE TABLE {}({})""".format(table_name, tag_col_full)
+    sample = """CREATE TABLE {}({} INT)""".format(table_name, tag_col_full)
 
     cursor.execute(sample)
     conn.commit()
@@ -90,8 +91,8 @@ def fill_db(file=settings_file.ids_file):
             k = k[:settings_file.tag_amount]
         k = str(k).strip("[]").replace('" ', '"').replace(
             ' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}', '{}', '{}')".format(
-            settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], i[2], i[7])
+        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}', '{}', '{}', {})".format(
+            settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], i[2], i[7], i[0])
         cursor.execute(j)
         if cnt == 10:
             conn.commit()
@@ -129,7 +130,7 @@ def search(list_search, list_remove, page=0):
         cursor.execute(
             "delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
         results = list(cursor.execute(
-            "SELECT * FROM temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            "SELECT * FROM temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
             .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
         conn.commit()
@@ -141,7 +142,7 @@ def search(list_search, list_remove, page=0):
         cursor.execute(
             "delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
         results = list(cursor.execute(
-            "SELECT * FROM temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            "SELECT * FROM temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
             .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
         conn.commit()
@@ -155,7 +156,7 @@ def search(list_search, list_remove, page=0):
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
         results = list(cursor.execute(
-            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            "select * from temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
             .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
         conn.commit()
@@ -169,7 +170,7 @@ def search(list_search, list_remove, page=0):
                 "DELETE FROM temp1 WHERE '{}' in ({})".format(i, tag_col))
             conn.commit()
         results = list(cursor.execute(
-            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            "select * from temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
             .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
         #results = ip.results_parser(results)
@@ -194,7 +195,7 @@ def special_f(specials, page):
         mkdb('temp1')
         cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
         results = list(cursor.execute(
-            "select * from temp1 order by CAST(fname as integer) DESC limit {imgs_amount} offset {offset}"
+            "select * from temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
             .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
         conn.commit()
         total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
@@ -224,8 +225,8 @@ def special_f(specials, page):
 
 def search_by_id(img_id, prefix="%"):
     init_db()
-    result = list(cursor.execute(
-        "SELECT * FROM {} WHERE fname like '{}.%' and prefix like '{}_'".format(settings_file.table_name, img_id, prefix)))
+    sql = "SELECT * FROM {} WHERE id = {} and prefix like '{}_'".format(settings_file.table_name, img_id, prefix)
+    result = list(cursor.execute(sql))
 
     return result
 
