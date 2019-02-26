@@ -425,14 +425,14 @@ class Handler(Thread):
 
     def random_image(self):
         img = db.random_img()[0]
-        result = str("/image/"+img[-1]+img[0].split('.')[0])
+        result = str("/image/"+img[-2]+img[0].split('.')[0])
         self.send_header(200, fileobject=result)
         self.send_data(result)
         self.close_connection()
 
     def tagged_random_image(self):
         img = db.tagged_random(self.request['params']['query'])[0]
-        result = str("/image/"+img[-1]+img[0])
+        result = str("/image/"+img[-2]+img[0])
         self.send_header(200, fileobject=result)
         self.send_data(result)
         self.close_connection()
