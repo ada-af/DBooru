@@ -168,7 +168,7 @@ def main_cycle():
 try:
     try:
         if sys.argv[1] == "update":
-            update_db(endwith="\n")
+            update_db(endwith="\r")
             os._exit(0)
     except IndexError:
         pass

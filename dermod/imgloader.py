@@ -70,7 +70,6 @@ class Loader(Thread):
 def run(module, file, check_files=True, check_local=True, endwith="\r"):
     tc = TC.ThreadController()
     tc.start()
-    old_out = sys.stderr
     if settings_file.suppressor is True:
         logging.raiseExceptions = False
     try:
@@ -142,4 +141,3 @@ def run(module, file, check_files=True, check_local=True, endwith="\r"):
             time.sleep(1)
             c += 1
     del tc
-    sys.stderr = old_out
