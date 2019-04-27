@@ -106,11 +106,11 @@ def search(list_search, list_remove, page=0):
                 list_search.remove(i)
     mkdb('temp1')
     if len(list_search) != 0:
-        autogen_template = "UNION ALL SELECT * from {} where {} like '%,,{},,%'"
+        autogen_template = "and {} like '%,,{},,%'"
         autogen_query = "SELECT * from {} where {} like '%,,{},,%'".format(settings_file.table_name, tag_col, list_search[0])
         if len(list_search) > 1:
             for i in list_search[1:]:
-                autogen_query = autogen_query + autogen_template.format(settings_file.table_name, tag_col, i)
+                autogen_query = autogen_query + autogen_template.format(tag_col, i)
         query = "INSERT INTO temp1 SELECT DISTINCT * from ({})".format(autogen_query)
         cursor.execute(query)
     else:
