@@ -43,9 +43,9 @@ class Module:
                 r = "safe"
             k = i.split('"tags":"')[1]
             k = k.split('",')[0]
-            k = k.replace(" ", ', ')
+            k = k.replace(" ", ',,')
             k = k.replace('_', ' ')
-            k = j + "," + r + "," + k 
+            k = j + ",," + r + ",," + k 
             self.tags.append(k)
             k = i.split('"width":')[1]
             k = k.split(',')[0]

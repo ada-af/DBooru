@@ -44,4 +44,4 @@ class Module:
             k = k.split('","webm":"')[0]
             k = k.split('"},"is_rendered"')[0].replace("//", "https://")
             self.links.append(k)
-            self.tags.append(i.split('"tags":"')[1].split('"')[0])
+            self.tags.append(i.split('"tags":"')[1].split('"')[0].replace(", ", ",,"))

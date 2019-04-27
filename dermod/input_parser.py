@@ -57,6 +57,7 @@ def web_arg_parser_v2(params):
         .replace("+", " ")\
         .replace("%25", "%")\
         .replace("%2A", "*")\
+        .replace("%5C", "\\")\
         .replace("%3A", ":")\
         .replace("%3C", "<")\
         .replace("%3E", ">")\
