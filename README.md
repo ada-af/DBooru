@@ -226,15 +226,15 @@ Enter this commands if prompt starts with `Search@DB>`
 | Endpoint               | Method | Parameters (Body for POST)          | Description                              | Returns                                                   |
 | :--------------------: | :----: | ----------------------------------- | ---------------------------------------- | --------------------------------------------------------- |
 | "/"                    | GET    |                                     | Main page                                | HTML-page                                                 |
-| "/"                    | GET    | query=**search_query** page=**int** | Search images                            | HTML-page and HTTP headers and status code                |
-| "/export"              | GET    | id=**filename**                     | Exports image to <export_path>           | Plain text data ("Done") and HTTP headers and status code |
-| "/images/**filename**" | GET    |                                     | Access image file                        | Image and/or HTTP headers and status code                 |
-| "/image/**str**"       | GET    |                                     | View image with tags                     | HTML-page and HTTP headers and status code                |
-| "/dl"                  | GET    | id=**filename**                     | Browser-friendly download method         | Image and HTTP headers and status code                    |
-| "/raw"                 | GET    | id=**filename**                     | Raw image data                           | Image without HTTP headers/status codes                   |
-| "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query            | Plain text data and HTTP headers and status code          |
-| "/next"                | POST   | **int**                             | Tries to get id of next (older) image    | Plain text data (<id-of-image>) and status code           |
-| "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>) and status code           |
+| "/"                    | GET    | query=**search_query** page=**int** | Search images                            | HTML-page                                                 |
+| "/export"              | GET    | id=**filename**                     | Exports image to <export_path>           | Plain text data ("Done")                                  |
+| "/images/**filename**" | GET    |                                     | Access image file                        | Image and/                                                |
+| "/image/**str**"       | GET    |                                     | View image with tags                     | HTML-page                                                 |
+| "/dl"                  | GET    | id=**filename**                     | Browser-friendly download method         | Image                                                     |
+| "/raw"                 | GET    | id=**filename**                     | Raw image data                           | Image                                                     |
+| "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query            | Plain text data                                           |
+| "/next"                | POST   | **int**                             | Tries to get id of next (older) image    | Plain text data (<id-of-image>)                           |
+| "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>)                           |
 | "/thumb/**filename**"  | GET    |                                     | Makes thumbnail (500px) of image         | Image                                                     |
 | "/api/search"          | GET    | query=**query** page=**int**        | Searches images and returns json result of search | JSON                                             |
 | "/random"              | GET    | query=**optional_tag**              | Returns path to image                    | Plain text data (<path-of-image-page>)                    | 
@@ -272,8 +272,8 @@ Enter this commands if prompt starts with `Search@DB>`
 1. **`!=`** or **`<>`** means not equal to \<value>
 1. **`>`** means bigger than \<value>
 1. **`<`** means less than \<value>
-1. **`>=`** or **`=>`** means bigger or equal to \<value>
-1. **`<=`** or **`=<`** means less or equal to \<value>
+1. **`>=`** means bigger or equal to \<value>
+1. **`<=`** means less or equal to \<value>
 >Example: 'safe, width>100" will return images tagged with 'safe' tag and image with width bigger than 100px
 
 
@@ -285,26 +285,26 @@ Enter this commands if prompt starts with `Search@DB>`
 | suppress_errors       | Bool (True/False)             | Prints errors and stacktrace in case of happening        |
 | ssl_verify            | Bool (True/False) or String ("Path") | Enable/Disable ssl verification or set custom CA Cert |
 | enable_proxy          | Bool (True/False)             | Enables/Disables proxy for requests    |
-| socks5_proxy_ip       | String ("IP")                 | Sets proxy IP                                            |
-| socks5_proxy_port     | String ("Port")               | Sets proxy port                                          |
-| web_ip                | String ("IP")                 | Set IP to bind Web interface                             |
+| socks5_proxy_ip       | String (IP)                   | Sets proxy IP                                            |
+| socks5_proxy_port     | String (Port)                 | Sets proxy port                                          |
+| web_ip                | String (IP)                   | Set IP to bind Web interface                             |
 | web_port              | Integer (port)                | Sets port to bind Web interface                          |
 | tag_amount            | Integer (number)              | Maximum tags per image                                   |
 | disable_mobile        | Bool (True/False)             | Should tag prediction be disabled on mobile              |
 | predict_tags          | Integer (number)              | How many tags to show when predicting input              |
 | showing_imgs          | Integer (number)              | How many images to show per page                         |
 | showing_tags          | Integer (number)              | How many tags to **show** per image (CLI-only)           |
-| images_path           | String ("Path")               | Where to store loaded images                             |
-| export_path           | String ("Path")               | Where to store exported images                           |
+| images_path           | String (Path)                 | Where to store loaded images                             |
+| export_path           | String (Path)                 | Where to store exported images                           |
 | time_wait             | Integer (seconds)             | How long thread can stay alive                           |
-| ids_file              | String ("Path/Filename")      | Name for tempfile (No need to change)                    |
-| db_name               | String ("Path/Filename")      | Where to store DB file                                   |
-| table_name            | String ("Text")               | Sets name for main table (No need to change)             |
+| ids_file              | String (Path/Filename)        | Name for tempfile (No need to change)                    |
+| db_name               | String (Path/Filename)        | Where to store DB file                                   |
+| table_name            | String (Text)                 | Sets name for main table (No need to change)             |
 | run_follower          | Bool (True/False)             | Enable checking for new images while webUI runs          |
 | checked_pages         | Integer (number)              | How many pages should be checked                         |
 | follower_sleep        | Integer (seconds)             | Defines time between checking for images                 |
 | thread_cap            | Integer (number)              | Defines maximum running threads before blocking creating new threads |
-| sleep_time            | integer (seconds)             | Defines time to wait before creating new thread after thread cap is reached |
+| sleep_time            | Integer (seconds)             | Defines time to wait before creating new thread after thread cap is reached |
 
 
 ## dermod/aliases.py

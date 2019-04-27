@@ -326,14 +326,14 @@ class Handler(Thread):
             f = db.search_by_id(x)
             if f != []:
                 self.send_header(200, fileobject=str(
-                    f[0][-1]+f[0][0].split('.')[0]))
-                self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
+                    f[0][-1])+str(f[0][0]).split('.')[0])
+                self.send_data(str(f[0][-2])+str(f[0][0]).split('.')[0])
                 break
             elif (starting-x) >= 300:
                 g = db.search_by_id(x)
                 self.send_header(200, fileobject=str(
-                    g[0][-1]+g[0][0].split('.')[0]))
-                self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
+                    g[0][-1])+str(g[0][0]).split('.')[0])
+                self.send_data(str(g[0][-2])+str(g[0][0]).split('.')[0])
                 break
             else:
                 x -= 1
@@ -348,15 +348,15 @@ class Handler(Thread):
             f = db.search_by_id(x)
             if f != []:
                 self.send_header(200, fileobject=str(
-                    f[0][-1]+f[0][0].split('.')[0]))
-                self.send_data(str(f[0][-1]+f[0][0].split('.')[0]))
+                    f[0][-1])+str(f[0][0]).split('.')[0])
+                self.send_data(str(f[0][-2])+str(f[0][0]).split('.')[0])
                 break
             elif (starting-x) >= 300:
                 self.send_header(200)
                 g = db.search_by_id(x)
                 self.send_header(200, fileobject=str(
-                    g[0][-1]+g[0][0].split('.')[0]))
-                self.send_data(str(g[0][-1]+g[0][0].split('.')[0]))
+                    g[0][-1])+str(g[0][0]).split('.')[0])
+                self.send_data(str(g[0][-2])+str(g[0][0]).split('.')[0])
                 break
             else:
                 x += 1
@@ -425,14 +425,14 @@ class Handler(Thread):
 
     def random_image(self):
         img = db.random_img()[0]
-        result = str("/image/"+img[-1]+img[0].split('.')[0])
+        result = str("/image/"+img[-2]+img[0].split('.')[0])
         self.send_header(200, fileobject=result)
         self.send_data(result)
         self.close_connection()
 
     def tagged_random_image(self):
         img = db.tagged_random(self.request['params']['query'])[0]
-        result = str("/image/"+img[-1]+img[0])
+        result = str("/image/"+img[-2]+img[0])
         self.send_header(200, fileobject=result)
         self.send_data(result)
         self.close_connection()
