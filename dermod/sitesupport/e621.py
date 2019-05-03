@@ -33,7 +33,7 @@ class Module:
             k = i.split('"artist":[')[1]
             j = k.split(']')[0]
             j = str([str("artist:"+x.strip(' " ')) for x in j.split(',')]).strip("[]").replace(r"\'", "")
-            j = j.replace('_', ' ')
+            j = j.replace('_', ' ').replace(", ", ",,")
             r = i.split('"rating":"')[1][0]
             if r == "e":
                 r = "explicit"

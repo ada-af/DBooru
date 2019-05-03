@@ -13,9 +13,9 @@ def gen_list():
             tags.append(j)
     tags = list(sorted(set(tags)))
     tags_dict = {}
-    for i in tags:
+    for i in tags[1:]:
         tags_dict[str(i[0])] = []
-    for i in tags:
+    for i in tags[1:]:
         tags_dict[str(i[0])].append(i)
     return tags_dict
 

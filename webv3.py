@@ -147,7 +147,7 @@ class Handler(Thread):
             k = 0
             for _ in p:
                 fname = {'filename': _[0]}
-                tags = {'tags': _[1].split(",,")}
+                tags = {'tags': _[1].split(",,")[1:]}
                 height = {'height': _[2]}
                 width = {'widht': _[3]}
                 ratio = {'ratio': _[4]}
