@@ -4,6 +4,7 @@ import math
 import os
 import socket
 import sys
+import imghdr
 import tempfile
 import time
 from datetime import datetime
@@ -399,11 +400,11 @@ class Handler(Thread):
             form = "gif"
             if settings_file.gif_to_webp == True:
                 form = "webp"
-            else:
-                form = settings_file.conv_format
-            cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}"\
-                .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
-            os.system(cmd)
+        else:
+            form = settings_file.conv_format
+        cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}"\
+            .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
+        os.system(cmd)                
 
     def thumb(self):
         fname = self.request['path'].split("/")[-1]
@@ -422,7 +423,10 @@ class Handler(Thread):
             if fname.split('.')[-1] == 'gif':
                 self.send_header(200, mime="gif", fileobject=nm.seek(0, 2), cache="private, max-age=86400")
             else:
-                self.send_header(200, mime=settings_file.conv_format, fileobject=nm.seek(0, 2), cache="private, max-age=86400")
+                mime = imghdr.what(tf.name)
+                if mime is None:
+                    mime = "other"
+                self.send_header(200, mime=mime, fileobject=nm.seek(0, 2), cache="private, max-age=86400")
             nm.seek(0)
             while True:
                 i = nm.read(1024)
