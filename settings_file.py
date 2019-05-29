@@ -62,6 +62,19 @@ web_port = 9000
 # Example: thumbnailer = "PIL"
 thumbnailer = "ffmpeg"
 
+# Format to use when generating thumbnail for images
+# Can be any format supported by ffmpeg
+# Only works if thumbnailer set to "ffmpeg"
+# Format: conv_format = string
+# Example: conv_format = "webp"
+conv_format = "jpg"
+
+# Should gifs be converted to webp
+# Only works if thumbnailer set to "ffmpeg"
+# Format: gif_to_webp = Bool
+# Example: gif_to_webp = True
+gif_to_webp = False
+
 # Defines whether tag prediction should be disabled in webUI
 # Format: disable_mobile = Bool
 # Exmaple: disable_mobile = True

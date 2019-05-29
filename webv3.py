@@ -384,32 +384,45 @@ class Handler(Thread):
         p += ex.format('', query, math.ceil(total/settings_file.showing_imgs), 'Last')
         return p
 
+    @staticmethod
+    def encode_PIL(fname, tf):
+        img = Image.open(settings_file.images_path+fname)
+        img.thumbnail((500,500), Image.ANTIALIAS)
+        if fname.split('.')[-1] == 'gif':
+            img.save(tf.name, "GIF")
+        else:
+            img.save(tf.name, "JPEG")
+
+    @staticmethod
+    def encode_FFMPEG(fname, tf):
+        if fname.split('.')[-1] == 'gif':
+            form = "gif"
+            if settings_file.gif_to_webp == True:
+                form = "webp"
+            else:
+                form = settings_file.conv_format
+            cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}"\
+                .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
+            os.system(cmd)
+
     def thumb(self):
         fname = self.request['path'].split("/")[-1]
         tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
         tf.close()
         if settings_file.thumbnailer.lower() == "ffmpeg":
-            if fname.split('.')[-1] == 'gif':
-                form = "gif"
-            else:
-                form = 'mjpeg'
-            cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}".format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
-            os.system(cmd)
+            self.encode_FFMPEG(fname, tf)
         elif settings_file.thumbnailer.lower() == "pil":
-            img = Image.open(settings_file.images_path+fname)
-            img.thumbnail((500,500), Image.ANTIALIAS)
-            if fname.split('.')[-1] == 'gif':
-                img.save(tf.name, "GIF")
-            else:
-                img.save(tf.name, "JPEG")
+            self.encode_PIL(fname, tf)
         else:
             os.remove(tf.name)
             tf.name = settings_file.images_path+fname
         with open(tf.name, 'rb') as nm:
+            if settings_file.gif_to_webp is True:
+                self.send_header(200, mime="webp", fileobject=nm.seek(0, 2), cache="private, max-age=86400")
             if fname.split('.')[-1] == 'gif':
                 self.send_header(200, mime="gif", fileobject=nm.seek(0, 2), cache="private, max-age=86400")
             else:
-                self.send_header(200, mime="jpg", fileobject=nm.seek(0, 2), cache="private, max-age=86400")
+                self.send_header(200, mime=settings_file.conv_format, fileobject=nm.seek(0, 2), cache="private, max-age=86400")
             nm.seek(0)
             while True:
                 i = nm.read(1024)
@@ -417,7 +430,7 @@ class Handler(Thread):
                 if not i:
                     break
         nm.close()
-        if settings_file.thumbnailer.lower() == "ffmpeg" or settings_file.thumbnailer.lower() == "pil":
+        if settings_file.thumbnailer.lower() != "disabled":
             os.remove(tf.name)
         else:
             pass
