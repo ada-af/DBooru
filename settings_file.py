@@ -67,7 +67,7 @@ thumbnailer = "ffmpeg"
 # Only works if thumbnailer set to "ffmpeg"
 # Format: conv_format = string
 # Example: conv_format = "webp"
-conv_format = "jpg"
+conv_format = "jpeg"
 
 # Should gifs be converted to webp
 # Only works if thumbnailer set to "ffmpeg"
