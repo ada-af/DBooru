@@ -148,12 +148,12 @@ class Handler(Thread):
             k = 0
             for _ in p:
                 fname = {'filename': _[0]}
-                tags = {'tags': [x for x in _[1:settings_file.tag_amount]]}
-                height = {'height': _[settings_file.tag_amount+1]}
-                width = {'widht': _[settings_file.tag_amount+2]}
-                ratio = {'ratio': _[settings_file.tag_amount+3]}
-                source_link = {'source_link': _[settings_file.tag_amount+4]}
-                prefix = {'prefix': _[settings_file.tag_amount+5]}
+                tags = {'tags': _[1].split(",,")[1:]}
+                height = {'height': _[2]}
+                width = {'widht': _[3]}
+                ratio = {'ratio': _[4]}
+                source_link = {'source_link': _[5]}
+                prefix = {'prefix': _[6]}
                 thumbnail = {'thumb': "//"+self.request['host']+"/thumb/"+prefix['prefix']+fname['filename']}
                 full = {'full': "//"+self.request['host']+"/raw/"+prefix['prefix']+fname['filename']}
                 __ = dict(fname, **tags, **height, **width,**ratio,**source_link, **prefix, **thumbnail)
@@ -221,13 +221,12 @@ class Handler(Thread):
                 i = tuple([x for x in i if x != 'None'])
                 pictures.append(i)
             p = ''
-            # for i in sorted(list(set(pictures)), key=lambda tup: tup[0], reverse=True):
             for i in list(pictures):
                 if i[0].split('.')[1] != 'webm':
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
                     /thumb/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
-                            .format(str(i[1:-6]).strip('()').replace("'", ''), i[-2]+i[0], i[-2]+i[0].split('.')[0])
+                            .format(str(i[1].split(",,")).replace("'", '').strip("[]"), i[-2]+i[0], i[-2]+i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
                 elif i[0].split('.')[1] == 'webm':
@@ -235,7 +234,7 @@ class Handler(Thread):
                              <video class="img-fluid g-item" preload='auto' muted onclick="sclick('{}')">
                              <source src="{}{}"/>
                              </video>
-                             </abbr></div></div>""".format(str(i[1:-5]).strip('()').replace("'", ''),
+                             </abbr></div></div>""".format(str(i[1].split(",,")).replace("'", '').strip("[]"),
                                                            i[-2] +
                                                            i[0].split('.')[0],
                                                            settings_file.images_path, i[-2]+i[0])
@@ -252,9 +251,9 @@ class Handler(Thread):
 
     def details(self):
         img_id = self.request['path'].split("/")[-1].split("_")
-        tags = db.search_by_id(img_id[1], img_id[0])
+        tags = list(db.search_by_id(img_id[1], img_id[0]))
         if len(tags) >= 1:
-            tags = [x for x in tags[0] if x is not None]
+            tags[1] = tags[1].split(",,")
             if tags[0].split('.')[1] != 'webm':
                 p = '<img src="/images/{}" class="ft" id="image" onclick="sw()">'.format(
                     tags[-2]+tags[0])
@@ -264,8 +263,7 @@ class Handler(Thread):
                                 </video>""".format(settings_file.images_path, tags[-2]+tags[0])
             data = open('extra/image.html', 'r').read().format(img_id[1], p, tags[-2]+tags[0], tags[-2]+tags[0], tags[-2]+tags[0], tags[-3], tags[-3],
                                                                str(['<a href="/?query={}&page=1">{}</a>'.format(f, f)
-                                                                    for f in [x for x in tags[1:-6]] if
-                                                                    f != "None"]).strip("[]").replace("'", ''))
+                                                                    for f in [x for x in tags[1]]]).strip("[]").replace("'", ''))
             self.send_header(200, fileobject=len(data))
             self.send_data(data)
         else:
@@ -318,46 +316,39 @@ class Handler(Thread):
             self.send_header(500)
         self.close_connection()
 
-    def next(self):
+    def previous(self):
         f = []
-        self.request['post_data'] = self.request['post_data'].split('_')[1]
-        starting = int(self.request['post_data'])
-        x = int(self.request['post_data'])-1
+        this = self.request['post_data']
+        starting = int(self.request['post_data'].split('_')[1])
+        x = starting-1
         while True:
             f = db.search_by_id(x)
             if f != []:
-                self.send_header(200, fileobject=str(
-                    f[0][-1])+str(f[0][0]).split('.')[0])
-                self.send_data(str(f[0][-2])+str(f[0][0]).split('.')[0])
+                data = (f[6]+str(f[7]))
+                self.send_header(200, fileobject=data)
+                self.send_data(data)
                 break
             elif (starting-x) >= 300:
-                g = db.search_by_id(x)
-                self.send_header(200, fileobject=str(
-                    g[0][-1])+str(g[0][0]).split('.')[0])
-                self.send_data(str(g[0][-2])+str(g[0][0]).split('.')[0])
+                self.send_header(404)
                 break
             else:
                 x -= 1
         self.close_connection()
 
-    def previous(self):
+    def next(self):
         f = []
-        self.request['post_data'] = self.request['post_data'].split('_')[1]
-        starting = int(self.request['post_data'])
-        x = int(self.request['post_data'])+1
+        this = self.request['post_data']
+        starting = int(self.request['post_data'].split('_')[1])
+        x = starting+1
         while True:
             f = db.search_by_id(x)
             if f != []:
-                self.send_header(200, fileobject=str(
-                    f[0][-1])+str(f[0][0]).split('.')[0])
-                self.send_data(str(f[0][-2])+str(f[0][0]).split('.')[0])
+                data = (f[6]+str(f[7]))
+                self.send_header(200, fileobject=data)
+                self.send_data(data)
                 break
-            elif (starting-x) >= 300:
-                self.send_header(200)
-                g = db.search_by_id(x)
-                self.send_header(200, fileobject=str(
-                    g[0][-1])+str(g[0][0]).split('.')[0])
-                self.send_data(str(g[0][-2])+str(g[0][0]).split('.')[0])
+            elif (starting-x) <= 300:
+                self.send_header(404)
                 break
             else:
                 x += 1

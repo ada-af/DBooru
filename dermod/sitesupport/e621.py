@@ -33,7 +33,7 @@ class Module:
             k = i.split('"artist":[')[1]
             j = k.split(']')[0]
             j = str([str("artist:"+x.strip(' " ')) for x in j.split(',')]).strip("[]").replace(r"\'", "")
-            j = j.replace('_', ' ')
+            j = j.replace('_', ' ').replace(", ", ",,")
             r = i.split('"rating":"')[1][0]
             if r == "e":
                 r = "explicit"
@@ -43,9 +43,9 @@ class Module:
                 r = "safe"
             k = i.split('"tags":"')[1]
             k = k.split('",')[0]
-            k = k.replace(" ", ', ')
+            k = k.replace(" ", ',,')
             k = k.replace('_', ' ')
-            k = j + "," + r + "," + k 
+            k = j + ",," + r + ",," + k 
             self.tags.append(k)
             k = i.split('"width":')[1]
             k = k.split(',')[0]
