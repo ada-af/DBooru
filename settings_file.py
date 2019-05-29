@@ -69,7 +69,7 @@ thumbnailer = "ffmpeg"
 # Example: conv_format = "webp"
 conv_format = "mjpeg"
 
-# Should gifs be converted to webp
+# Should gif thumbnails be converted to webp
 # Only works if thumbnailer set to "ffmpeg"
 # Format: gif_to_webp = Bool
 # Example: gif_to_webp = True
