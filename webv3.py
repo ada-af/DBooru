@@ -418,9 +418,9 @@ class Handler(Thread):
             os.remove(tf.name)
             tf.name = settings_file.images_path+fname
         with open(tf.name, 'rb') as nm:
-            if settings_file.gif_to_webp is True:
+            if fname.split('.')[-1] == 'gif' and settings_file.gif_to_webp is True:
                 self.send_header(200, mime="webp", fileobject=nm.seek(0, 2), cache="private, max-age=86400")
-            if fname.split('.')[-1] == 'gif':
+            elif fname.split('.')[-1] == 'gif':
                 self.send_header(200, mime="gif", fileobject=nm.seek(0, 2), cache="private, max-age=86400")
             else:
                 mime = imghdr.what(tf.name)
