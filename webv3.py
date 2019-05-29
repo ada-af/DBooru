@@ -396,14 +396,16 @@ class Handler(Thread):
 
     @staticmethod
     def encode_FFMPEG(fname, tf):
+        add = ""
         if fname.split('.')[-1] == 'gif':
             form = "gif"
             if settings_file.gif_to_webp == True:
                 form = "webp"
+                add = "-loop 0"
         else:
             form = settings_file.conv_format
-        cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease -y -f {format} {tempname}"\
-            .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name)
+        cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease {additions} -y -f {format} {tempname}"\
+            .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name, additions=add)
         os.system(cmd)                
 
     def thumb(self):
