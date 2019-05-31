@@ -12,12 +12,15 @@
     <div class="container-fluid">
         <div align="center" style="margin-top: 22%">
             <form action="/">
-                <div class="form-group">
+                <div class="form-group input-group">
                     <input type="text" class="form-control form-control-lg" id="inp" list="search" autocomplete="off" name="query" placeholder="Search something">
+                    <span class="input-group-btn">
+                            <button type="submit" class="btn btn-lg btn-info">Search</button>
+                    </span>
                 </div>
                 <input name="page" value="1" style="visibility: hidden; width: 0; height: 0">
-                <button type="submit" class="btn btn-submit btn-info">Search</button>
-                <button type='button' class='btn btn-submit btn-danger' onclick='rand_img()'>Random image</button>
+                <button type="button" class="btn btn-submit btn-info" onclick='update_db()' id="upd_btn">Update DB</button>
+                <button type='button' class='btn btn-submit btn-info' onclick='rand_img()'>Random image</button>
             </form>
         </div>
     </div>
@@ -36,13 +39,26 @@
         }
         function update_datalist() {
             document.getElementById('search').innerHTML = '';
-            //phrase = document.getElementById('inp').value;
             phrase = this.value;
             xhr = new XMLHttpRequest();
             xhr.open("GET", '/predict?phrase='+phrase, true);
             xhr.send();
             xhr.onreadystatechange = function () {
                 document.getElementById('search').innerHTML = xhr.responseText;
+            }
+        }
+        function update_db(){
+            xhr = new XMLHttpRequest;
+            xhr.open("GET", '/update', true);
+            xhr.send()
+            xhr.onreadystatechange = function (e) {
+                if (xhr.status === 200){
+                    document.getElementById('upd_btn').classList.remove('btn-info');
+                    document.getElementById('upd_btn').classList.add('btn-success')
+                } else if (xhr.status === 409) {
+                    document.getElementById('upd_btn').classList.remove('btn-info');
+                    document.getElementById('upd_btn').classList.add('btn-danger')
+                }
             }
         }
         document.getElementById('inp').addEventListener('input', update_datalist)

@@ -126,6 +126,11 @@ class Handler(Thread):
                 """HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
             self.send_data("500 Internal Server Error")
             self.conn.close()
+        else:
+            self.conn.sendall(
+                """HTTP/1.1 {}\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Well shit...\n\n""".format(code, mime).encode())
+            self.send_data("HTTP Error code {}".format(code))
+            self.conn.close()
 
     def log_request(self):
         request = self.request
@@ -268,7 +273,7 @@ class Handler(Thread):
                                 </video>""".format(settings_file.images_path, tags[-2]+tags[0])
             data = open('extra/image.html', 'r').read().format(img_id[1], p, tags[-2]+tags[0], tags[-2]+tags[0], tags[-2]+tags[0], tags[-3], tags[-3],
                                                                str(['<a href="/?query={}&page=1">{}</a>'.format(f, f)
-                                                                    for f in [x for x in tags[1]]]).strip("[]").replace("'", ''))
+                                                                    for f in [x for x in tags[1][1:]]]).strip("[]").replace("'", ''))
             self.send_header(200, fileobject=len(data))
             self.send_data(data)
         else:
@@ -465,7 +470,7 @@ class Handler(Thread):
             os.remove('update.lck')
         else:
             j = "Update in process"
-            self.send_header(200, fileobject=j)
+            self.send_header(409, fileobject=j)
             self.send_data(j)
             self.close_connection()
 
