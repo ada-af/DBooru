@@ -68,7 +68,6 @@
     1. By tags
     1. By image dimensions
 1. Viewing images
-### CLI-version
 1. Loading images from *booru
     1. Even with proxy (socks5 only)
 
@@ -78,6 +77,9 @@
 1. Tag predictions
 1. Change page with ← or → arrows
 1. Scroll through images with ← or → arrows
+
+### CLI-Version
+¯\\\_(ツ)_/¯
 
 
 ## Installation
@@ -90,8 +92,6 @@
 >- idna
 >- cryptography
 >- ffmpeg or pillow
->
->If you have PyOpenSSL installed - remove it
 >
 >Or you can launch extra/linux\_deps.sh or extra/windows\_deps.bat and wait for magic
 
@@ -237,7 +237,8 @@ Enter this commands if prompt starts with `Search@DB>`
 | "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>)                           |
 | "/thumb/**filename**"  | GET    |                                     | Makes thumbnail (500px) of image         | Image                                                     |
 | "/api/search"          | GET    | query=**query** page=**int**        | Searches images and returns json result of search | JSON                                             |
-| "/random"              | GET    | query=**optional_tag**              | Returns path to image                    | Plain text data (<path-of-image-page>)                    | 
+| "/random"              | GET    | query=**optional_tag**              | Returns path to image                    | Plain text data (<path-of-image-page>)                    |
+| "/update"              | GET    |                                     | Updates DB (Same as CLI: get images)     | Returns 200 code when update started successfully or 409 in case when there's already update in progress |
 
 
 ## Search basics and syntax
@@ -290,6 +291,9 @@ Enter this commands if prompt starts with `Search@DB>`
 | web_ip                | String (IP)                   | Set IP to bind Web interface                             |
 | web_port              | Integer (port)                | Sets port to bind Web interface                          |
 | tag_amount            | Integer (number)              | Maximum tags per image                                   |
+| thumbnailer           | String (One of "ffmpeg", "PIL", "disabled") | Defines tool to make thumbnails or not to make them at all |
+| conv_format           | String (ffmpeg output format) | Format to format to use when making thumbnails           |
+| gif_to_webp           | Bool (True/False)             | Creates webp thumbnails for gifs                         |
 | disable_mobile        | Bool (True/False)             | Should tag prediction be disabled on mobile              |
 | predict_tags          | Integer (number)              | How many tags to show when predicting input              |
 | showing_imgs          | Integer (number)              | How many images to show per page                         |
