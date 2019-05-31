@@ -1,4 +1,4 @@
-query = ":<" # "my:upvotes"
+query = "my:faves" # "my:upvotes"
 api_key = "API-KEY GOES HERE"
 
 # Do not change values below line 4
