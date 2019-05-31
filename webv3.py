@@ -9,8 +9,10 @@ import tempfile
 import time
 from datetime import datetime
 from threading import Thread
+from multiprocessing import Process
 
 import settings_file
+import main
 from dermod import db, follow
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
@@ -21,7 +23,10 @@ try:
 except ImportError:
     pass
 
-
+try:
+    os.remove("update.lck")
+except Exception:
+    pass
 
 class ThreadController(Thread):
     @staticmethod
@@ -447,6 +452,24 @@ class Handler(Thread):
         self.send_data(result)
         self.close_connection()
 
+    def run_update(self):
+        if os.path.exists("update.lck") is False:
+            open("update.lck", 'w').write('1')
+            j = "DB Update started in background."
+            self.log_debug(j)
+            self.send_header(200, fileobject=j)
+            self.send_data(j)
+            self.close_connection()
+            p = Process(main.update_db())
+            p.start()
+            os.remove('update.lck')
+        else:
+            j = "Update in process"
+            self.send_header(200, fileobject=j)
+            self.send_data(j)
+            self.close_connection()
+
+
     def serve(self):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
@@ -480,6 +503,8 @@ class Handler(Thread):
             self.raw_dl()
         elif self.request['path'] == '/predict' and 'phrase' in self.request['params']:
             self.predictor()
+        elif self.request['path'] == '/update':
+            self.run_update()
         else:
             try:
                 self.request['path'] = self.request['path'].replace('..', '')
