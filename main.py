@@ -145,14 +145,14 @@ def main_cycle():
         query_cycle(total[0], inp)
     main_cycle()
 
-
-try:
+if __name__ == "__main__":
     try:
-        if sys.argv[1] == "update":
-            update_db(endwith="\r")
-            os._exit(0)
-    except IndexError:
-        pass
-    main_cycle()
-except KeyboardInterrupt:
-    os._exit(0)
+        try:
+            if sys.argv[1] == "update":
+                update_db(endwith="\r")
+                os._exit(0)
+        except IndexError:
+            pass
+        main_cycle()
+    except KeyboardInterrupt:
+        os._exit(0)
