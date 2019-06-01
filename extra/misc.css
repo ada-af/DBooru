@@ -29,7 +29,7 @@
     max-width: 248px;
 }
 
-.img-fluid {
+.g-item.img-fluid {
     max-height: 248px !important;
 }
 
@@ -65,7 +65,7 @@
         max-width: calc(42vw - 2px);
     }
 
-    .img-fluid {
+    .g-item.img-fluid {
         max-height: calc(42vw - 2px) !important;
     }
 }
