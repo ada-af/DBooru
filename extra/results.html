@@ -5,74 +5,11 @@
     <meta charset="UTF-8">
     <title>Local DB</title>
     <link rel='stylesheet' href="/extra/bootstrap.min.css">
+    <link rel='stylesheet' href="/extra/misc.css">
     <script src='/extra/jquery.min.js'/>
     <script src="/extra/bootstrap.min.js"></script>
     <style>
-        .cont {{
-            height: 250px;
-            width: 250px;
-            border: 1px solid grey;
-            object-fit: contain;
-            margin: 0 auto;
-            margin-left: 5px;
-            display: inline-block;
-            position: relative;
-        }}
-        .g-item {{
-            object-fit: contain;
-            margin: 0 auto;
-            display: block;
-            position: relative;
-            height: 248px;
-            width: auto;
-            max-width: 248px;
-            }}
-        .vid {{
-            object-fit: contain;
-            margin: 0 auto;
-            display: block;
-            position: relative;
-            height: 248px;
-            width: auto;
-            max-width: 248px;
-        }}
-        .img-fluid {{
-            max-height: 248px !important;
-        }}
-        @media screen and (max-width: 640px) {{
-            .cont {{
-            height: 42vw;
-            width: 42vw;
-            border: 1px solid grey;
-            object-fit: contain;
-            margin: 0 auto;
-            margin-left: 5px;
-            display: inline-block;
-            position: relative;
-        }}
-        .g-item {{
-            object-fit: contain;
-            margin: 0 auto;
-            display: block;
-            position: relative;
-            height: calc(42vw - 2px);
-            width: auto;
-            max-width: calc(42vw - 2px);
-            }}
-        .vid {{
-            object-fit: contain;
-            margin: 0 auto;
-            display: block;
-            position: relative;
-            height: calc(42vw - 2px);
-            width: auto;
-            max-width: calc(42vw - 2px);
-        }}
-        .img-fluid {{
-            max-height: calc(42vw - 2px) !important;
-        }}
-        }}
-        
+               
     </style>
 </head>
 <body class="container-fluid">
@@ -84,6 +21,9 @@
                         <button type="button" class="btn btn-primary" onclick="window.location = '/'">Home</button>
                     </span>
                 <input type="text" name="query" class="form-control" id='inp' autocomplete="off" list="search" value="{}">
+                <span class="input-group-btn bg-t-360">
+                    <button type='button' class='btn btn-submit btn-primary' onclick='rand_img()'>Random image</button>
+                </span>
                 <span class="input-group-btn">
                     <button type="submit" class="btn btn-primary">Search</button>
                 </span>
@@ -105,6 +45,16 @@
             </ul>
         </div>
     <script type="text/javascript">
+        function rand_img(){{
+            xhr = new XMLHttpRequest;
+            xhr.open("GET", '/random', true);
+            xhr.send()
+            xhr.onreadystatechange = function (e) {{
+                if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){{
+                    window.location.href = xhr.responseText;
+                }}
+            }}
+        }}
     var mouse = false
     document.onkeydown = function (e) {{
         if (e.keyCode === 39 && e.target.className != "form-control") {{
