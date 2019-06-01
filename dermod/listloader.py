@@ -61,7 +61,7 @@ class Checker(Thread):
             self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
-        self.module_data.parse(string=self.raw_data, pg_num=self.page)
+        self.module_data.parse(string=self.raw_data)
 
     def compile(self):
         digest = str(sha384(self.module.__name__.encode()).hexdigest())[
