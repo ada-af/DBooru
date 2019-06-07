@@ -42,7 +42,7 @@ class Loader(Thread):
     def get_raw_image(self):
         with requests.Session() as s:
             s.headers = {
-                'User-Agent': 'DBooru/2.0 (Image Loader module) (github.com/anon-a/DBooru)'}
+                'User-Agent': 'DBooru/2.0 (Image Loader module) (github.com/mcilya/DBooru)'}
             if self.proxy is False:
                 self.tmp = s.get(
                     "{}".format(self.url), verify=settings_file.ssl_verify)

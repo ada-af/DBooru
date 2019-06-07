@@ -5,15 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>DBooru > {}</title>
     <link rel='stylesheet' href="/extra/bootstrap.min.css">
+    <link rel='stylesheet' href="/extra/misc.css">
     <script src='/extra/jquery.min.js'/>
     <script src="/extra/bootstrap.min.js"></script>
     <script src="/extra/clipboard.min.js" type="application/javascript"></script>
-    <style>
-    .ft{{
-        max-height: 80vh;
-        max-width: 80vw;
-    }}
-    </style>
 </head>
 <body style="background-color: #faffd5" class="container-fluid">
     <div class="row">
@@ -24,6 +19,9 @@
                             <button type="button" class="btn btn-primary" onclick="window.location = '/'">Home</button>
                         </span>
                     <input type="text" name="query" class="form-control" id='inp' autocomplete="off" list="search" placeholder="Search something">
+                    <span class="input-group-btn bg-t-360">
+                        <button type='button' class='btn btn-submit btn-primary' onclick='rand_img()'>Random image</button>
+                    </span>
                     <span class="input-group-btn">
                         <button type="submit" class="btn btn-primary">Search</button>
                     </span>

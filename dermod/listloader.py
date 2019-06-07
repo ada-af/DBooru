@@ -24,7 +24,7 @@ class Checker(Thread):
         self.proxy_ip = proxy_ip
         self.proxy_port = proxy_port
         self.proxy_enabled = proxy_enabled
-        self.module_data = module.Module
+        self.module_data = module.Module()
         self.module = module
         self.raw_data = ''
         self.compiled = ''
@@ -36,7 +36,7 @@ class Checker(Thread):
             if is_error_code is True:
                 quit(1)
             s.headers = {
-                'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/anon-a/DBooru)'}
+                'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/mcilya/DBooru)'}
             if self.proxy_enabled is False:
                 self.raw_data = s.get(
                     "{domain}{endpoint}{paginator}{params}".format(domain=self.module.domain,
@@ -56,29 +56,32 @@ class Checker(Thread):
         if self.raw_data.status_code >= 400:
             is_error_code = True
         try:
-            self.raw_data = self.raw_data.content.decode().encode('latin1').decode("unicode_escape")
+            self.raw_data = self.raw_data.content.decode("unicode_escape")
         except UnicodeEncodeError:
-            try:
-                self.raw_data = self.raw_data.content.decode("unicode_escape")
-            except UnicodeEncodeError:
-                self.raw_data = self.raw_data.content.decode()
+            self.raw_data = self.raw_data.content.decode()
 
     def parse_data(self):
-        self.module_data.parse(self, string=self.raw_data)
+        try:
+            self.module_data.parse(string=self.raw_data, pg_num=self.page)
+        except TypeError:
+            self.module_data.parse(string=self.raw_data)
 
     def compile(self):
         digest = str(sha384(self.module.__name__.encode()).hexdigest())[
             :6] + "_"
-        for i in range(0, len(self.ids)):
-            tmp = str(str(self.ids[i] + ",,," +
-                          self.form[i] + ",,," +
-                          self.links[i] + ",,," +
-                          self.width[i] + ",,," +
-                          self.height[i] + ",,," +
-                          str(int(self.width[i])/int(self.height[i])) + ",,," +
-                          ",," + self.module.__name__.split(".")[-1] + ',,' + self.tags[i] + ",,," +
+        for i in range(0, len(self.module_data.ids)):
+            try:
+                tmp = str(str(self.module_data.ids[i] + ",,," +
+                          self.module_data.form[i] + ",,," +
+                          self.module_data.links[i] + ",,," +
+                          self.module_data.width[i] + ",,," +
+                          self.module_data.height[i] + ",,," +
+                          str(int(self.module_data.width[i])/int(self.module_data.height[i])) + ",,," +
+                          ",," + self.module.__name__.split(".")[-1] + ',,' + self.module_data.tags[i] + ",,," +
                           digest).encode("utf8", 'strict'))[2:-1] + "\n"
-            self.compiled += tmp
+                self.compiled += tmp
+            except IndexError:
+                pass
 
     def writer(self):
         with open('tmp/{}.txt'.format(self.page), 'w+') as f:
@@ -124,7 +127,7 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
                 pages_num-1), flush=True, end=endwith)
             with requests.Session() as s:
                 s.headers = {
-                    'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/anon-a/DBooru)'}
+                    'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/mcilya/DBooru)'}
                 dat = s.get(
                     "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
                                                                    endpoint=module.endpoint,

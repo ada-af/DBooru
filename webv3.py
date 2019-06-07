@@ -9,8 +9,10 @@ import tempfile
 import time
 from datetime import datetime
 from threading import Thread
+from multiprocessing import Process
 
 import settings_file
+import main
 from dermod import db, follow
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
@@ -21,7 +23,10 @@ try:
 except ImportError:
     pass
 
-
+try:
+    os.remove("update.lck")
+except Exception:
+    pass
 
 class ThreadController(Thread):
     @staticmethod
@@ -120,6 +125,11 @@ class Handler(Thread):
             self.conn.sendall(
                 """HTTP/1.1 500 Internal Server Error\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Well shit...\n\n""".format(mime).encode())
             self.send_data("500 Internal Server Error")
+            self.conn.close()
+        else:
+            self.conn.sendall(
+                """HTTP/1.1 {}\nServer: PyWeb/3.0\nContent-Type: {}\nX-HTTP-Pony: Well shit...\n\n""".format(code, mime).encode())
+            self.send_data("HTTP Error code {}".format(code))
             self.conn.close()
 
     def log_request(self):
@@ -263,7 +273,7 @@ class Handler(Thread):
                                 </video>""".format(settings_file.images_path, tags[-2]+tags[0])
             data = open('extra/image.html', 'r').read().format(img_id[1], p, tags[-2]+tags[0], tags[-2]+tags[0], tags[-2]+tags[0], tags[-3], tags[-3],
                                                                str(['<a href="/?query={}&page=1">{}</a>'.format(f, f)
-                                                                    for f in [x for x in tags[1]]]).strip("[]").replace("'", ''))
+                                                                    for f in [x for x in tags[1][1:]]]).strip("[]").replace("'", ''))
             self.send_header(200, fileobject=len(data))
             self.send_data(data)
         else:
@@ -447,6 +457,24 @@ class Handler(Thread):
         self.send_data(result)
         self.close_connection()
 
+    def run_update(self):
+        if os.path.exists("update.lck") is False:
+            open("update.lck", 'w').write('1')
+            j = "DB Update started in background."
+            self.log_debug(j)
+            self.send_header(200, fileobject=j)
+            self.send_data(j)
+            self.close_connection()
+            p = Process(main.update_db())
+            p.start()
+            os.remove('update.lck')
+        else:
+            j = "Update in process"
+            self.send_header(409, fileobject=j)
+            self.send_data(j)
+            self.close_connection()
+
+
     def serve(self):
         self.log_request()
         if self.request['path'] == '/' and self.request['query'] is None:
@@ -480,6 +508,8 @@ class Handler(Thread):
             self.raw_dl()
         elif self.request['path'] == '/predict' and 'phrase' in self.request['params']:
             self.predictor()
+        elif self.request['path'] == '/update':
+            self.run_update()
         else:
             try:
                 self.request['path'] = self.request['path'].replace('..', '')
