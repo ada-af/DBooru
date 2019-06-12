@@ -24,7 +24,7 @@ except ImportError:
     pass
 
 try:
-    os.remove("update.lck")
+    os.remove("update.lck")``
 except Exception:
     pass
 
@@ -218,7 +218,8 @@ class Handler(Thread):
     def results(self):
         try:
             results, total = db.search(
-                self.request["query"]['search'], self.request["query"]['remove'], page=int(self.request['params']['page'])-1)
+                self.request["query"]['search'], self.request["query"]['remove'],
+                     page=int(self.request['params']['page'])-1)
             paginator = self.gen_paginator(total[0])
         except (IndexError, KeyError):
             self.send_header(404)
@@ -227,8 +228,6 @@ class Handler(Thread):
         else:
             pictures = []
             for i in results:
-                i = list([x for x in list(i) if x is not None])
-                i = tuple([x for x in i if x != 'None'])
                 pictures.append(i)
             p = ''
             for i in list(pictures):
@@ -236,7 +235,7 @@ class Handler(Thread):
                     try:
                         p += """<div class="cont"><div class='g-item'><abbr title="{}"><img src="
                     /thumb/{}" onclick="sclick('{}')" class="img-fluid g-item"></abbr></div></div>""" \
-                            .format(str(i[1].split(",,")).replace("'", '').strip("[]"), i[-2]+i[0], i[-2]+i[0].split('.')[0])
+                            .format(str(i[1].split(",,")).replace("'", '').strip("[]")[2:], i[-2]+i[0], i[-2]+i[0].split('.')[0])
                     except Exception:
                         self.send_header(500)
                 elif i[0].split('.')[1] == 'webm':
@@ -244,7 +243,7 @@ class Handler(Thread):
                              <video class="img-fluid g-item" preload='auto' muted onclick="sclick('{}')">
                              <source src="{}{}"/>
                              </video>
-                             </abbr></div></div>""".format(str(i[1].split(",,")).replace("'", '').strip("[]"),
+                             </abbr></div></div>""".format(str(i[1].split(",,")).replace("'", '').strip("[]")[2:],
                                                            i[-2] +
                                                            i[0].split('.')[0],
                                                            settings_file.images_path, i[-2]+i[0])
