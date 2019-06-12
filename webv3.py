@@ -24,7 +24,7 @@ except ImportError:
     pass
 
 try:
-    os.remove("update.lck")``
+    os.remove("update.lck")
 except Exception:
     pass
 
