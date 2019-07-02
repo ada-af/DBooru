@@ -7,6 +7,7 @@ import sys
 import imghdr
 import tempfile
 import time
+import subprocess
 from datetime import datetime
 from threading import Thread
 from multiprocessing import Process
@@ -406,7 +407,7 @@ class Handler(Thread):
             form = settings_file.conv_format
         cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease {additions} -y -f {format} {tempname}"\
             .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name, additions=add)
-        os.system(cmd)                
+        subprocess.call(cmd, stdout=open(os.devnull, 'w'))                
 
     def thumb(self):
         fname = self.request['path'].split("/")[-1]

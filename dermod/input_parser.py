@@ -45,7 +45,7 @@ def name_tag_parser(fname):
     halfparsed = unparsed.split("\n")
     parsed = []
     for i in halfparsed[:-1]:
-        parsed.append(i.split(',,,'))
+        parsed.append(i.split(';;;'))
     del unparsed, halfparsed
     return parsed
 
