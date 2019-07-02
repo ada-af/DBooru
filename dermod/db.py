@@ -74,7 +74,7 @@ def fill_db(file=settings_file.ids_file):
         k = i[6]
         k = str(k).strip("[]").replace('" ', '"').replace(
             ' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', '{}', '{}', '{}', '{}', '{}', '{}', {})".format(
+        j = "INSERT INTO {} VALUES ('{}.{}', '{}', '{},,', '{}', '{}', '{}', '{}', {})".format(
             settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], i[2], i[7], i[0])
         cursor.execute(j)
         if cnt == 10:

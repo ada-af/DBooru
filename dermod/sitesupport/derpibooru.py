@@ -2,14 +2,13 @@ query = "my:faves" # "my:upvotes"
 api_key = "API-KEY GOES HERE"
 
 # Do not change values below line 4
-
 domain = 'https://derpibooru.org'
 endpoint = "/search.json?q={}".format(query)
 paginator = "&page={}"
 # Must be regexp
 empty_page = '\{"search":\[\],"'
 slp = 0.2 # Defines delay between requests
-params = "&key={}".format(api_key)
+params = "&nocomments=1&perpage=50&key={}".format(api_key)
 
 class Module:
     import json
@@ -37,7 +36,10 @@ class Module:
                 k = i.split('","full":"')[1]
                 k = k.split('","webm":"')[0]
                 d = k.split('"},"is_rendered"')[0].replace("//", "https://")
-                e = i.split('"tags":"')[1].split('",')[0].replace(", ", ",,")
+                if '"tags":null' in k:
+                    e = "Tag parsing error. Refer to github.com/mcilya/DBooru/issues/29"
+                else:
+                    e = i.split('"tags":"')[1].split('",')[0].replace(", ", ",,")
             except Exception:
                 print("Derpibooru JSON API problem. Entry {} on page {} left unprocessed          ".format(j, pg_num))
             else:
