@@ -77,7 +77,7 @@ class Checker(Thread):
                           self.module_data.width[i] + ";;;" +
                           self.module_data.height[i] + ";;;" +
                           str(int(self.module_data.width[i])/int(self.module_data.height[i])) + ";;;" +
-                          ",," + self.module.__name__.split(".")[-1] + ',,' + self.module_data.tags[i] + ",,;;;" +
+                          ",," + self.module.__name__.split(".")[-1] + ',,' + self.module_data.tags[i] + ",, ;;;" +
                           digest).encode("utf8", 'strict'))[2:-1] + "\n"
                 self.compiled += tmp
             except IndexError:

@@ -273,7 +273,7 @@ class Handler(Thread):
                                 </video>""".format(settings_file.images_path, tags[-2]+tags[0])
             data = open('extra/image.html', 'r').read().format(img_id[1], p, tags[-2]+tags[0], tags[-2]+tags[0], tags[-2]+tags[0], tags[-3], tags[-3],
                                                                str(['<a href="/?query={}&page=1">{}</a>'.format(f, f)
-                                                                    for f in [x for x in tags[1][1:]]]).strip("[]").replace("'", ''))
+                                                                    for f in [x for x in tags[1][1:-2]]]).strip("[]").replace("'", ''))
             self.send_header(200, fileobject=len(data))
             self.send_data(data)
         else:
