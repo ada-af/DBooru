@@ -3,7 +3,6 @@ from dermod.aliases import aliases
 
 
 def parser(string):
-    string = string.replace("%2C", ',').replace("+", " ").replace("%25", "%")
     string = string.lower().split(',')
     half_parsed = []
     for i in string:
@@ -78,51 +77,35 @@ def web_arg_parser_v2(params):
     return params, query
 
 
-def request_parser(request):
-    request = request.decode()
-    splitted = request.split("\r\n")
-    post_data = splitted[-1]
-    path = splitted[0].split(" ")[1].split('?')[0]
-    try:
-        params = splitted[0].split(" ")[1].split('?')[1]
-        if "query" in params:
-            params, query = web_arg_parser_v2(params)
-        else:
-            query = None
-            p = {}
-            for i in params.split("&"):
-                p = dict(p, **{i.lower().split('=')
-                               [0]: i.lower().split('=')[1]})
-            params = p
-    except IndexError:
-        params, query = (None, None)
-    parsed_request = {'method': splitted[0].split(
-        " ")[0], 'path': path, 'params': params, 'query': query}
-    for i in splitted[1:-2]:
-        i = i.split(':', maxsplit=1)
-        tmp = {i[0].lower(): i[1].strip()}
-        parsed_request = dict(parsed_request, **tmp)
-    parsed_request['post_data'] = post_data
-    return parsed_request
+# def request_parser(request):
+#     request = request.decode()
+#     splitted = request.split("\r\n")
+#     post_data = splitted[-1]
+#     path = splitted[0].split(" ")[1].split('?')[0]
+#     try:
+#         params = splitted[0].split(" ")[1].split('?')[1]
+#         if "query" in params:
+#             params, query = web_arg_parser_v2(params)
+#         else:
+#             query = None
+#             p = {}
+#             for i in params.split("&"):
+#                 p = dict(p, **{i.lower().split('=')
+#                                [0]: i.lower().split('=')[1]})
+#             params = p
+#     except IndexError:
+#         params, query = (None, None)
+#     parsed_request = {'method': splitted[0].split(
+#         " ")[0], 'path': path, 'params': params, 'query': query}
+#     for i in splitted[1:-2]:
+#         i = i.split(':', maxsplit=1)
+#         tmp = {i[0].lower(): i[1].strip()}
+#         parsed_request = dict(parsed_request, **tmp)
+#     parsed_request['post_data'] = post_data
+#     return parsed_request
 
 
 def predictor_parser(string):
-    string = string.replace("%24", '$')\
-        .replace("%2C", ',')\
-        .replace("+", " ")\
-        .replace("%25", "%")\
-        .replace("%2A", "*")\
-        .replace("%3A", ":")\
-        .replace("%3C", "<")\
-        .replace("%3E", ">")\
-        .replace("%20", " ")\
-        .replace("%3F", "?")\
-        .replace("%5C", "\\")\
-        .replace("%2F", "/")\
-        .replace("%21", "!")\
-        .replace("%26", "&")\
-        .replace("%28", "(")\
-        .replace("%29", ")")
     previous = string.split(',')[:-1]
     string = string.split(',')[-1].strip()
     if string.startswith('-'):

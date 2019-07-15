@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block imports %}
+    <link rel='stylesheet' href="{{ url_for('static', filename='misc.css') }}">
+{% endblock imports %}
+
+{% block content %}
+<body class="container-fluid">
+    <div class="row">
+        <div class="col-lg-12">
+        <form action="/search">
+            <div class="input-group">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary" onclick="window.location = '/'">Home</button>
+                    </span>
+                <input type="text" name="q" class="form-control" id='inp' autocomplete="off" list="search" value="{{ search }}">
+                <span class="input-group-btn bg-t-360">
+                    <button type='button' class='btn btn-submit btn-primary' onclick='rand_img()'>Random image</button>
+                </span>
+                <span class="input-group-btn">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </span>
+            </div>
+            <input name="page" value="1" style="visibility: hidden; width: 0; height: 0">
+        </form>
+        </div>
+    </div>
+    <div id="content" class="page">
+        <div class="row">
+            <div class="col-lg-12">
+                {% for i in results %}
+                {% if i[0].endswith('.webm') %}
+                <div class="cont"><div class='g-item'>
+                    <video class="img-fluid g-item" preload='auto' muted onclick="sclick('{{i[-2]+str(i[-1])}}')">
+                    <source src="/raw/{{i[-2]+i[0]}}"/>
+                    </video></div></div>
+                {% else %}
+                <div class="cont"><div class='g-item'><img src="/thumbnail/{{i[-2]+i[0]}}"
+                     onclick="sclick('{{i[-2]+str(i[-1])}}')" class="img-fluid g-item"></abbr></div></div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {{ 'disabled' if page == 1 }}">
+              <a class="page-link" href="/search?q={{search}}&page=1" tabindex="-1">First</a>
+            </li>
+            {% set tot_pg = ceil(total_images[0] / settings_file.showing_imgs) %}
+            {% set pages = range(1, tot_pg+1) %}
+            {% for i in pages[max(0, page-5):page+4] %}
+                <li class="page-item {{ 'disabled' if page == i }}">
+                    <a class="page-link" href="/search?q={{search}}&page={{i}}">{{i}}</a>
+                </li>
+            {% endfor %}
+            <li class="page-item {{ 'disabled' if page == tot_pg }}">
+              <a class="page-link" href="/search?q={{search}}&page={{tot_pg}}">Last</a>
+            </li>
+        </ul>
+    </nav>
+<datalist id="search" style="display: none"></datalist>
+</body>
+{% endblock content %}
+
+{% block scripts %}
+<script type="text/javascript">
+function rand_img(){
+    xhr = new XMLHttpRequest;
+    xhr.open("GET", '/random', true);
+    xhr.send()
+    xhr.onreadystatechange = function (e) {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){
+            window.location.href = xhr.responseText;
+        }
+    }
+}
+var mouse = false
+document.onkeydown = function (e) {
+    if (e.keyCode === 39 && e.target.className != "form-control") {
+        window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])+1)
+    }
+    if (e.keyCode === 37 && e.target.className != "form-control") {
+        if (Number(String(window.location).split("&")[1].split('=')[1])-1 == 0){
+            var pass = 1
+        }else{
+            window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])-1)
+        }
+    }
+    if (e.keyCode === 82 && e.target.className != "form-control") {
+            rand_img()
+        }
+    }
+function sclick(id) {
+    win = window.open("/image/"+id, '_blank');
+    win.focus()
+}
+function update_datalist() {
+    document.getElementById('search').innerHTML = '';
+    phrase = this.value;
+    xhr = new XMLHttpRequest();
+    xhr.open("GET", '/predict?phrase='+phrase, true);
+    xhr.send();
+    xhr.onreadystatechange = function () {
+        document.getElementById('search').innerHTML = xhr.responseText;
+    }
+}
+document.getElementById('inp').addEventListener('input', update_datalist)
+function rand_img(){
+    xhr = new XMLHttpRequest;
+    xhr.open("GET", '/random', true);
+    xhr.send()
+    xhr.onreadystatechange = function (e) {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){
+            window.location.href = xhr.responseText;
+        }
+    }
+}
+</script>
+{% endblock scripts %}

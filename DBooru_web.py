@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+import imghdr
+import json
+import math
+import os
+import subprocess
+import sys
+import tempfile
+from multiprocessing import Process
+from threading import Thread
+
+import jinja2
+from flask import Flask, jsonify, redirect, render_template, request,\
+    send_from_directory, url_for, send_file
+
+import main
+import settings_file
+from dermod import db
+from dermod import input_parser as ip
+from dermod import mime_types as mimes
+from dermod import predict
+
+try:
+    import PIL.Image as Image
+except ImportError:
+    pass
+
+try:
+    os.remove("update.lck")
+except Exception:
+    pass
+
+DBooru = Flask(__name__)
+DBooru.config.from_pyfile("settings_file.py", silent=True)
+
+
+@DBooru.route('/', methods=["GET"])
+def index():
+    return render_template('index.html')
+
+
+@DBooru.route('/search', methods=['GET'])
+def search():
+    page = request.args.get('page', default=1, type=int)
+    query = request.args.get('q', default='', type=str)
+    db_search_list = ip.parser(query)
+    try:
+        results, total = db.search(db_search_list['search'],
+         db_search_list['remove'], page=page-1)
+    except (IndexError, KeyError):
+        pass
+    return render_template('results.html', search=query, page=page,
+        total_images=total, results=results, settings_file=settings_file, str=str,
+        ceil=math.ceil, max=max)
+
+
+@DBooru.route('/image/<string:img_id>')
+def image(img_id):
+    prefix, img_id = img_id.split("_")
+    image = db.search_by_id(img_id, prefix=prefix)
+    page = request.args.get('page', default=1, type=int)
+    query = request.args.get('q', default='', type=str)
+    return render_template('image.html', image=image)
+
+
+@DBooru.route("/raw/<string:fname>")
+def raw(fname):
+    return send_file(settings_file.images_path+fname)
+
+@DBooru.route("/dl/<string:fname>")
+def dl(fname):
+    return send_file(settings_file.images_path+fname, as_attachment=True)
+
+def encode_PIL(fname, tf):
+        img = Image.open(settings_file.images_path+fname)
+        img.thumbnail((500, 500), Image.ANTIALIAS)
+        if fname.split('.')[-1] == 'gif':
+            img.save(tf.name, "GIF")
+        else:
+            img.save(tf.name, "JPEG")
+
+
+def encode_FFMPEG(fname, tf):
+    add = ""
+    if fname.split('.')[-1] == 'gif':
+        form = "gif"
+        if settings_file.gif_to_webp == True:
+            form = "webp"
+            add = "-loop 0"
+    else:
+        form = settings_file.conv_format
+    cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease {additions} -y -f {format} {tempname}"\
+        .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name, additions=add)
+    subprocess.call(cmd, stdout=open(os.devnull, 'w'))
+
+
+@DBooru.route("/thumbnail/<string:fname>")
+def thumbnail(fname):
+    tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
+    tf.close()
+    if settings_file.thumbnailer.lower() == 'ffmpeg':
+        encode_FFMPEG(fname, tf)
+    elif settings_file.thumbnailer.lower() == 'pil':
+        encode_PIL(fname, tf)
+    else:
+        os.remove(tf.name)
+        tf.name = settings_file.images_path+fname
+    return send_file(tf.name)
+
+
+if __name__ == "__main__":
+    DBooru.run(host=settings_file.web_ip, port=settings_file.web_port)
