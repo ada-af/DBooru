@@ -33,7 +33,6 @@
     - [Settings_file.py](#settings_filepy)
     - [dermod/aliases.py](#dermodaliasespy)
         - [Syntax](#syntax-1)
-    - [dermod/follow.py](#dermodfollowpy)
 
 <!-- /TOC -->
 
