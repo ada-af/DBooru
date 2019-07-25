@@ -75,45 +75,9 @@ function rand_img(){
     }
 }
 var mouse = false
-document.onkeydown = function (e) {
-    if (e.keyCode === 39 && e.target.className != "form-control") {
-        window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])+1)
-    }
-    if (e.keyCode === 37 && e.target.className != "form-control") {
-        if (Number(String(window.location).split("&")[1].split('=')[1])-1 == 0){
-            var pass = 1
-        }else{
-            window.location = String(window.location).split("&")[0]+"&"+'page='+String(Number(String(window.location).split("&")[1].split('=')[1])-1)
-        }
-    }
-    if (e.keyCode === 82 && e.target.className != "form-control") {
-            rand_img()
-        }
-    }
 function sclick(id) {
     win = window.open("/image/"+id, '_blank');
     win.focus()
-}
-function update_datalist() {
-    document.getElementById('search').innerHTML = '';
-    phrase = this.value;
-    xhr = new XMLHttpRequest();
-    xhr.open("GET", '/predict?phrase='+phrase, true);
-    xhr.send();
-    xhr.onreadystatechange = function () {
-        document.getElementById('search').innerHTML = xhr.responseText;
-    }
-}
-document.getElementById('inp').addEventListener('input', update_datalist)
-function rand_img(){
-    xhr = new XMLHttpRequest;
-    xhr.open("GET", '/random', true);
-    xhr.send()
-    xhr.onreadystatechange = function (e) {
-        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200){
-            window.location.href = xhr.responseText;
-        }
-    }
 }
 </script>
 {% endblock scripts %}

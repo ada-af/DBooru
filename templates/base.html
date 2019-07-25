@@ -13,6 +13,55 @@
     {% block imports %}{% endblock imports %} {% block style %}{% endblock style
     %}
   </head>
-  {% block content %}{% endblock content %} {% block scripts %}{% endblock
-  scripts %}
+  {% block content %}{% endblock content %}
+  {% block scripts %}{% endblock scripts %}
+  <script>
+  document.onkeydown = function(e) {
+    if (e.keyCode === 39 && e.target.className != "form-control") {
+      xhr = new XMLHttpRequest();
+      body = String(window.location).split("/");
+      body = body[body.length - 1]
+      xhr.open("GET", "/previous/"+body, true);
+      xhr.send();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
+          window.location = "/image/" + xhr.responseText;
+        } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
+          i = 1;
+        }
+      };
+    }
+    if (e.keyCode === 37 && e.target.className != "form-control") {
+      xhr = new XMLHttpRequest();
+      body = String(window.location).split("/");
+      body = body[body.length - 1]
+      xhr.open("GET", "/next/"+body, true);
+      xhr.send();
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
+          window.location = "/image/" + xhr.responseText;
+        } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
+          i = 1;
+        }
+      };
+    }
+    if (e.keyCode === 82 && e.target.className != "form-control") {
+      rand_img();
+    }
+  };
+  function rand_img() {
+    window.location = '/random'
+  }
+  function update_datalist() {
+    document.getElementById('search').innerHTML = '';
+    phrase = this.value;
+    xhr = new XMLHttpRequest();
+    xhr.open("GET", '/predict?phrase='+phrase, true);
+    xhr.send();
+    xhr.onreadystatechange = function () {
+        document.getElementById('search').innerHTML = xhr.responseText;
+    }
+}
+document.getElementById('inp').addEventListener('input', update_datalist)
+  </script>
 </html>

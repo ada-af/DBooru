@@ -126,8 +126,6 @@ def main_cycle():
         update_db()
     elif inp == "get images --force":
         update_db()
-    elif inp == "get images --fast" or inp == "get images -f":
-        follow.run(run_once=True)
     elif inp == "total":
         db.total_found()
     elif "count" in inp:
