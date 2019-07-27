@@ -33,6 +33,12 @@ except Exception:
 DBooru = Flask(__name__)
 DBooru.config.from_pyfile("settings_file.py", silent=True)
 
+global Predictor
+Predictor = predict.Predictor()
+
+@DBooru.route('/predict')
+def predict():
+    pass
 
 @DBooru.route('/', methods=["GET"])
 def index():
@@ -58,8 +64,6 @@ def search():
 def image(img_id):
     prefix, img_id = img_id.split("_")
     image = db.search_by_id(img_id, prefix=prefix)
-    page = request.args.get('page', default=1, type=int)
-    query = request.args.get('q', default='', type=str)
     return render_template('image.html', image=image)
 
 
@@ -79,6 +83,8 @@ def update():
     else:
         j = "Update in process"
         stat = 409
+    global Predictor
+    Predictor = predict.Predictor()
     j = Response(j, status=stat)
     return j
 
