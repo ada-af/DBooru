@@ -42,16 +42,6 @@
 <datalist id="search" style="display: none"></datalist>
 {% endblock content %} {% block scripts %}
 <script type="application/javascript">
-  function update_datalist() {
-    document.getElementById("search").innerHTML = "";
-    phrase = this.value;
-    xhr = new XMLHttpRequest();
-    xhr.open("GET", "/predict?phrase=" + phrase, true);
-    xhr.send();
-    xhr.onreadystatechange = function() {
-      document.getElementById("search").innerHTML = xhr.responseText;
-    };
-  }
   function update_db() {
     xhr = new XMLHttpRequest();
     xhr.open("GET", "/update", true);

@@ -45,7 +45,7 @@
         }
       };
     }
-    if (e.keyCode === 82 && e.target.className != "form-control") {
+    if (e.keyCode === 82 && e.target.className != "form-control" && e.target.id != 'inp') {
       rand_img();
     }
   };
@@ -55,11 +55,31 @@
   function update_datalist() {
     document.getElementById('search').innerHTML = '';
     phrase = this.value;
-    xhr = new XMLHttpRequest();
-    xhr.open("GET", '/predict?phrase='+phrase, true);
-    xhr.send();
-    xhr.onreadystatechange = function () {
-        document.getElementById('search').innerHTML = xhr.responseText;
+    phrase = phrase.split(",");
+    prev = phrase.slice(0, phrase.length-1)
+    phrase = phrase[phrase.length-1].trim();
+    if (phrase.length >= 2) {
+      xhr = new XMLHttpRequest();
+      xhr.open("GET", '/predict?phrase='+phrase, true);
+      xhr.send();
+      xhr.onreadystatechange = function () {
+        tags = JSON.parse(xhr.responseText)
+        for (i = 0; i < tags.length; i++){
+          if (prev[0] != null){
+            tmp = prev[0].trim()
+            for (j = 1; j <= prev.length-1; j++){
+              tmp += ", " + prev[j].trim()
+            }
+            tmp += ", " + tags[i].trim()
+          }
+          else {
+            tmp = tags[i].trim()
+          }
+          document.getElementById('search').innerHTML += "<option value='"+ tmp +"'>" + tmp + "</option>";
+        }
+      };
+    } else {
+      i = 0;
     }
 }
 document.getElementById('inp').addEventListener('input', update_datalist)

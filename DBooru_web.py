@@ -36,9 +36,11 @@ DBooru.config.from_pyfile("settings_file.py", silent=True)
 global Predictor
 Predictor = predict.Predictor()
 
-@DBooru.route('/predict')
-def predict():
-    pass
+@DBooru.route('/predict', methods=['GET'])
+def predict_tag():
+    pred = predict.Predictor()
+    matched = pred.predict(request.args.get('phrase'))
+    return jsonify(matched)
 
 @DBooru.route('/', methods=["GET"])
 def index():

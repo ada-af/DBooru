@@ -47,7 +47,7 @@ def total_found():
 def get_all_entries():
     init_db()
     result = list(cursor.execute(
-        "SELECT * from {}".format(settings_file.table_name)))
+        "SELECT tags from {}".format(settings_file.table_name)))
     return result
 
 

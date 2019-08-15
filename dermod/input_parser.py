@@ -26,17 +26,17 @@ def parser(string):
     return {"search": search, "remove": [x for x in remove if x != '']}
 
 
-def results_parser(list_tuple):
-    results = list_tuple
-    res_num = (len(list(results)) / settings_file.showing_imgs) + 1
-    pages = []
-    lists = []
-    for k in range(0, int(res_num) + 1):
-        pages.append(k)
-    for i in range(0, len(list(results)), settings_file.showing_imgs):
-        lists.append(list(results)[i:i + settings_file.showing_imgs])
-    pages = dict(zip(pages, lists))
-    return pages
+# def results_parser(list_tuple):
+#     results = list_tuple
+#     res_num = (len(list(results)) / settings_file.showing_imgs) + 1
+#     pages = []
+#     lists = []
+#     for k in range(0, int(res_num) + 1):
+#         pages.append(k)
+#     for i in range(0, len(list(results)), settings_file.showing_imgs):
+#         lists.append(list(results)[i:i + settings_file.showing_imgs])
+#     pages = dict(zip(pages, lists))
+#     return pages
 
 
 def name_tag_parser(fname):
@@ -49,32 +49,32 @@ def name_tag_parser(fname):
     return parsed
 
 
-def web_arg_parser_v2(params):
-    params = params\
-        .replace("%24", '$')\
-        .replace("%2C", ',')\
-        .replace("+", " ")\
-        .replace("%25", "%")\
-        .replace("%2A", "*")\
-        .replace("%5C", "\\")\
-        .replace("%3A", ":")\
-        .replace("%3C", "<")\
-        .replace("%3E", ">")\
-        .replace("%20", " ")\
-        .replace("%3F", "?")\
-        .replace("%2F", "/")\
-        .replace("%28", "(")\
-        .replace("%29", ")")\
-        .split("&")
-    temp = {}
-    for i in params:
-        i = i.replace("%26", "&").split('=')
-        temp = dict(temp, **{i[0]: i[1]})
-    params = temp
-    del temp
-    params['query'] = params['query'].replace("%3D", "=")
-    query = parser(params['query'])
-    return params, query
+# def web_arg_parser_v2(params):
+#     params = params\
+#         .replace("%24", '$')\
+#         .replace("%2C", ',')\
+#         .replace("+", " ")\
+#         .replace("%25", "%")\
+#         .replace("%2A", "*")\
+#         .replace("%5C", "\\")\
+#         .replace("%3A", ":")\
+#         .replace("%3C", "<")\
+#         .replace("%3E", ">")\
+#         .replace("%20", " ")\
+#         .replace("%3F", "?")\
+#         .replace("%2F", "/")\
+#         .replace("%28", "(")\
+#         .replace("%29", ")")\
+#         .split("&")
+#     temp = {}
+#     for i in params:
+#         i = i.replace("%26", "&").split('=')
+#         temp = dict(temp, **{i[0]: i[1]})
+#     params = temp
+#     del temp
+#     params['query'] = params['query'].replace("%3D", "=")
+#     query = parser(params['query'])
+#     return params, query
 
 
 # def request_parser(request):
