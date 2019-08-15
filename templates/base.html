@@ -65,7 +65,12 @@
       xhr.onreadystatechange = function () {
         if (xhr.readyState === 4 && xhr.status === 200) {
           JSON.parse(xhr.response).forEach(element => {
-            tmp = prev + element;
+            if (String(prev).trim().length == 0) {
+              tmp = element
+            } else {
+              tmp = prev
+              tmp += ", " + element;
+            }
             document.getElementById('search').innerHTML += "<option value='" + tmp + "'>" + tmp + "</option>";
           });
         }
