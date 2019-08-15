@@ -24,7 +24,7 @@ class Predictor():
             tag = tag[1:]
             self.remove = True
         for i in self.tags_cache:
-            if i.startswith(tag) or i == tag:
+            if i.startswith(tag.lower()) or i == tag.lower():
                 if len(self.matched) > settings_file.predict_tags:
                     break
                 else:
