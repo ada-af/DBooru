@@ -6,7 +6,7 @@ def gen_list():
     unparsed = [x[0].split(",,") for x in db.get_all_entries()]
     parsed = set([x for p in unparsed for x in p])
     del unparsed
-    return parsed
+    return list(sorted(parsed))
     
 
 
