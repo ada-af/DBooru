@@ -5,7 +5,10 @@ import math
 import os
 import subprocess
 import sys
+import socket
+import time
 import tempfile
+from importlib import reload
 from multiprocessing import Process
 from threading import Thread
 
@@ -15,7 +18,7 @@ from flask import Flask, jsonify, redirect, render_template, request,\
 
 import main
 import settings_file
-from dermod import db
+from dermod import db, threads
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
 from dermod import predict
@@ -33,14 +36,13 @@ except Exception:
 DBooru = Flask(__name__)
 DBooru.config.from_pyfile("settings_file.py", silent=True)
 
-global Predictor
-Predictor = predict.Predictor()
 
 @DBooru.route('/predict', methods=['GET'])
 def predict_tag():
     pred = predict.Predictor()
     matched = pred.predict(request.args.get('phrase'))
     return jsonify(matched)
+
 
 @DBooru.route('/', methods=["GET"])
 def index():
@@ -54,12 +56,12 @@ def search():
     db_search_list = ip.parser(query)
     try:
         results, total = db.search(db_search_list['search'],
-         db_search_list['remove'], page=page-1)
+                                   db_search_list['remove'], page=page-1)
     except (IndexError, KeyError):
         pass
     return render_template('results.html', search=query, page=page,
-        total_images=total, results=results, settings_file=settings_file, str=str,
-        ceil=math.ceil, max=max)
+                           total_images=total, results=results, settings_file=settings_file, str=str,
+                           ceil=math.ceil, max=max)
 
 
 @DBooru.route('/image/<string:img_id>')
@@ -73,22 +75,23 @@ def image(img_id):
 def raw(fname):
     return send_file(settings_file.images_path+fname)
 
+
 @DBooru.route("/update")
 def update():
+    global THREAD_PORT
+    # Socket for thread communication
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if os.path.exists("update.lck") is False:
+        sock.sendto(b"UPDT", ('127.0.0.1', THREAD_PORT))
         open("update.lck", 'w').write('1')
         j = "DB Update started in background."
         stat = 200
-        p = Process(main.update_db())
-        p.start()
-        os.remove('update.lck')
     else:
         j = "Update in process"
         stat = 409
-    global Predictor
-    Predictor = predict.Predictor()
     j = Response(j, status=stat)
     return j
+
 
 @DBooru.route("/random")
 def random():
@@ -96,17 +99,19 @@ def random():
     result = str("/image/"+img[-2]+img[0].split('.')[0])
     return redirect(result)
 
+
 @DBooru.route("/dl/<string:fname>")
 def dl(fname):
     return send_file(settings_file.images_path+fname, as_attachment=True)
 
+
 def encode_PIL(fname, tf):
-        img = Image.open(settings_file.images_path+fname)
-        img.thumbnail((500, 500), Image.ANTIALIAS)
-        if fname.split('.')[-1] == 'gif':
-            img.save(tf.name, "GIF")
-        else:
-            img.save(tf.name, "JPEG")
+    img = Image.open(settings_file.images_path+fname)
+    img.thumbnail((500, 500), Image.ANTIALIAS)
+    if fname.split('.')[-1] == 'gif':
+        img.save(tf.name, "GIF")
+    else:
+        img.save(tf.name, "JPEG")
 
 
 def encode_FFMPEG(fname, tf):
@@ -185,7 +190,7 @@ def api_search():
     db_search_list = ip.parser(query)
     try:
         results, total = db.search(db_search_list['search'],
-         db_search_list['remove'], page=page-1)
+                                   db_search_list['remove'], page=page-1)
     except (IndexError, KeyError):
         pass
     del total
@@ -199,15 +204,29 @@ def api_search():
         ratio = {'ratio': _[4]}
         source_link = {'source_link': _[5]}
         prefix = {'prefix': _[6]}
-        thumbnail = {'thumb': "//"+request.host+"/thumbnail/"+prefix['prefix']+fname['filename']}
-        full = {'full': "//"+request.host+"/raw/"+prefix['prefix']+fname['filename']}
-        __ = dict(fname, **tags, **height, **width,**ratio,**source_link, **prefix, **thumbnail)
+        thumbnail = {'thumb': "//"+request.host +
+                     "/thumbnail/"+prefix['prefix']+fname['filename']}
+        full = {'full': "//"+request.host+"/raw/" +
+                prefix['prefix']+fname['filename']}
+        __ = dict(fname, **tags, **height, **width, **ratio,
+                  **source_link, **prefix, **thumbnail)
         __.update(full)
         result[k] = __
         k += 1
     result = json.dumps(result)
     return Response(result, mimetype="application/json")
-    
+
+
+def start_background_task_host():
+    bg_thread = threads.BgTaskHost()
+    bg_thread.start()
+    time.sleep(1)
+    global THREAD_PORT
+    THREAD_PORT = bg_thread.port
+    print("Background_host thread running on 127.0.0.1:"+str(THREAD_PORT))
+
 
 if __name__ == "__main__":
-    DBooru.run(host=settings_file.web_ip, port=settings_file.web_port)
+    start_background_task_host()
+    DBooru.run(host=settings_file.web_ip,
+               port=settings_file.web_port, debug=True)
