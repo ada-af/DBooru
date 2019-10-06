@@ -36,7 +36,6 @@ except Exception:
 DBooru = Flask(__name__)
 DBooru.config.from_pyfile("settings_file.py", silent=True)
 
-
 @DBooru.route('/predict', methods=['GET'])
 def predict_tag():
     pred = predict.Predictor()
@@ -226,7 +225,16 @@ def start_background_task_host():
     print("Background_host thread running on 127.0.0.1:"+str(THREAD_PORT))
 
 
+def start_background_task_host():
+    bg_thread = threads.BgTaskHost()
+    bg_thread.start()
+    time.sleep(1)
+    global THREAD_PORT
+    THREAD_PORT = bg_thread.port
+    print("Background_host thread running on 127.0.0.1:"+str(THREAD_PORT))
+
+
 if __name__ == "__main__":
     start_background_task_host()
     DBooru.run(host=settings_file.web_ip,
-               port=settings_file.web_port, debug=True)
+               port=settings_file.web_port)

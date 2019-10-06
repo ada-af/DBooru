@@ -3,6 +3,7 @@ import time
 import socket
 import main
 import settings_file
+import os
 
 
 class BgTaskHost(Thread):
@@ -21,7 +22,6 @@ class BgTaskHost(Thread):
         while True:
             data, addr = sock.recvfrom(4)
             if data == b"UPDT":
-                print('GOT DATA')
                 main.update_db()
                 os.remove('update.lck')
         
