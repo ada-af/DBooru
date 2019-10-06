@@ -42,6 +42,7 @@ def predict_tag():
     matched = pred.predict(request.args.get('phrase'))
     return jsonify(matched)
 
+
 @DBooru.route('/', methods=["GET"])
 def index():
     return render_template('index.html')
@@ -54,12 +55,12 @@ def search():
     db_search_list = ip.parser(query)
     try:
         results, total = db.search(db_search_list['search'],
-         db_search_list['remove'], page=page-1)
+                                   db_search_list['remove'], page=page-1)
     except (IndexError, KeyError):
         pass
     return render_template('results.html', search=query, page=page,
-        total_images=total, results=results, settings_file=settings_file, str=str,
-        ceil=math.ceil, max=max)
+                           total_images=total, results=results, settings_file=settings_file, str=str,
+                           ceil=math.ceil, max=max)
 
 
 @DBooru.route('/image/<string:img_id>')
@@ -72,6 +73,7 @@ def image(img_id):
 @DBooru.route("/raw/<string:fname>")
 def raw(fname):
     return send_file(settings_file.images_path+fname)
+
 
 @DBooru.route("/update")
 def update():
@@ -89,23 +91,26 @@ def update():
     j = Response(j, status=stat)
     return j
 
+
 @DBooru.route("/random")
 def random():
     img = db.random_img()[0]
     result = str("/image/"+img[-2]+img[0].split('.')[0])
     return redirect(result)
 
+
 @DBooru.route("/dl/<string:fname>")
 def dl(fname):
     return send_file(settings_file.images_path+fname, as_attachment=True)
 
+
 def encode_PIL(fname, tf):
-        img = Image.open(settings_file.images_path+fname)
-        img.thumbnail((500, 500), Image.ANTIALIAS)
-        if fname.split('.')[-1] == 'gif':
-            img.save(tf.name, "GIF")
-        else:
-            img.save(tf.name, "JPEG")
+    img = Image.open(settings_file.images_path+fname)
+    img.thumbnail((500, 500), Image.ANTIALIAS)
+    if fname.split('.')[-1] == 'gif':
+        img.save(tf.name, "GIF")
+    else:
+        img.save(tf.name, "JPEG")
 
 
 def encode_FFMPEG(fname, tf):
@@ -184,7 +189,7 @@ def api_search():
     db_search_list = ip.parser(query)
     try:
         results, total = db.search(db_search_list['search'],
-         db_search_list['remove'], page=page-1)
+                                   db_search_list['remove'], page=page-1)
     except (IndexError, KeyError):
         pass
     del total
@@ -198,15 +203,27 @@ def api_search():
         ratio = {'ratio': _[4]}
         source_link = {'source_link': _[5]}
         prefix = {'prefix': _[6]}
-        thumbnail = {'thumb': "//"+request.host+"/thumbnail/"+prefix['prefix']+fname['filename']}
-        full = {'full': "//"+request.host+"/raw/"+prefix['prefix']+fname['filename']}
-        __ = dict(fname, **tags, **height, **width,**ratio,**source_link, **prefix, **thumbnail)
+        thumbnail = {'thumb': "//"+request.host +
+                     "/thumbnail/"+prefix['prefix']+fname['filename']}
+        full = {'full': "//"+request.host+"/raw/" +
+                prefix['prefix']+fname['filename']}
+        __ = dict(fname, **tags, **height, **width, **ratio,
+                  **source_link, **prefix, **thumbnail)
         __.update(full)
         result[k] = __
         k += 1
     result = json.dumps(result)
     return Response(result, mimetype="application/json")
-    
+
+
+def start_background_task_host():
+    bg_thread = threads.BgTaskHost()
+    bg_thread.start()
+    time.sleep(1)
+    global THREAD_PORT
+    THREAD_PORT = bg_thread.port
+    print("Background_host thread running on 127.0.0.1:"+str(THREAD_PORT))
+
 
 def start_background_task_host():
     bg_thread = threads.BgTaskHost()
