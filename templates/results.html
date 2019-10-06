@@ -79,5 +79,36 @@ function sclick(id) {
     win = window.open("/image/"+id, '_blank');
     win.focus()
 }
+
+document.onkeydown = function (e) {
+    if (e.keyCode === 39 && e.target.className != "form-control") {
+        arr = document.location.search.replace("?", "").replace("&", ",").split(",") // -- page
+        for (i in arr) {
+            if (arr[i].substr(0,4) == "page"){
+                init = arr[i]
+                i = arr[i].split("=")
+                end = i[0] + "=" + String(parseInt(i[1])+1)
+                break
+            }
+        }
+        window.location = String(document.location).replace(init, end)
+    }
+    if (e.keyCode === 37 && e.target.className != "form-control") {
+        arr = document.location.search.replace("?", "").replace("&", ",").split(",") // -- page
+        for (i in arr) {
+            if (arr[i].substr(0,4) == "page"){
+                init = arr[i]
+                i = arr[i].split("=")
+                end = i[0] + "=" + String(parseInt(i[1])-1)
+                break
+            }
+        }
+        window.location = String(document.location).replace(init, end)
+    }
+    if (e.keyCode === 82 && e.target.className != "form-control" && e.target.id != 'inp') {
+      rand_img();
+    }
+  };
+
 </script>
 {% endblock scripts %}

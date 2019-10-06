@@ -1,5 +1,6 @@
 {% extends 'base.html' %} {% block imports %}
 <link rel="stylesheet" href="{{ url_for('static', filename='misc.css') }}" />
+<script src="{{ url_for('static', filename='clipboard.min.js') }}"></script>
 {% endblock imports %} {% block content %}
 <body style="background-color: #faffd5" class="container-fluid">
   <div class="row">
@@ -92,7 +93,9 @@
   </div>
   <datalist id="search" style="display: none"></datalist>
 </body>
-{% endblock content %} {% block scripts %}
+{% endblock content %}
+
+{% block scripts %}
 <script type="application/javascript">
   var btn = document.getElementById("clip");
   var clipboard = new Clipboard(btn);
@@ -119,5 +122,40 @@
     img.classList.toggle("img-fluid");
     img.classList.toggle("ft");
   }
+
+  document.onkeydown = function (e) {
+    if (e.keyCode === 39 && e.target.className != "form-control") {
+      xhr = new XMLHttpRequest();
+      body = String(window.location).split("/");
+      body = body[body.length - 1]
+      xhr.open("GET", "/previous/" + body, true);
+      xhr.send();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
+          window.location = "/image/" + xhr.responseText;
+        } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
+          i = 1;
+        }
+      };
+    }
+    if (e.keyCode === 37 && e.target.className != "form-control") {
+      xhr = new XMLHttpRequest();
+      body = String(window.location).split("/");
+      body = body[body.length - 1]
+      xhr.open("GET", "/next/" + body, true);
+      xhr.send();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
+          window.location = "/image/" + xhr.responseText;
+        } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
+          i = 1;
+        }
+      };
+    }
+    if (e.keyCode === 82 && e.target.className != "form-control" && e.target.id != 'inp') {
+      rand_img();
+    }
+  };
+
 </script>
 {% endblock scripts %}
