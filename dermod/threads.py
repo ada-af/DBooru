@@ -1,30 +1,30 @@
 from threading import Thread
 import time
+import socket
+import main
+import settings_file
+import os
 
 
-class Error(Exception):
-    pass
-
-
-class Timeouted(Error):
+class BgTaskHost(Thread):
     def __init__(self):
-        pass
-
-
-class Timer(Thread):
-    def __init__(self, to):
         Thread.__init__(self)
-        self.time = to
-        self.done = 0
-
+        self.port = 0
+        
     def run(self):
-        time.sleep(self.time)
-        if self.done == 0:
-            raise Timeouted
+        self.background_host()
 
-    def stop(self):
-        self.done = 1
-
+    def background_host(self):
+        import main
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(('127.0.0.1', 0))
+        self.port = sock.getsockname()[1]
+        while True:
+            data, addr = sock.recvfrom(4)
+            if data == b"UPDT":
+                main.update_db()
+                os.remove('update.lck')
+        
 
 class ThreadController(Thread):
     @staticmethod

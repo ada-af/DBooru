@@ -5,7 +5,10 @@ import math
 import os
 import subprocess
 import sys
+import socket
+import time
 import tempfile
+from importlib import reload
 from multiprocessing import Process
 from threading import Thread
 
@@ -15,7 +18,7 @@ from flask import Flask, jsonify, redirect, render_template, request,\
 
 import main
 import settings_file
-from dermod import db
+from dermod import db, threads
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
 from dermod import predict
@@ -33,8 +36,11 @@ except Exception:
 DBooru = Flask(__name__)
 DBooru.config.from_pyfile("settings_file.py", silent=True)
 
-global Predictor
-Predictor = predict.Predictor()
+@DBooru.route('/predict', methods=['GET'])
+def predict_tag():
+    pred = predict.Predictor()
+    matched = pred.predict(request.args.get('phrase'))
+    return jsonify(matched)
 
 @DBooru.route('/predict', methods=['GET'])
 def predict_tag():
@@ -75,18 +81,17 @@ def raw(fname):
 
 @DBooru.route("/update")
 def update():
+    global THREAD_PORT
+    # Socket for thread communication
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if os.path.exists("update.lck") is False:
+        sock.sendto(b"UPDT", ('127.0.0.1', THREAD_PORT))
         open("update.lck", 'w').write('1')
         j = "DB Update started in background."
         stat = 200
-        p = Process(main.update_db())
-        p.start()
-        os.remove('update.lck')
     else:
         j = "Update in process"
         stat = 409
-    global Predictor
-    Predictor = predict.Predictor()
     j = Response(j, status=stat)
     return j
 
@@ -209,5 +214,16 @@ def api_search():
     return Response(result, mimetype="application/json")
     
 
+def start_background_task_host():
+    bg_thread = threads.BgTaskHost()
+    bg_thread.start()
+    time.sleep(1)
+    global THREAD_PORT
+    THREAD_PORT = bg_thread.port
+    print("Background_host thread running on 127.0.0.1:"+str(THREAD_PORT))
+
+
 if __name__ == "__main__":
-    DBooru.run(host=settings_file.web_ip, port=settings_file.web_port)
+    start_background_task_host()
+    DBooru.run(host=settings_file.web_ip,
+               port=settings_file.web_port)
