@@ -1,5 +1,6 @@
 # General Info
 # NEVER DELETE/SET TO WRONG FORMAT OR LEAVE VARIABLES EMPTY! OTHER WAY EVERYTHING WILL FUCK UP!
+import os
 
 
 # Define modules to work with
@@ -46,6 +47,15 @@ socks5_proxy_port = "9050"
 
 # WEB interface
 
+# Define the application directory
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+# Application threads. A common general assumption is
+# using 2 per available processor cores - to handle
+# incoming requests using one and performing background
+# operations using the other.
+THREADS_PER_PAGE = 2
+
 # Defines ip where to bind webUI
 # Format: web_ip = string
 # Example: web_ip = "127.0.0.1"
@@ -86,11 +96,6 @@ disable_mobile = False
 predict_tags = 20
 
 # Database specific settings
-
-# Defines how many "Tag*" fields database must have
-# Format: tag_amount = int
-# Example: (tag_amount = 40)
-tag_amount = 40
 
 # Defines how many pictures must be shown in output
 # Format: showing_imgs = int
@@ -139,24 +144,6 @@ db_name = "sqlite.db"
 # Format: table_name = string
 # Example: (table_name = 'images')
 table_name = 'images'
-
-
-# Following settings
-
-# Enable or Disable running follower with webUI
-# Format: run_follower = bool
-# Example: (run_follower = False)
-run_follower = False
-
-# Defines amount of pages to check
-# Format: checked_pages = int
-# Example: (checked_pages = 10)
-checked_pages = 25
-
-# Defines time between checking again
-# Format: follower_sleep = int
-# Example: (follower_sleep = 600) # Checks every 600 seconds = 10 minutes
-follower_sleep = 1800
 
 
 # Threading

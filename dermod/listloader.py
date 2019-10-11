@@ -107,7 +107,7 @@ class Checker(Thread):
         quit()
 
 
-def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwith="\r"):
+def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):
     global empties
     empties = 0
     print("Searching for max page")
@@ -116,35 +116,32 @@ def run(module, follower=False, pages_num=0, file=settings_file.ids_file, endwit
     except Exception:
         pass
     pages_num = 50
-    if follower is True:
-        pass
-    else:
-        pages_num = 1
-        k = False
-        while k is False:
-            pages_num += 50
-            print('Finding max page... (Checking Page {})'.format(
-                pages_num-1), flush=True, end=endwith)
-            with requests.Session() as s:
-                s.headers = {
-                    'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/mcilya/DBooru)'}
-                dat = s.get(
-                    "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
-                                                                   endpoint=module.endpoint,
-                                                                   params=module.params,
-                                                                   paginator=module.paginator.format(pages_num)),
-                    verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
-            if dat.status_code >= 400:
-                break
-            if re.search("{}".format(module.empty_page), dat.content.decode()) is not None:
+    pages_num = 1
+    k = False
+    while k is False:
+        pages_num += 50
+        print('Finding max page... (Checking Page {})'.format(
+            pages_num-1), flush=True, end=endwith)
+        with requests.Session() as s:
+            s.headers = {
+                'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/mcilya/DBooru)'}
+            dat = s.get(
+                "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
+                                                               endpoint=module.endpoint,
+                                                               params=module.params,
+                                                               paginator=module.paginator.format(pages_num)),
+                verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
+        if dat.status_code >= 400:
+            break
+        if re.search("{}".format(module.empty_page), dat.content.decode()) is not None:
+            k = True
+        try:
+            if pages_num >= hard_limit:
                 k = True
-            try:
-                if pages_num >= hard_limit:
-                    k = True
-                    pages_num = hard_limit
-                    break
-            except UnboundLocalError:
-                pass
+                pages_num = hard_limit
+                break
+        except UnboundLocalError:
+            pass
     k = False
     while k is False:
         try:

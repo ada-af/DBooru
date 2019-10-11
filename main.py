@@ -6,7 +6,7 @@ import webbrowser
 import importlib
 
 from dermod import input_parser as ip
-from dermod import db, follow, listloader, imgloader
+from dermod import db, listloader, imgloader
 import settings_file
 
 
@@ -23,9 +23,7 @@ def show_help(case):
     if str(case) == "1":
         print("<any tags, split, by comma> to search in DB")
         print("<get images> loads every picture you faved/upvoted (may be changed in settings_file.py)")
-        print("<get images -f> loads every picture you faved/upvoted Downloads images without checking file existance")
-        print("<get images --force> same as <get images -f>")
-        print("<get images --fast> checks for new images and downloads them using follower")
+        print("<get images --force> loads every picture you faved/upvoted Downloads images without checking file existance")
         print("<total> prints amount of pictures you have in DB")
         print("<count <tag>> prints amount of pictures tagged by <tag>")
         print("<quit> or <exit> to exit")
@@ -126,8 +124,6 @@ def main_cycle():
         update_db()
     elif inp == "get images --force":
         update_db()
-    elif inp == "get images --fast" or inp == "get images -f":
-        follow.run(run_once=True)
     elif inp == "total":
         db.total_found()
     elif "count" in inp:

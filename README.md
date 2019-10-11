@@ -33,7 +33,6 @@
     - [Settings_file.py](#settings_filepy)
     - [dermod/aliases.py](#dermodaliasespy)
         - [Syntax](#syntax-1)
-    - [dermod/follow.py](#dermodfollowpy)
 
 <!-- /TOC -->
 
@@ -84,7 +83,7 @@
 
 ## Installation
 ### Dependencies
->- Python 3.4+ or PyPy3 5.9.0+
+>- Python 3.5+ or PyPy3 5.9.0+
 >- pip
 >- requests
 >- requests[security]
@@ -92,8 +91,14 @@
 >- idna
 >- cryptography
 >- ffmpeg or pillow
+>- flask
+>- jinja2
+>- werkzeug
+>- markupsafe
+>- click
+>- itsdangerous
 >
->Or you can launch extra/linux\_deps.sh or extra/windows\_deps.bat and wait for magic
+>Or you can just type `pip install --user -r requirements.txt` in terminal
 
 ### Configuration
 1. Set modules (line 11) in settings_file.py
@@ -101,27 +106,22 @@
 1. (Optionally) Change other settings (View [Settings_file.py](#settings_filepy))
 
 ### How to run
+#### CLI
 1. Run `python main.py` or `pypy3 main.py`
 1. Type in "get images"
-1. Wait
-1. Search or run `python webv3.py` or `pypy3 webv3.py`
+1. Wait for images to download
+1. Use search
 1. ???
 1. PROFIT
 
-### How to make executable file
+#### Web
+1. Run `python DBooru_web.py` or `pypy3 DBooru_web.py`
+1. Press `Update DB` button
+1. Wait for images to download
+1. Use search
+1. ???
+1. PROFIT
 
-Run `python setup.py build`  
-Executables will be placed in build/exe.(platform)-(python_version)/
-
->If you want to move executable be sure to move all the files in directory
-
-If you want to change settings after building executable 
-1. Rename `settings_file.py` to `settings_file.bak` **before** building
-1. Build executable
-1. Rename `settings_file.bak` to `settings_file.py`
-1. Copy `settings_file.py` to `build/exe.(platform)-(python_version)/settings_file.py`
-
-Otherwise it will build executable with settings_file.py as constant
 
 
 ## Modules
@@ -200,9 +200,7 @@ Enter this commands if prompt starts with `DB>`
 | ------------------ | --------------------------------------------------------------------------------------- |
 | help               | Shows in-app help                                                                       |
 | get images         | Downloads images that you liked/favorited on *booru                                     |
-| get images -f      | Same as get images --fast                                                                |
-| get images --force | Downloads images without checking file existance                                        |
-| get images --fast  | Checks for new images and downloads them using follower's settings                      |
+| get images --force | Downloads images without checking if file exists                                        |
 | total              | Prints amount of entries in local DB                                                    |
 | count \<tag\>      | Prints amount of entries tagged with \<tag\>                                            |
 | show \<image_id>   | Opens image in image viewer or browser if no viewers found                              |
@@ -226,18 +224,16 @@ Enter this commands if prompt starts with `Search@DB>`
 | Endpoint               | Method | Parameters (Body for POST)          | Description                              | Returns                                                   |
 | :--------------------: | :----: | ----------------------------------- | ---------------------------------------- | --------------------------------------------------------- |
 | "/"                    | GET    |                                     | Main page                                | HTML-page                                                 |
-| "/"                    | GET    | query=**search_query** page=**int** | Search images                            | HTML-page                                                 |
-| "/export"              | GET    | id=**filename**                     | Exports image to <export_path>           | Plain text data ("Done")                                  |
-| "/images/**filename**" | GET    |                                     | Access image file                        | Image and/                                                |
+| "/search"              | GET    | q=**search_query** page=**int**     | Search images                            | HTML-page                                                 |
 | "/image/**str**"       | GET    |                                     | View image with tags                     | HTML-page                                                 |
-| "/dl"                  | GET    | id=**filename**                     | Browser-friendly download method         | Image                                                     |
-| "/raw"                 | GET    | id=**filename**                     | Raw image data                           | Image                                                     |
+| "/dl/**filename**"     | GET    |                                     | Browser-friendly download method         | Image                                                     |
+| "/raw/**filename**"    | GET    |                                     | Raw image data                           | Image                                                     |
 | "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query            | Plain text data                                           |
-| "/next"                | POST   | **int**                             | Tries to get id of next (older) image    | Plain text data (<id-of-image>)                           |
-| "/previous"            | POST   | **int**                             | Tries to get id of previous(newer) image | Plain text data (<id-of-image>)                           |
-| "/thumb/**filename**"  | GET    |                                     | Makes thumbnail (500px) of image         | Image                                                     |
-| "/api/search"          | GET    | query=**query** page=**int**        | Searches images and returns json result of search | JSON                                             |
-| "/random"              | GET    | query=**optional_tag**              | Returns path to image                    | Plain text data (<path-of-image-page>)                    |
+| "/next/**str**"        | GET    |                              | Tries to get id of next (newer) image    | Redirect (302) to /image/\*                           |
+| "/previous/**str**     | GET    |                              | Tries to get id of previous(older) image | Redirect (302) to /image/\*                           |
+| "/thumbnail/**filename**"  | GET    |                                     | Makes thumbnail (500px) of image         | Image                                                     |
+| "/json/search"          | GET    | q=**query** page=**int**        | Searches images and returns json result of search | JSON                                             |
+| "/random"              | GET    |               | Redirects to random image                    | Redirect (302) to /image/\*                    |
 | "/update"              | GET    |                                     | Updates DB (Same as CLI: get images)     | Returns 200 code when update started successfully or 409 in case when there's already update in progress |
 
 
@@ -245,6 +241,8 @@ Enter this commands if prompt starts with `Search@DB>`
 
 ### Basic search rules
 
+0. Wildcard through **`%`** (percent symbol)
+>Example: "ti`%`" will return images where tags contain `ti`
 1. Tags must be separated by **`,`** (comma)
 >Example: "safe`,` princess luna"
 2. Tags are not case sensitive
@@ -255,7 +253,7 @@ Enter this commands if prompt starts with `Search@DB>`
 >Example: "safe, princess luna" will return images tagged with both "safe" and "princess luna"
 5. Exclude tags by placing **`-`** (hyphen-minus) before tag
 >Example: "-safe" will return all images not tagged with "safe"
-6. Rules 2,3,4 works almost the same for exclude
+6. Rules 0,2,3,4 works almost the same for exclude
 
 ### Special tags
 
@@ -288,11 +286,11 @@ Enter this commands if prompt starts with `Search@DB>`
 | enable_proxy          | Bool (True/False)             | Enables/Disables proxy for requests    |
 | socks5_proxy_ip       | String (IP)                   | Sets proxy IP                                            |
 | socks5_proxy_port     | String (Port)                 | Sets proxy port                                          |
+| BASE_DIR              | Function                      | Magic for flask to work
 | web_ip                | String (IP)                   | Set IP to bind Web interface                             |
 | web_port              | Integer (port)                | Sets port to bind Web interface                          |
-| tag_amount            | Integer (number)              | Maximum tags per image                                   |
 | thumbnailer           | String (One of "ffmpeg", "PIL", "disabled") | Defines tool to make thumbnails or not to make them at all |
-| conv_format           | String (ffmpeg output format) | Format to format to use when making thumbnails           |
+| conv_format           | String (ffmpeg output format) | Format to use when making thumbnails                     |
 | gif_to_webp           | Bool (True/False)             | Creates webp thumbnails for gifs                         |
 | disable_mobile        | Bool (True/False)             | Should tag prediction be disabled on mobile              |
 | predict_tags          | Integer (number)              | How many tags to show when predicting input              |
@@ -304,9 +302,6 @@ Enter this commands if prompt starts with `Search@DB>`
 | ids_file              | String (Path/Filename)        | Name for tempfile (No need to change)                    |
 | db_name               | String (Path/Filename)        | Where to store DB file                                   |
 | table_name            | String (Text)                 | Sets name for main table (No need to change)             |
-| run_follower          | Bool (True/False)             | Enable checking for new images while webUI runs          |
-| checked_pages         | Integer (number)              | How many pages should be checked                         |
-| follower_sleep        | Integer (seconds)             | Defines time between checking for images                 |
 | thread_cap            | Integer (number)              | Defines maximum running threads before blocking creating new threads |
 | sleep_time            | Integer (seconds)             | Defines time to wait before creating new thread after thread cap is reached |
 
@@ -326,11 +321,3 @@ aliases = {
     "alias3": "aliased tag2"
 }
 ```
-
-
-## dermod/follow.py
-
-Checks first pages of *booru api and downloads liked/faved images
-
->Due to `follow.py` implementation it won't download images that was uploaded long ago and liked now  
-In that case you should use "`get images`" command of [CLI-version](#cli-version)

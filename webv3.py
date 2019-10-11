@@ -14,7 +14,7 @@ from multiprocessing import Process
 
 import settings_file
 import main
-from dermod import db, follow
+from dermod import db
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
 from dermod import predict
@@ -528,9 +528,6 @@ class Handler(Thread):
 def run(request_debug=False):
     tc = ThreadController()
     tc.start()
-    if settings_file.run_follower is True:
-        follower = Thread(target=follow.run)
-        follower.start()
     sock = socket.socket()
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     sock.bind((settings_file.web_ip, settings_file.web_port))
