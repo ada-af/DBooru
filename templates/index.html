@@ -1,5 +1,4 @@
 {% extends 'base.html' %} {% block content %}
-
 <body>
   <div class="container-fluid">
     <div class="btn-group btn-group-toggle" style="position: absolute; top:5px; right:5px;" data-toggle="buttons">
@@ -45,6 +44,7 @@
         document.getElementById("upd_btn").classList.add("btn-success");
       } else if (xhr.status === 409) {
         document.getElementById("upd_btn").classList.remove("btn-primary");
+
         document.getElementById("upd_btn").classList.add("btn-danger");
       }
     };

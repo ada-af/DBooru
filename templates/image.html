@@ -1,3 +1,4 @@
+
 {% extends 'base.html' %}
 
 {% block imports %}
@@ -75,7 +76,6 @@
   function view(id) {
     location.href = "/raw/" + id;
   }
-
   function dl(id) {
     var a = document.createElement("a");
     a.style.display = "none";
@@ -86,7 +86,7 @@
     document.body.removeChild(a);
     delete a;
   }
-
+  
   function dcdn(link) {
     win = window.open(link, "_blank");
     win.focus();
@@ -134,3 +134,4 @@
   };
 </script>
 {% endblock scripts %}
+
