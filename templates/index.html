@@ -1,40 +1,32 @@
 {% extends 'base.html' %} {% block content %}
+
 <body>
   <div class="container-fluid">
+    <div class="btn-group btn-group-toggle" style="position: absolute; top:5px; right:5px;" data-toggle="buttons">
+      <label class="btn btn-light active" onclick="set_light()" style="color:#212529;background-color:#dae0e5 !important;border-color:#d3d9df !important;">
+        <input type="radio" name="options" id="night_off" autocomplete="off" checked> Light mode
+      </label>
+      <label class="btn btn-dark" onclick="set_night()">
+        <input type="radio" name="options" id="night_on" autocomplete="off"> Dark mode
+      </label>
+    </div>
     <div align="center" style="margin-top: 22%">
       <form action="/search">
         <div class="form-group input-group">
-          <input
-            type="text"
-            class="form-control form-control-lg"
-            id="inp"
-            list="search"
-            autocomplete="off"
-            name="q"
-            placeholder="Search something"
-          />
-          <span class="input-group-btn">
-            <button type="submit" class="btn btn-lg btn-info">Search</button>
+          <input type="text" class="form-control form-control-lg" id="inp" list="search" autocomplete="off" name="q"
+            placeholder="Search something" />
+          <span class="input-group-append">
+            <button type="submit" class="btn btn-lg btn-primary">Search</button>
           </span>
         </div>
-        <input
-          name="page"
-          value="1"
-          style="visibility: hidden; width: 0; height: 0"
-        />
-        <button
-          type="button"
-          class="btn btn-submit btn-info"
-          onclick="update_db()"
-          id="upd_btn"
-        >
+        <input name="page" value="1" style="visibility: hidden; width: 0; height: 0" />
+        <button type="button" class="btn btn-submit btn-primary" onclick="update_db()" id="upd_btn">
           Update DB
         </button>
         <a href="/random">
-          <button type="button" class="btn btn-submit btn-info">
+          <button type="button" class="btn btn-submit btn-primary">
             Random image
-          </button></a
-        >
+          </button></a>
       </form>
     </div>
   </div>
@@ -46,12 +38,12 @@
     xhr = new XMLHttpRequest();
     xhr.open("GET", "/update", true);
     xhr.send();
-    xhr.onreadystatechange = function(e) {
+    xhr.onreadystatechange = function (e) {
       if (xhr.status === 200) {
-        document.getElementById("upd_btn").classList.remove("btn-info");
+        document.getElementById("upd_btn").classList.remove("btn-primary");
         document.getElementById("upd_btn").classList.add("btn-success");
       } else if (xhr.status === 409) {
-        document.getElementById("upd_btn").classList.remove("btn-info");
+        document.getElementById("upd_btn").classList.remove("btn-primary");
         document.getElementById("upd_btn").classList.add("btn-danger");
       }
     };

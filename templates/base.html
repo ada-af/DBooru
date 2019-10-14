@@ -8,13 +8,35 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}" />
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
-  {% block imports %}{% endblock imports %} {% block style %}{% endblock style
-    %}
+  <script>
+  function check_night() {
+    cookies = document.cookie.split(";")
+    succ = false;
+    cookie_val = "off";
+    for (i = 0; i < cookies.length; i++) {
+      if (cookies[i].startsWith("DBooru_night")) {
+        succ = true;
+        cookie_val = cookies[i].split("=")[1];
+        break;
+      }
+    }
+    if (succ == false) {
+      document.cookie = "DBooru_night=off; expires=Thu, 01 Jan 2070 00:00:00 UTC; path=/;";
+    } else {
+      if (cookie_val == "on") {
+        $("head").append('<link rel="stylesheet" id="night_mode" type="text/css" href="/static/night.css">')
+      } else {
+        $("#night_mode").remove()
+      }
+    }
+  }
+  check_night()
+  </script>
+  {% block imports %}{% endblock imports %} {% block style %}{% endblock style %}
 </head>
 {% block content %}{% endblock content %}
 {% block scripts %}{% endblock scripts %}
 <script>
-
   function rand_img() {
     window.location = '/random'
   }
@@ -47,6 +69,16 @@
     }
   }
   document.getElementById('inp').addEventListener('input', update_datalist)
+
+  function set_light() {
+    document.cookie = "DBooru_night=off; expires=Thu, 01 Jan 2070 00:00:00 UTC; path=/;";
+    check_night();
+  }
+
+  function set_night() {
+    document.cookie = "DBooru_night=on; expires=Thu, 01 Jan 2070 00:00:00 UTC; path=/;";
+    check_night();
+  }
 </script>
 
 </html>
