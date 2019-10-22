@@ -7,6 +7,8 @@ import logging
 from dermod import input_parser as ip
 import settings_file
 
+if settings_file.suppress_errors:
+    logging.raiseExceptions = False
 
 def precomp():
     global tag_col, tag_col_full, tag_col_serv
@@ -14,22 +16,10 @@ def precomp():
     tag_col_full = 'fname, tags, height, width, ratio, source_link, prefix, id'
     tag_col_serv = 'height, width, ratio, source_link, prefix, id'
     init_db()
-    t = True
-    for i in cursor.execute("select * from sqlite_master").fetchall():
-        if settings_file.table_name in i:
-            t = False
-    if t is True:
-        mkdb(settings_file.table_name)
-
-
-def suppress_errs(supp):
-    if supp is True:
-        logging.raiseExceptions = False
-
-
-def errors_init():
-    suppress_errs(settings_file.suppressor)
-
+    t = [x[1] for x in cursor.execute("select * from sqlite_master").fetchall()]
+    if "images" not in t:
+        mkdb("images")
+            
 
 def init_db():
     global cursor
@@ -40,14 +30,13 @@ def init_db():
 
 def total_found():
     init_db()
-    print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM {} WHERE {}".format(
-        settings_file.table_name, settings_file.columns[0])).fetchone()[0])
+    print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM images where fname").fetchone()[0])
 
 
 def get_all_entries():
     init_db()
     result = list(cursor.execute(
-        "SELECT tags from {}".format(settings_file.table_name)))
+        "SELECT tags from images"))
     return result
 
 
@@ -74,23 +63,21 @@ def fill_db(file=settings_file.ids_file):
         k = i[6]
         k = str(k).strip("[]").replace('" ', '"').replace(
             ' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', '{}', '{}', '{}', '{}', '{}', '{}', {})".format(
-            settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], i[2], i[7], i[0])
+        j = "INSERT INTO images VALUES ('{}.{}', '{}', '{}', '{}', '{}', '{}', '{}', {})".format(
+            i[0], i[1], k, i[3], i[4], i[5], i[2], i[7], i[0])
         cursor.execute(j)
         if cnt == 10:
             conn.commit()
             cnt = 0
     conn.commit()
-    cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(
-        table_name=settings_file.table_name))
+    cursor.execute("delete from images where rowid not in (select min(rowid) from images group by fname)")
     conn.commit()
 
 
 def count_tag(tag_to_count):
     init_db()
 
-    sample = """select count(*) FROM {} where tags like '%,,{},,%'""".format(
-        settings_file.table_name, tag_to_count)
+    sample = """select count(*) FROM images where tags like '%,,{},,%'""".format(tag_to_count)
     output = list(cursor.execute(sample))
     print(str(output[0]).strip("()").replace(",", "") +
           " images tagged {}".format(tag_to_count))
@@ -100,21 +87,20 @@ def search(list_search, list_remove, page=0):
     init_db()
     special_fields = []
     for i in list_search:
-        if 'ratio' in i or "height" in i or "width" in i:
-            if ">" in i or "<" in i or "=" in i:
+        if ('ratio' in i or "height" in i or "width" in i) and (">" in i or "<" in i or "=" in i):
                 special_fields.append(i)
                 list_search.remove(i)
     mkdb('temp1')
     if len(list_search) != 0:
         autogen_template = "and {} like '%,,{},,%'"
-        autogen_query = "SELECT * from {} where {} like '%,,{},,%'".format(settings_file.table_name, tag_col, list_search[0])
+        autogen_query = "SELECT * from images where {} like '%,,{},,%'".format(tag_col, list_search[0])
         if len(list_search) > 1:
             for i in list_search[1:]:
                 autogen_query = autogen_query + autogen_template.format(tag_col, i)
         query = "INSERT INTO temp1 SELECT DISTINCT * from ({})".format(autogen_query)
         cursor.execute(query)
     else:
-        sample = "INSERT INTO temp1 SELECT DISTINCT * FROM {}".format(settings_file.table_name)
+        sample = "INSERT INTO temp1 SELECT DISTINCT * FROM images"
         cursor.execute(sample)
 
     if len(list_remove) == 0:
@@ -180,7 +166,7 @@ def special_f(specials, page):
 
 def search_by_id(img_id, prefix="%"):
     init_db()
-    sql = "SELECT * FROM {} WHERE id = {} and prefix like '{}_'".format(settings_file.table_name, img_id, prefix)
+    sql = "SELECT * FROM images WHERE id = {} and prefix like '{}_'".format(img_id, prefix)
     result = list(cursor.execute(sql))
     if len(result) != 0:
         return result[0]
@@ -191,14 +177,24 @@ def search_by_id(img_id, prefix="%"):
 def random_img():
     init_db()
     result = list(cursor.execute(
-        "SELECT * FROM {} ORDER BY RANDOM() LIMIT 1".format(settings_file.table_name)))
+        "SELECT * FROM images ORDER BY RANDOM() LIMIT 1"))
     return result
 
 
 def tagged_random(tag):
     init_db()
-    result = list(cursor.execute("SELECT * FROM {} WHERE {tag_col} like '%,,{tag},,%' ORDER BY RANDOM() LIMIT 1"
-    .format(settings_file.table_name, tag=tag, tag_col=tag_col)))
+    result = list(cursor.execute("SELECT * FROM images WHERE {tag_col} like '%,,{tag},,%' ORDER BY RANDOM() LIMIT 1"
+    .format(tag=tag, tag_col=tag_col)))
+    return result
+
+def get_prev(id):
+    init_db()
+    result = list(cursor.execute("select * from images where (id>={}-1000 and id<={}) order by id desc limit 1".format(int(id), int(id)-1)).fetchall())[0]
+    return result
+
+def get_next(id):
+    init_db()
+    result = list(cursor.execute("select * from images where (id>={} and id<={}+1000) order by id asc limit 1".format(int(id)+1, int(id))).fetchall())[0]
     return result
 
 precomp()

@@ -29,7 +29,7 @@ class Loader(Thread):
         self.ip = proxy_ip
         self.port = proxy_port
         self.tmp = None
-        if settings_file.suppressor is True:
+        if settings_file.suppress_errors is True:
             logging.raiseExceptions = False
 
     def run(self):
@@ -70,7 +70,7 @@ class Loader(Thread):
 def run(module, file, check_files=True, check_local=True, endwith="\r"):
     tc = TC.ThreadController()
     tc.start()
-    if settings_file.suppressor is True:
+    if settings_file.suppress_errors is True:
         logging.raiseExceptions = False
     try:
         os.mkdir(settings_file.images_path)

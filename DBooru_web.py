@@ -114,17 +114,16 @@ def encode_PIL(fname, tf):
 
 
 def encode_FFMPEG(fname, tf):
-    add = ""
+    add = "" + settings_file.ffmpeg_args
     if fname.split('.')[-1] == 'gif':
         form = "gif"
         if settings_file.gif_to_webp == True:
             form = "webp"
-            add = "-loop 0"
+            add = add + "-loop 0"
     else:
         form = settings_file.conv_format
     cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease {additions} -y -f {format} {tempname}"\
         .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name, additions=add)
-    #subprocess.call(cmd, stdout=open(os.devnull, 'w'))
     os.system(cmd)
 
 
@@ -144,41 +143,29 @@ def thumbnail(fname):
 
 @DBooru.route("/next/<string:id>")
 def next(id):
-    f = []
     starting = int(id.split('_')[1])
-    x = starting+1
-    data = ""
-    code = 200
-    while True:
-        f = db.search_by_id(x)
-        if f != []:
-            data = str(f[6]+str(f[7]))
-            break
-        elif abs(starting-x) >= 300:
-            code = 404
-            break
-        else:
-            x += 1
+    data = db.get_next(starting)
+    if not data:
+        code = 404
+        data = ""
+    else:
+        code = 200
+        data = data[6]+str(data[7])
+
     return Response(data, status=code)
 
 
 @DBooru.route("/previous/<string:id>")
 def previous(id):
-    f = []
     starting = int(id.split('_')[1])
-    x = starting-1
-    data = ""
-    code = 200
-    while True:
-        f = db.search_by_id(x)
-        if f != []:
-            data = str(f[6]+str(f[7]))
-            break
-        elif abs(starting-x) >= 300:
-            code = 404
-            break
-        else:
-            x -= 1
+    data = db.get_prev(starting)
+    if not data:
+        code = 404
+        data = ""
+    else:
+        code = 200
+        data = data[6]+str(data[7])
+
     return Response(data, status=code)
 
 

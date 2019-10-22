@@ -3,36 +3,37 @@
 <!-- TOC -->
 
 - [DBooru](#dbooru)
-    - [Branching](#branching)
-        - [Master](#master)
-        - [Next](#next)
-        - [Exp/Fixes/Test](#expfixestest)
-    - [Features](#features)
-        - [Both versions](#both-versions)
-        - [CLI-version](#cli-version)
-        - [Web-Interface](#web-interface)
-    - [Installation](#installation)
-        - [Dependencies](#dependencies)
-        - [Configuration](#configuration)
-        - [How to run](#how-to-run)
-        - [How to make executable file](#how-to-make-executable-file)
-    - [Modules](#modules)
-        - [Why do i need modules?](#why-do-i-need-modules)
-        - [I want more modules!](#i-want-more-modules)
-        - [Are you kidding me?](#are-you-kidding-me)
-            - [Examples](#examples)
-    - [Commands and Web-endpoints](#commands-and-web-endpoints)
-        - [CLI](#cli)
-            - [Main menu](#main-menu)
-            - [Search](#search)
-        - [Web](#web)
-    - [Search basics and syntax](#search-basics-and-syntax)
-        - [Basic search rules](#basic-search-rules)
-        - [Special tags](#special-tags)
-            - [Syntax](#syntax)
-    - [Settings_file.py](#settings_filepy)
-    - [dermod/aliases.py](#dermodaliasespy)
-        - [Syntax](#syntax-1)
+  - [Branching](#branching)
+    - [Master](#master)
+    - [Next](#next)
+    - [Exp/Fixes/Test](#expfixestest)
+  - [Features](#features)
+    - [Both versions](#both-versions)
+    - [Web-Interface](#web-interface)
+    - [CLI-Version](#cli-version)
+  - [Installation](#installation)
+    - [Dependencies](#dependencies)
+    - [Configuration](#configuration)
+    - [How to run](#how-to-run)
+      - [CLI](#cli)
+      - [Web](#web)
+  - [Modules](#modules)
+    - [Why do i need modules?](#why-do-i-need-modules)
+    - [I want more modules!](#i-want-more-modules)
+    - [Are you kidding me?](#are-you-kidding-me)
+      - [Examples](#examples)
+  - [Commands and Web-endpoints](#commands-and-web-endpoints)
+    - [CLI](#cli-1)
+      - [Main menu](#main-menu)
+      - [Search](#search)
+    - [Web](#web-1)
+  - [Search basics and syntax](#search-basics-and-syntax)
+    - [Basic search rules](#basic-search-rules)
+    - [Special tags](#special-tags)
+      - [Syntax](#syntax)
+  - [Settings_file.py](#settingsfilepy)
+  - [dermod/aliases.py](#dermodaliasespy)
+    - [Syntax](#syntax-1)
 
 <!-- /TOC -->
 
@@ -291,6 +292,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | web_port              | Integer (port)                | Sets port to bind Web interface                          |
 | thumbnailer           | String (One of "ffmpeg", "PIL", "disabled") | Defines tool to make thumbnails or not to make them at all |
 | conv_format           | String (ffmpeg output format) | Format to use when making thumbnails                     |
+| ffmpeg_args           | String (ffmpeg parameters)    | For situations when you think that default settings suck |
 | gif_to_webp           | Bool (True/False)             | Creates webp thumbnails for gifs                         |
 | disable_mobile        | Bool (True/False)             | Should tag prediction be disabled on mobile              |
 | predict_tags          | Integer (number)              | How many tags to show when predicting input              |
@@ -301,7 +303,6 @@ Enter this commands if prompt starts with `Search@DB>`
 | time_wait             | Integer (seconds)             | How long thread can stay alive                           |
 | ids_file              | String (Path/Filename)        | Name for tempfile (No need to change)                    |
 | db_name               | String (Path/Filename)        | Where to store DB file                                   |
-| table_name            | String (Text)                 | Sets name for main table (No need to change)             |
 | thread_cap            | Integer (number)              | Defines maximum running threads before blocking creating new threads |
 | sleep_time            | Integer (seconds)             | Defines time to wait before creating new thread after thread cap is reached |
 
