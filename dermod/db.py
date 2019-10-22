@@ -176,8 +176,9 @@ def random_img():
 
 def tagged_random(tag):
     init_db()
-    result = list(cursor.execute("SELECT * FROM images WHERE {tag_col} like '%,,{tag},,%' ORDER BY RANDOM() LIMIT 1"
-    .format(tag=tag, tag_col=tag_col)))
+    search(tag['search'], tag['remove'])
+    result = cursor.execute("select * from temp1 order by random() Limit 1").fetchone()
+
     return result
 
 def get_prev(id):

@@ -84,7 +84,7 @@
     var mouse = false
 
     function sclick(id) {
-        win = window.open("/image/" + id, '_blank');
+        win = window.open("/image/" + id + window.location.search.split("&")[0], '_blank');
         win.focus()
     }
 
