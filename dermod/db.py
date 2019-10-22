@@ -43,9 +43,14 @@ def get_all_entries():
 def mkdb(table_name):
     init_db()
     cursor.execute('drop table IF EXISTS {}'.format(table_name))
-
     sample = """CREATE TABLE {}({} INT)""".format(table_name, tag_col_full)
+    cursor.execute(sample)
+    conn.commit()
 
+def mk_tdb(table_name):
+    init_db()
+    cursor.execute('drop table IF EXISTS {}'.format(table_name))
+    sample = """CREATE TEMP TABLE {}({} INT)""".format(table_name, tag_col_full)
     cursor.execute(sample)
     conn.commit()
 
@@ -85,12 +90,30 @@ def count_tag(tag_to_count):
 
 def search(list_search, list_remove, page=0):
     init_db()
-    special_fields = []
+    specials = []
+    spec = []
     for i in list_search:
         if ('ratio' in i or "height" in i or "width" in i) and (">" in i or "<" in i or "=" in i):
-                special_fields.append(i)
-                list_search.remove(i)
-    mkdb('temp1')
+            spec.append(i)
+
+    for i in spec:
+        list_search.remove(i)
+        for j in ['<=', '>=', '==', '=', '>', '<']:
+            if len(i.split(j)) == 2:
+                sign = j
+                splitted = i.strip().split(j)
+                splitted[0] = splitted[0].strip()
+                splitted[1] = eval(splitted[1].strip().replace(":", "/"))
+                specials.append("CAST({} AS REAL){}{}".format(splitted[0], sign, splitted[1]))
+                break
+
+    if len(specials) > 0:
+        specials = " where " + (" and ".join(specials))
+    else:
+        specials = ""
+
+    mk_tdb('temp1')
+   
     if len(list_search) != 0:
         autogen_template = "and {} like '%,,{},,%'"
         autogen_query = "SELECT * from images where {} like '%,,{},,%'".format(tag_col, list_search[0])
@@ -103,6 +126,7 @@ def search(list_search, list_remove, page=0):
         sample = "INSERT INTO temp1 SELECT DISTINCT * FROM images"
         cursor.execute(sample)
 
+
     if len(list_remove) == 0:
         pass
     else:
@@ -111,56 +135,13 @@ def search(list_search, list_remove, page=0):
                 "DELETE FROM temp1 WHERE {} like '%,,{},,%'".format(tag_col, i))
             conn.commit()
 
-    results = list(cursor.execute(
-        "SELECT * from temp1 order by id DESC limit {imgs_amount} offset {offset}"
-        .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
-    total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
+    final_autogen = "SELECT * from temp1 {specials} order by id DESC limit {imgs_amount} offset {offset}".format(
+        imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page, specials=specials)
+    results = list(cursor.execute(final_autogen))
+
+    total = cursor.execute("SELECT COUNT(*) FROM temp1 {}".format(specials)).fetchone()
     conn.commit()
 
-    if len(special_fields) == 0:
-        pass
-    else:
-        results, total = special_f(special_fields, page)
-    
-    return results, total
-
-
-def special_f(specials, page):
-
-    def src(value, field, sym):
-        mkdb('temp')
-        smp = "INSERT INTO temp SELECT * FROM temp1 where cast({} as REAL) {} {}".format(
-            field, sym, value)
-        cursor.execute(smp)
-        conn.commit()
-        mkdb('temp1')
-        cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute(
-            "select * from temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
-            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
-        conn.commit()
-        total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
-        return results, total
-
-    for i in specials:
-        i = i.replace("*", '%')
-        splitter = ""
-        for k in i:
-            if k == "=" or k == "<" or k == ">":
-                splitter += str(k)
-        i = i.split(splitter)
-        if i[0] == 'height':
-            results, total = src(i[1], i[0], splitter)
-            conn.commit()
-        elif i[0] == 'width':
-            results, total = src(i[1], i[0], splitter)
-            conn.commit()
-        elif i[0] == 'ratio' or i[0] == 'aspect_ratio':
-            evaluated = eval(i[1].replace(":", "/").replace("(", ''))
-            results, total = src(evaluated, 'ratio', splitter)
-            conn.commit()
-    if len(results) == 0:
-        results = []
     return results, total
 
 
