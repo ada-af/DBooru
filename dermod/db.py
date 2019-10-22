@@ -90,6 +90,8 @@ def count_tag(tag_to_count):
 
 def search(list_search, list_remove, page=0):
     init_db()
+
+    # Handle special tags
     specials = []
     spec = []
     for i in list_search:
@@ -106,7 +108,7 @@ def search(list_search, list_remove, page=0):
                 splitted[1] = eval(splitted[1].strip().replace(":", "/"))
                 specials.append("CAST({} AS REAL){}{}".format(splitted[0], sign, splitted[1]))
                 break
-
+    del spec
     if len(specials) > 0:
         specials = " where " + (" and ".join(specials))
     else:
@@ -115,11 +117,21 @@ def search(list_search, list_remove, page=0):
     mk_tdb('temp1')
    
     if len(list_search) != 0:
-        autogen_template = "and {} like '%,,{},,%'"
-        autogen_query = "SELECT * from images where {} like '%,,{},,%'".format(tag_col, list_search[0])
-        if len(list_search) > 1:
-            for i in list_search[1:]:
-                autogen_query = autogen_query + autogen_template.format(tag_col, i)
+        autogen_template = "tags like '%,,{},,%'"
+        queries = []
+
+        for i in list_search:
+            # or queries generator
+            if i.startswith("(") and i.endswith(")"):
+                or_list = i.strip("()").split("|")
+                or_query = "(" + " or ".join([autogen_template.format(x.strip()) for x in or_list]) + ")"
+                queries.append(or_query)
+                del or_list, or_query
+            # and queries generator
+            else:
+                queries.append(autogen_template.format(i))
+           
+        autogen_query = "SELECT * from images where {}".format(" and ".join(queries))
         query = "INSERT INTO temp1 SELECT DISTINCT * from ({})".format(autogen_query)
         cursor.execute(query)
     else:

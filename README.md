@@ -5,8 +5,7 @@
 - [DBooru](#dbooru)
   - [Branching](#branching)
     - [Master](#master)
-    - [Next](#next)
-    - [Exp/Fixes/Test](#expfixestest)
+    - [Next or any other branch](#next-or-any-other-branch)
   - [Features](#features)
     - [Both versions](#both-versions)
     - [Web-Interface](#web-interface)
@@ -44,9 +43,9 @@
 1. Rare updates
 1. Lots of changes per update
 
-### Next
+### Next or any other branch
 
-1. Very unstable
+1. Unstable
 1. Lots of commits
 1. Lots of updates
 1. New features 
@@ -55,20 +54,14 @@
 1. If there a commit message then "Minor changes"*  
     *Minor changes may include removal of half of all code
 
-### Exp/Fixes/Test
-
-1. If there brach like Exp/Fixes/Test then only working branch is [Master](#master)
-1. Nothing works
-1. Lots of commits
-1. Contains something new or fixes
 
 ## Features
 ### Both versions
 1. Search in downloaded images
     1. By tags
-    1. By image dimensions
-1. Viewing images
-1. Loading images from *booru
+    2. By image dimensions
+2. Viewing images
+3. Loading images from *booru
     1. Even with proxy (socks5 only)
 
 ### Web-Interface
@@ -80,6 +73,7 @@
 
 ### CLI-Version
 ¯\\\_(ツ)_/¯
+> To be deprecated
 
 
 ## Installation
@@ -103,8 +97,8 @@
 
 ### Configuration
 1. Set modules (line 11) in settings_file.py
-1. Configure modules (placed in dermod/sitesupport)
-1. (Optionally) Change other settings (View [Settings_file.py](#settings_filepy))
+2. Configure modules (placed in dermod/sitesupport)
+3. (Optionally) Change other settings (View [Settings_file.py](#settings_filepy))
 
 ### How to run
 #### CLI
@@ -243,28 +237,33 @@ Enter this commands if prompt starts with `Search@DB>`
 ### Basic search rules
 
 0. Wildcard through **`%`** (percent symbol)
->Example: "ti`%`" will return images where tags contain `ti`
+>Example: "ti`%`" will return images where at least one tag starts with `ti`
 1. Tags must be separated by **`,`** (comma)
 >Example: "safe`,` princess luna"
 2. Tags are not case sensitive
 >Example: "SaFe" == "SafE" == "safe"
 3. Search for "tag" will only return images tagged with "tag" not "tag*"
->Example: "safe" returns images with tag "safe" and doesn't returns "safezone"
+>Example: "`safe`" returns images with tag "safe" and doesn't returns "safezone"
 4. Searching multiple tags will return images matching all the tags
->Example: "safe, princess luna" will return images tagged with both "safe" and "princess luna"
+>Example: "`safe, princess luna`" will return images tagged with both "safe" and "princess luna"
 5. Exclude tags by placing **`-`** (hyphen-minus) before tag
->Example: "-safe" will return all images not tagged with "safe"
-6. Rules 0,2,3,4 works almost the same for exclude
+>Example: "`-safe`" returns all images not tagged with "safe"
+6. OR queries will return images tagged with tag1 or tag2
+>Example: "`(fluttershy|applejack)`" returns images tagged with `fluttershy`, `applejack` or both tags
+7. OR queries could be mixed with AND queries
+>Example: "`safe,(princess luna|changeling)`" returns images tagged `princess luna, safe` or `changeling, safe`
+8. Exclusion is not supported for OR queries. It's just pointless.
+9. Rules 0,2,3,4 works almost the same for exclude
 
 ### Special tags
 
 >Works only for filtering searches
 
->Example: width=100 (Works) while -width=100 (Doesn't works)
+>Example: `width=100` Works, while `-width=100` Doesn't work)
 
 1. `height`
-1. `width`
-1. `ratio` or `aspect_ratio`
+2. `width`
+3. `ratio` or `aspect_ratio`
 
 #### Syntax
 
