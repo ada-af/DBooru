@@ -37,6 +37,7 @@
 <!-- /TOC -->
 
 ## Branching
+
 ### Master
 
 1. Stable branch
@@ -48,15 +49,16 @@
 1. Unstable
 1. Lots of commits
 1. Lots of updates
-1. New features 
+1. New features
 1. Broken old features
 1. Rare commit messages
 1. If there a commit message then "Minor changes"*  
     *Minor changes may include removal of half of all code
 
-
 ## Features
+
 ### Both versions
+
 1. Search in downloaded images
     1. By tags
     2. By image dimensions
@@ -65,6 +67,7 @@
     1. Even with proxy (socks5 only)
 
 ### Web-Interface
+
 1. Downloading images
 1. Exporting images
 1. Tag predictions
@@ -72,12 +75,15 @@
 1. Scroll through images with ← or → arrows
 
 ### CLI-Version
+
 ¯\\\_(ツ)_/¯
 > To be deprecated
 
 
 ## Installation
+
 ### Dependencies
+
 >- Python 3.5+ or PyPy3 5.9.0+
 >- pip
 >- requests
@@ -96,12 +102,15 @@
 >Or you can just type `pip install --user -r requirements.txt` in terminal
 
 ### Configuration
+
 1. Set modules (line 11) in settings_file.py
 2. Configure modules (placed in dermod/sitesupport)
 3. (Optionally) Change other settings (View [Settings_file.py](#settings_filepy))
 
 ### How to run
+
 #### CLI
+
 1. Run `python main.py` or `pypy3 main.py`
 1. Type in "get images"
 1. Wait for images to download
@@ -110,14 +119,13 @@
 1. PROFIT
 
 #### Web
+
 1. Run `python DBooru_web.py` or `pypy3 DBooru_web.py`
 1. Press `Update DB` button
 1. Wait for images to download
 1. Use search
 1. ???
 1. PROFIT
-
-
 
 ## Modules
 
@@ -146,6 +154,7 @@ Module must contain:
 1. Parser Configuration
 
 #### Examples
+
     Configurable options
     >> username = "NAME GOES HERE"
     >> apikey = "KEY"
@@ -183,12 +192,12 @@ Module must contain:
     Parser Configuration
     > No time to explain
 
-
 ## Commands and Web-endpoints
 
 ### CLI
 
 #### Main menu
+
 Enter this commands if prompt starts with `DB>`
 
 | Command            | Description                                                                             |
@@ -216,49 +225,50 @@ Enter this commands if prompt starts with `Search@DB>`
 
 ### Web
 
-| Endpoint               | Method | Parameters (Body for POST)          | Description                              | Returns                                                   |
-| :--------------------: | :----: | ----------------------------------- | ---------------------------------------- | --------------------------------------------------------- |
-| "/"                    | GET    |                                     | Main page                                | HTML-page                                                 |
-| "/search"              | GET    | q=**search_query** page=**int**     | Search images                            | HTML-page                                                 |
-| "/image/**str**"       | GET    |                                     | View image with tags                     | HTML-page                                                 |
-| "/dl/**filename**"     | GET    |                                     | Browser-friendly download method         | Image                                                     |
-| "/raw/**filename**"    | GET    |                                     | Raw image data                           | Image                                                     |
-| "/predict"             | GET    | phrase=**search_query**             | Tries to predict search query            | Plain text data                                           |
-| "/next/**str**"        | GET    |                              | Tries to get id of next (newer) image    | Redirect (302) to /image/\*                           |
-| "/previous/**str**     | GET    |                              | Tries to get id of previous(older) image | Redirect (302) to /image/\*                           |
-| "/thumbnail/**filename**"  | GET    |                                     | Makes thumbnail (500px) of image         | Image                                                     |
-| "/json/search"          | GET    | q=**query** page=**int**        | Searches images and returns json result of search | JSON                                             |
-| "/random"              | GET    |               | Redirects to random image                    | Redirect (302) to /image/\*                    |
-| "/update"              | GET    |                                     | Updates DB (Same as CLI: get images)     | Returns 200 code when update started successfully or 409 in case when there's already update in progress |
-
+|         Endpoint          | Method |   Parameters (Body for POST)    |                    Description                    |                                                 Returns                                                  |
+| :-----------------------: | :----: | ------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+|            "/"            |  GET   |                                 | Main page                                         | HTML-page                                                                                                |
+|         "/search"         |  GET   | q=**search_query** page=**int** | Search images                                     | HTML-page                                                                                                |
+|     "/image/**str**"      |  GET   |                                 | View image with tags                              | HTML-page                                                                                                |
+|    "/dl/**filename**"     |  GET   |                                 | Browser-friendly download method                  | Image                                                                                                    |
+|    "/raw/**filename**"    |  GET   |                                 | Raw image data                                    | Image                                                                                                    |
+|        "/predict"         |  GET   | phrase=**search_query**         | Tries to predict search query                     | Plain text data                                                                                          |
+|      "/next/**str**"      |  GET   |                                 | Tries to get id of next (newer) image             | Redirect (302) to /image/\*                                                                              |
+|    "/previous/**str**     |  GET   |                                 | Tries to get id of previous(older) image          | Redirect (302) to /image/\*                                                                              |
+| "/thumbnail/**filename**" |  GET   |                                 | Makes thumbnail (500px) of image                  | Image                                                                                                    |
+|      "/json/search"       |  GET   | q=**query** page=**int**        | Searches images and returns json result of search | JSON                                                                                                     |
+|         "/random"         |  GET   |                                 | Redirects to random image                         | Redirect (302) to /image/\*                                                                              |
+|     "/random/**tags**     |  GET   |                                 | Redirects to random image tagged with **tags**    | Redirect (302) to /image/\*                                                                              |
+|         "/update"         |  GET   |                                 | Updates DB (Same as CLI: get images)              | Returns 200 code when update started successfully or 409 in case when there's already update in progress |
 
 ## Search basics and syntax
 
 ### Basic search rules
 
-0. Wildcard through **`%`** (percent symbol)
+1. Wildcard through **`%`** (percent symbol)
+
 >Example: "ti`%`" will return images where at least one tag starts with `ti`
-1. Tags must be separated by **`,`** (comma)
+2. Tags must be separated by **`,`** (comma)
 >Example: "safe`,` princess luna"
-2. Tags are not case sensitive
+3. Tags are not case sensitive
 >Example: "SaFe" == "SafE" == "safe"
-3. Search for "tag" will only return images tagged with "tag" not "tag*"
+4. Search for "tag" will only return images tagged with "tag" not "tag*"
 >Example: "`safe`" returns images with tag "safe" and doesn't returns "safezone"
-4. Searching multiple tags will return images matching all the tags
+5. Searching multiple tags will return images matching all the tags
 >Example: "`safe, princess luna`" will return images tagged with both "safe" and "princess luna"
-5. Exclude tags by placing **`-`** (hyphen-minus) before tag
+6. Exclude tags by placing **`-`** (hyphen-minus) before tag
 >Example: "`-safe`" returns all images not tagged with "safe"
-6. OR queries will return images tagged with tag1 or tag2
+7. OR queries will return images tagged with tag1 or tag2
 >Example: "`(fluttershy|applejack)`" returns images tagged with `fluttershy`, `applejack` or both tags
-7. OR queries could be mixed with AND queries
+8. OR queries could be mixed with AND queries
 >Example: "`safe,(princess luna|changeling)`" returns images tagged `princess luna, safe` or `changeling, safe`
-8. Exclusion is not supported for OR queries. It's just pointless.
-9. Rules 0,2,3,4 works almost the same for exclude
+9. Exclusion is not supported for OR queries. It's just pointless.
+10. Rules 1,3,4,5 work almost the same for exclude
 
 ### Special tags
 
 >Works only for filtering searches
-
+>
 >Example: `width=100` Works, while `-width=100` Doesn't work)
 
 1. `height`
@@ -273,38 +283,37 @@ Enter this commands if prompt starts with `Search@DB>`
 1. **`<`** means less than \<value>
 1. **`>=`** means bigger or equal to \<value>
 1. **`<=`** means less or equal to \<value>
->Example: 'safe, width>100" will return images tagged with 'safe' tag and image with width bigger than 100px
 
+>Example: 'safe, width>100" will return images tagged with 'safe' tag and image with width bigger than 100px
 
 ## Settings_file.py
 
-| Option                | Format                        | Description                                              |
-| --------------------- | ----------------------------- | -------------------------------------------------------- |
-| modules               | List (['String', 'String'])    | Enables modules
-| suppress_errors       | Bool (True/False)             | Prints errors and stacktrace in case of happening        |
-| ssl_verify            | Bool (True/False) or String ("Path") | Enable/Disable ssl verification or set custom CA Cert |
-| enable_proxy          | Bool (True/False)             | Enables/Disables proxy for requests    |
-| socks5_proxy_ip       | String (IP)                   | Sets proxy IP                                            |
-| socks5_proxy_port     | String (Port)                 | Sets proxy port                                          |
-| BASE_DIR              | Function                      | Magic for flask to work
-| web_ip                | String (IP)                   | Set IP to bind Web interface                             |
-| web_port              | Integer (port)                | Sets port to bind Web interface                          |
-| thumbnailer           | String (One of "ffmpeg", "PIL", "disabled") | Defines tool to make thumbnails or not to make them at all |
-| conv_format           | String (ffmpeg output format) | Format to use when making thumbnails                     |
-| ffmpeg_args           | String (ffmpeg parameters)    | For situations when you think that default settings suck |
-| gif_to_webp           | Bool (True/False)             | Creates webp thumbnails for gifs                         |
-| disable_mobile        | Bool (True/False)             | Should tag prediction be disabled on mobile              |
-| predict_tags          | Integer (number)              | How many tags to show when predicting input              |
-| showing_imgs          | Integer (number)              | How many images to show per page                         |
-| showing_tags          | Integer (number)              | How many tags to **show** per image (CLI-only)           |
-| images_path           | String (Path)                 | Where to store loaded images                             |
-| export_path           | String (Path)                 | Where to store exported images                           |
-| time_wait             | Integer (seconds)             | How long thread can stay alive                           |
-| ids_file              | String (Path/Filename)        | Name for tempfile (No need to change)                    |
-| db_name               | String (Path/Filename)        | Where to store DB file                                   |
-| thread_cap            | Integer (number)              | Defines maximum running threads before blocking creating new threads |
-| sleep_time            | Integer (seconds)             | Defines time to wait before creating new thread after thread cap is reached |
-
+|      Option       |                   Format                    |                                 Description                                 |
+| ----------------- | ------------------------------------------- | --------------------------------------------------------------------------- |
+| modules           | List (['String', 'String'])                 | Enables modules                                                             |
+| suppress_errors   | Bool (True/False)                           | Prints errors and stacktrace in case of happening                           |
+| ssl_verify        | Bool (True/False) or String ("Path")        | Enable/Disable ssl verification or set custom CA Cert                       |
+| enable_proxy      | Bool (True/False)                           | Enables/Disables proxy for requests                                         |
+| socks5_proxy_ip   | String (IP)                                 | Sets proxy IP                                                               |
+| socks5_proxy_port | String (Port)                               | Sets proxy port                                                             |
+| BASE_DIR          | Function                                    | Magic for flask to work                                                     |
+| web_ip            | String (IP)                                 | Set IP to bind Web interface                                                |
+| web_port          | Integer (port)                              | Sets port to bind Web interface                                             |
+| thumbnailer       | String (One of "ffmpeg", "PIL", "disabled") | Defines tool to make thumbnails or not to make them at all                  |
+| conv_format       | String (ffmpeg output format)               | Format to use when making thumbnails                                        |
+| ffmpeg_args       | String (ffmpeg parameters)                  | For situations when you think that default settings suck                    |
+| gif_to_webp       | Bool (True/False)                           | Creates webp thumbnails for gifs                                            |
+| disable_mobile    | Bool (True/False)                           | Should tag prediction be disabled on mobile                                 |
+| predict_tags      | Integer (number)                            | How many tags to show when predicting input                                 |
+| showing_imgs      | Integer (number)                            | How many images to show per page                                            |
+| showing_tags      | Integer (number)                            | How many tags to **show** per image (CLI-only)                              |
+| images_path       | String (Path)                               | Where to store loaded images                                                |
+| export_path       | String (Path)                               | Where to store exported images                                              |
+| time_wait         | Integer (seconds)                           | How long thread can stay alive                                              |
+| ids_file          | String (Path/Filename)                      | Name for tempfile (No need to change)                                       |
+| db_name           | String (Path/Filename)                      | Where to store DB file                                                      |
+| thread_cap        | Integer (number)                            | Defines maximum running threads before blocking creating new threads        |
+| sleep_time        | Integer (seconds)                           | Defines time to wait before creating new thread after thread cap is reached |
 
 ## dermod/aliases.py
 
@@ -315,9 +324,9 @@ Allows creating alias to tag, so you can find one tag using alias
 ### Syntax
 
 ```python
-aliases = {
-    "alias1": "aliased tag1",
-    "alias2": "aliased tag1",
-    "alias3": "aliased tag2"
-}
+  aliases = {
+      "alias1": "aliased tag1",
+      "alias2": "aliased tag1",
+      "alias3": "aliased tag2"
+  }
 ```

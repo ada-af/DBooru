@@ -7,16 +7,16 @@ def parser(string):
     half_parsed = []
     for i in string:
         i = i.strip()
-        if i in aliases.keys():
-            i = aliases[i]
-        elif i in ["-"+x for x in aliases.keys()]:
-            i = "-"+aliases[i.strip("-")]
+        if i in aliases.keys() and not i.startswith("ia:"):
+            i = "({}|{})".format(aliases[i], i)
+        elif i.startswith("ia:"):
+            i = i.split(":", 1)[1]
         half_parsed.append(i)
     search = []
     remove = []
     for i in half_parsed:
         if i.startswith('-'):
-            remove.append(i.replace('-', ''))
+            remove.append(i.strip("-"))
         else:
             search.append(i)
     search = [x for x in search if x != '']  # remove empty strings

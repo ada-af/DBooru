@@ -154,7 +154,13 @@ def thumbnail(fname):
 @DBooru.route("/next/<string:id>")
 def next(id):
     starting = int(id.split('_')[1])
-    data = db.get_next(starting)
+    query = request.args.get('q')
+    if query is None or query == "":
+        query = ""
+        data = db.get_next(starting)
+    else:
+        tag_list = ip.parser(query)
+        data = db.tagged_get_next(starting, tag_list)
     if not data:
         code = 404
         data = ""
@@ -162,13 +168,19 @@ def next(id):
         code = 200
         data = data[6]+str(data[7])
 
-    return Response(data, status=code)
+    return Response(data+"?q={}".format(query), status=code)
 
 
 @DBooru.route("/previous/<string:id>")
 def previous(id):
     starting = int(id.split('_')[1])
-    data = db.get_prev(starting)
+    query = request.args.get('q')
+    if query is None or query == "":
+        query = ""
+        data = db.get_prev(starting)
+    else:
+        tag_list = ip.parser(query)
+        data = db.tagged_get_prev(starting, tag_list)
     if not data:
         code = 404
         data = ""
@@ -176,7 +188,7 @@ def previous(id):
         code = 200
         data = data[6]+str(data[7])
 
-    return Response(data, status=code)
+    return Response(data+"?q={}".format(query), status=code)
 
 
 @DBooru.route("/json/search")

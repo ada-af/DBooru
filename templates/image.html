@@ -100,25 +100,15 @@
   }
 
   document.onkeydown = function (e) {
-    if (e.keyCode === 39 && e.target.className != "form-control") {
+    if ( (e.keyCode === 39 || e.keyCode === 37) && e.target.className != "form-control") {
       xhr = new XMLHttpRequest();
-      body = String(window.location).split("/");
-      body = body[body.length - 1]
-      xhr.open("GET", "/previous/" + body, true);
-      xhr.send();
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
-          window.location = "/image/" + xhr.responseText;
-        } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
-          i = 1;
-        }
-      };
-    }
-    if (e.keyCode === 37 && e.target.className != "form-control") {
-      xhr = new XMLHttpRequest();
-      body = String(window.location).split("/");
-      body = body[body.length - 1]
-      xhr.open("GET", "/next/" + body, true);
+      body = String(window.location.pathname).split("/");
+      body = body[body.length - 1] + "?q=" + document.getElementById("inp").value
+      if (e.keyCode === 39 && e.target.className != "form-control") {
+        xhr.open("GET", "/previous/" + body, true); 
+      } else if ( e.keyCode === 37 && e.target.className != "form-control" ) {
+        xhr.open("GET", "/next/" + body, true);
+      }
       xhr.send();
       xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {

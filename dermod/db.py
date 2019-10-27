@@ -183,12 +183,24 @@ def tagged_random(tag):
 
 def get_prev(id):
     init_db()
-    result = list(cursor.execute("select * from images where (id>={}-1000 and id<={}) order by id desc limit 1".format(int(id), int(id)-1)).fetchall())[0]
+    result = list(cursor.execute("select * from images where (id<{}) order by id desc limit 1".format(int(id))).fetchall())[0]
     return result
 
 def get_next(id):
     init_db()
-    result = list(cursor.execute("select * from images where (id>={} and id<={}+1000) order by id asc limit 1".format(int(id)+1, int(id))).fetchall())[0]
+    result = list(cursor.execute("select * from images where (id>{}) order by id asc limit 1".format(int(id))).fetchall())[0]
+    return result
+
+def tagged_get_prev(id, tag):
+    init_db()
+    search(tag['search'], tag['remove'])
+    result = list(cursor.execute("select * from temp1 where (id<{}) order by id desc limit 1".format(int(id))).fetchall())[0]
+    return result
+
+def tagged_get_next(id, tag):
+    init_db()
+    search(tag['search'], tag['remove'])
+    result = list(cursor.execute("select * from temp1 where (id>{}) order by id asc limit 1".format(int(id))).fetchall())[0]
     return result
 
 precomp()
