@@ -35,7 +35,7 @@ class Checker(Thread):
                 quit(1)
             s.headers = {
                 'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/mcilya/DBooru)'}
-            if self.proxy_enabled is False:
+            if self.settings_file.enable_proxy is False:
                 self.raw_data = s.get(
                     "{domain}{endpoint}{paginator}{params}".format(domain=self.module.domain,
                                                                    endpoint=self.module.endpoint,
