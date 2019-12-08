@@ -72,12 +72,22 @@ web_port = 9000
 # Example: thumbnailer = "PIL"
 thumbnailer = "ffmpeg"
 
+# FFMPEG SETTINGS
+
 # Format to use when generating thumbnail for images
 # Can be any format supported by ffmpeg
 # Only works if thumbnailer set to "ffmpeg"
 # Format: conv_format = string
 # Example: conv_format = "webp"
 conv_format = "mjpeg"
+
+# Additional parameters for ffmpeg
+# Only works if thumbnailer set to "ffmpeg"
+# I don't have an idea why would you need to add something, but let it be
+# Currently hides all output from ffmpeg
+# Format: ffmpeg_args = string
+# Example: ffmpeg_args = "-loglevel quiet -vf 'noise=alls=25:allf=u+t'"
+ffmpeg_args = "-loglevel quiet"
 
 # Should gif thumbnails be converted to webp
 # Only works if thumbnailer set to "ffmpeg"
@@ -100,7 +110,7 @@ predict_tags = 20
 # Defines how many pictures must be shown in output
 # Format: showing_imgs = int
 # Example: showing_imgs = 5
-showing_imgs = 15
+showing_imgs = 20
 
 # Defines maximum amount of tags to show in search query
 # Format: showing_tags = int
@@ -126,7 +136,7 @@ export_path = "./exported/"
 # Defines thread lifespan
 # Format: wait_time = int
 # Example: (time_wait = 10)
-time_wait = 15
+time_wait = 60
 
 # Defines name (or path and name) for temporary file
 # Format: ids_file = string
@@ -140,12 +150,6 @@ ids_file = "img_ids.txt"
 # Example_linux: (db_name = "sqlite.db" or db_name = "/home/vasyan/sqlite.db")
 db_name = "sqlite.db"
 
-# Sets database main table name. Usually no need to change it
-# Format: table_name = string
-# Example: (table_name = 'images')
-table_name = 'images'
-
-
 # Threading
 
 # Defines maximum running threads before waiting before creating new threads
@@ -157,10 +161,3 @@ thread_cap = 50
 # Format: sleep_time = int
 # Example: (sleep_time = 5) # Will wait 5 seconds before creating new thread
 sleep_time = 5
-
-
-# DO NOT CHANGE #
-# Due to some serious shit never change these settings or everything will fuck up.
-suppressor = suppress_errors
-columns = ['fname']
-# DO NOT CHANGE #

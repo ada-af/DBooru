@@ -67,7 +67,10 @@ def search():
 def image(img_id):
     prefix, img_id = img_id.split("_")
     image = db.search_by_id(img_id, prefix=prefix)
-    return render_template('image.html', image=image)
+    query = request.args.get('q')
+    if query is None:
+        query = ""
+    return render_template('image.html', image=image, query=query)
 
 
 @DBooru.route("/raw/<string:fname>")
@@ -95,8 +98,15 @@ def update():
 @DBooru.route("/random")
 def random():
     img = db.random_img()[0]
-    result = str("/image/"+img[-2]+img[0].split('.')[0])
+    result = str("/image/"+img[-2]+str(img[-1]))
     return redirect(result)
+
+
+@DBooru.route("/random/<string:tags>")
+def tagged_rand(tags):
+    tags_list = ip.parser(tags)
+    result = db.tagged_random(tags_list)
+    return redirect("/image/"+result[-2]+str(result[-1])+"?q="+tags)
 
 
 @DBooru.route("/dl/<string:fname>")
@@ -114,17 +124,16 @@ def encode_PIL(fname, tf):
 
 
 def encode_FFMPEG(fname, tf):
-    add = ""
+    add = "" + settings_file.ffmpeg_args
     if fname.split('.')[-1] == 'gif':
         form = "gif"
         if settings_file.gif_to_webp == True:
             form = "webp"
-            add = "-loop 0"
+            add = add + " -loop 0"
     else:
         form = settings_file.conv_format
     cmd = "ffmpeg -i {fname} -vf scale=w=500:h=500:force_original_aspect_ratio=decrease {additions} -y -f {format} {tempname}"\
         .format(fname=settings_file.images_path+fname, format=form, tempname=tf.name, additions=add)
-    #subprocess.call(cmd, stdout=open(os.devnull, 'w'))
     os.system(cmd)
 
 
@@ -144,42 +153,42 @@ def thumbnail(fname):
 
 @DBooru.route("/next/<string:id>")
 def next(id):
-    f = []
     starting = int(id.split('_')[1])
-    x = starting+1
-    data = ""
-    code = 200
-    while True:
-        f = db.search_by_id(x)
-        if f != []:
-            data = str(f[6]+str(f[7]))
-            break
-        elif abs(starting-x) >= 300:
-            code = 404
-            break
-        else:
-            x += 1
-    return Response(data, status=code)
+    query = request.args.get('q')
+    if query is None or query == "":
+        query = ""
+        data = db.get_next(starting)
+    else:
+        tag_list = ip.parser(query)
+        data = db.tagged_get_next(starting, tag_list)
+    if not data:
+        code = 404
+        data = ""
+    else:
+        code = 200
+        data = data[6]+str(data[7])
+
+    return Response(data+"?q={}".format(query), status=code)
 
 
 @DBooru.route("/previous/<string:id>")
 def previous(id):
-    f = []
     starting = int(id.split('_')[1])
-    x = starting-1
-    data = ""
-    code = 200
-    while True:
-        f = db.search_by_id(x)
-        if f != []:
-            data = str(f[6]+str(f[7]))
-            break
-        elif abs(starting-x) >= 300:
-            code = 404
-            break
-        else:
-            x -= 1
-    return Response(data, status=code)
+    query = request.args.get('q')
+    if query is None or query == "":
+        query = ""
+        data = db.get_prev(starting)
+    else:
+        tag_list = ip.parser(query)
+        data = db.tagged_get_prev(starting, tag_list)
+    if not data:
+        code = 404
+        data = ""
+    else:
+        code = 200
+        data = data[6]+str(data[7])
+
+    return Response(data+"?q={}".format(query), status=code)
 
 
 @DBooru.route("/json/search")
@@ -214,15 +223,6 @@ def api_search():
         k += 1
     result = json.dumps(result)
     return Response(result, mimetype="application/json")
-
-
-def start_background_task_host():
-    bg_thread = threads.BgTaskHost()
-    bg_thread.start()
-    time.sleep(1)
-    global THREAD_PORT
-    THREAD_PORT = bg_thread.port
-    print("Background_host thread running on 127.0.0.1:"+str(THREAD_PORT))
 
 
 def start_background_task_host():

@@ -39,7 +39,11 @@
 <script>
 
   function rand_img() {
-    window.location = '/random'
+    if (document.getElementById("inp").value == ""){
+        window.location = '/random'
+    } else {
+      window.location = '/random/' + document.getElementById("inp").value
+    }
   }
 
   function update_datalist() {

@@ -17,9 +17,9 @@
               Home
             </button>
           </span>
-          <input type="text" name="q" class="form-control" id="inp" autocomplete="off" list="search"
+          <input type="text" name="q" class="form-control" id="inp" autocomplete="off" list="search" value="{{query}}"
             placeholder="Search something" />
-          <span class="input-group-append bg-t-360">
+          <span class="input-group-append bg-t-360 hide_on_phone">
             <button type="button" class="btn btn-submit btn-primary" onclick="rand_img()">
               Random image
             </button>
@@ -100,25 +100,15 @@
   }
 
   document.onkeydown = function (e) {
-    if (e.keyCode === 39 && e.target.className != "form-control") {
+    if ( (e.keyCode === 39 || e.keyCode === 37) && e.target.className != "form-control") {
       xhr = new XMLHttpRequest();
-      body = String(window.location).split("/");
-      body = body[body.length - 1]
-      xhr.open("GET", "/previous/" + body, true);
-      xhr.send();
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
-          window.location = "/image/" + xhr.responseText;
-        } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
-          i = 1;
-        }
-      };
-    }
-    if (e.keyCode === 37 && e.target.className != "form-control") {
-      xhr = new XMLHttpRequest();
-      body = String(window.location).split("/");
-      body = body[body.length - 1]
-      xhr.open("GET", "/next/" + body, true);
+      body = String(window.location.pathname).split("/");
+      body = body[body.length - 1] + "?q=" + document.getElementById("inp").value
+      if (e.keyCode === 39 && e.target.className != "form-control") {
+        xhr.open("GET", "/previous/" + body, true); 
+      } else if ( e.keyCode === 37 && e.target.className != "form-control" ) {
+        xhr.open("GET", "/next/" + body, true);
+      }
       xhr.send();
       xhr.onreadystatechange = function () {
         if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {

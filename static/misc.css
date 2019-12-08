@@ -76,6 +76,10 @@
         height: 0;
         visibility: hidden !important;
     }
+    
+    .hide_on_phone {
+        display: none;
+    }
 }
 
 .ft {
