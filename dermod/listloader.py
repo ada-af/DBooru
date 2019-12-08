@@ -17,13 +17,11 @@ from dermod import threads as TC
 global is_error_code
 is_error_code = False
 
+
 class Checker(Thread):
-    def __init__(self, page, module, proxy_ip, proxy_port, proxy_enabled):
+    def __init__(self, page, module):
         Thread.__init__(self)
         self.page = page
-        self.proxy_ip = proxy_ip
-        self.proxy_port = proxy_port
-        self.proxy_enabled = proxy_enabled
         self.module_data = module.Module()
         self.module = module
         self.raw_data = ''
@@ -51,7 +49,9 @@ class Checker(Thread):
                                                                    params=self.module.params,
                                                                    paginator=self.module.paginator.format(self.page)),
                     proxies=dict(
-                        https='socks5://{}:{}'.format(self.proxy_ip, self.proxy_port)),
+                        https='socks5://{}:{}'.format(
+                            settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port),
+                        http='socks5://{}:{}'.format(settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port)),
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
         if self.raw_data.status_code >= 400:
             is_error_code = True
@@ -72,13 +72,13 @@ class Checker(Thread):
         for i in range(0, len(self.module_data.ids)):
             try:
                 tmp = str(str(self.module_data.ids[i] + ";;;" +
-                          self.module_data.form[i] + ";;;" +
-                          self.module_data.links[i] + ";;;" +
-                          self.module_data.width[i] + ";;;" +
-                          self.module_data.height[i] + ";;;" +
-                          str(int(self.module_data.width[i])/int(self.module_data.height[i])) + ";;;" +
-                          ",," + self.module.__name__.split(".")[-1] + ',,' + self.module_data.tags[i] + ",, ;;;" +
-                          digest).encode("utf8", 'strict'))[2:-1] + "\n"
+                              self.module_data.form[i] + ";;;" +
+                              self.module_data.links[i] + ";;;" +
+                              self.module_data.width[i] + ";;;" +
+                              self.module_data.height[i] + ";;;" +
+                              str(int(self.module_data.width[i])/int(self.module_data.height[i])) + ";;;" +
+                              ",," + self.module.__name__.split(".")[-1] + ',,' + self.module_data.tags[i] + ",, ;;;" +
+                              digest).encode("utf8", 'strict'))[2:-1] + "\n"
                 self.compiled += tmp
             except IndexError:
                 pass
@@ -125,12 +125,24 @@ def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):
         with requests.Session() as s:
             s.headers = {
                 'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/mcilya/DBooru)'}
-            dat = s.get(
-                "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
-                                                               endpoint=module.endpoint,
-                                                               params=module.params,
-                                                               paginator=module.paginator.format(pages_num)),
-                verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
+            if settings_file.enable_proxy:
+                dat = s.get(
+                    "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
+                                                                   endpoint=module.endpoint,
+                                                                   params=module.params,
+                                                                   paginator=module.paginator.format(pages_num)),
+                    proxies=dict(
+                        https='socks5://{}:{}'.format(
+                            settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port),
+                        http='socks5://{}:{}'.format(settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port)),
+                    verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
+            else:
+                dat = s.get(
+                    "{domain}{endpoint}{paginator}{params}".format(domain=module.domain,
+                                                                   endpoint=module.endpoint,
+                                                                   params=module.params,
+                                                                   paginator=module.paginator.format(pages_num)),
+                    verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
         if dat.status_code >= 400:
             break
         if re.search("{}".format(module.empty_page), dat.content.decode()) is not None:
@@ -165,9 +177,6 @@ def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):
         if is_error_code is True:
             break
         t = Checker(page=i,
-                    proxy_ip=settings_file.socks5_proxy_ip,
-                    proxy_port=settings_file.socks5_proxy_port,
-                    proxy_enabled=settings_file.enable_proxy,
                     module=module)
         t.start()
         tc.threads.append(t)

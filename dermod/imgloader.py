@@ -49,7 +49,8 @@ class Loader(Thread):
             else:
                 self.tmp = s.get(
                     "{}".format(self.url),
-                    proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify)
+                    proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port), 
+                    http='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify)
             if self.tmp.status_code >= 400:
                 global is_error_code
                 is_error_code = True
