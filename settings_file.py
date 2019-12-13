@@ -161,3 +161,13 @@ thread_cap = 50
 # Format: sleep_time = int
 # Example: (sleep_time = 5) # Will wait 5 seconds before creating new thread
 sleep_time = 5
+
+# Enables/disables checks for changes in this file
+# Format: polling_time = bool
+# Example: polling_time = False
+enable_polling = False
+
+# Defines time (in seconds) between checks for changes in this file
+# Format: polling_time = int
+# Example: polling_time = 60
+polling_time = 10

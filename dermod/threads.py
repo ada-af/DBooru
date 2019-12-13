@@ -1,4 +1,5 @@
 from threading import Thread
+import importlib
 import time
 import socket
 import main
@@ -25,6 +26,19 @@ class BgTaskHost(Thread):
                 main.update_db()
                 os.remove('update.lck')
         
+class Settings_monitor(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.file = "settings_file.py"
+        self.time = os.stat(self.file).st_mtime
+
+    def run(self):
+        while True:
+            if self.time != os.stat(self.file).st_mtime:
+                print("Settings changed, reloading")
+                self.time = os.stat(self.file).st_mtime
+                importlib.reload(settings_file)
+            time.sleep(settings_file.polling_time)
 
 class ThreadController(Thread):
     @staticmethod

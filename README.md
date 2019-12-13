@@ -200,16 +200,16 @@ Module must contain:
 
 Enter this commands if prompt starts with `DB>`
 
-| Command            | Description                                                                             |
-| ------------------ | --------------------------------------------------------------------------------------- |
-| help               | Shows in-app help                                                                       |
-| get images         | Downloads images that you liked/favorited on *booru                                     |
-| get images --force | Downloads images without checking if file exists                                        |
-| total              | Prints amount of entries in local DB                                                    |
-| count \<tag\>      | Prints amount of entries tagged with \<tag\>                                            |
-| show \<image_id>   | Opens image in image viewer or browser if no viewers found                              |
-| quit (exit)        | Closes app                                                                              |
-| \<anything>        | Uses input as list of tags and searches for it                                          |
+| Command            | Description                                                |
+| ------------------ | ---------------------------------------------------------- |
+| help               | Shows in-app help                                          |
+| get images         | Downloads images that you liked/favorited on *booru        |
+| get images --force | Downloads images without checking if file exists           |
+| total              | Prints amount of entries in local DB                       |
+| count \<tag\>      | Prints amount of entries tagged with \<tag\>               |
+| show \<image_id>   | Opens image in image viewer or browser if no viewers found |
+| quit (exit)        | Closes app                                                 |
+| \<anything>        | Uses input as list of tags and searches for it             |
 
 #### Search
 
@@ -225,7 +225,7 @@ Enter this commands if prompt starts with `Search@DB>`
 
 ### Web
 
-|         Endpoint          | Method |   Parameters (Body for POST)    |                    Description                    |                                                 Returns                                                  |
+|         Endpoint          | Method | Parameters (Body for POST)      | Description                                       | Returns                                                                                                  |
 | :-----------------------: | :----: | ------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
 |            "/"            |  GET   |                                 | Main page                                         | HTML-page                                                                                                |
 |         "/search"         |  GET   | q=**search_query** page=**int** | Search images                                     | HTML-page                                                                                                |
@@ -288,7 +288,7 @@ Enter this commands if prompt starts with `Search@DB>`
 
 ## Settings_file.py
 
-|      Option       |                   Format                    |                                 Description                                 |
+| Option            | Format                                      | Description                                                                 |
 | ----------------- | ------------------------------------------- | --------------------------------------------------------------------------- |
 | modules           | List (['String', 'String'])                 | Enables modules                                                             |
 | suppress_errors   | Bool (True/False)                           | Prints errors and stacktrace in case of happening                           |
@@ -314,6 +314,8 @@ Enter this commands if prompt starts with `Search@DB>`
 | db_name           | String (Path/Filename)                      | Where to store DB file                                                      |
 | thread_cap        | Integer (number)                            | Defines maximum running threads before blocking creating new threads        |
 | sleep_time        | Integer (seconds)                           | Defines time to wait before creating new thread after thread cap is reached |
+| enable_polling    | Bool                                        | Setting for enabling/disabling polling for changes in settings_file.py      |
+| polling_time      | Integer (seconds)                           | Defines time (in seconds) between checks for changes in settings_file.py    |
 
 ## dermod/aliases.py
 

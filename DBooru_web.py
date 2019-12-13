@@ -225,7 +225,10 @@ def api_search():
     return Response(result, mimetype="application/json")
 
 
-def start_background_task_host():
+def start_background_tasks():
+    if settings_file.enable_polling:
+        mon_thread = threads.Settings_monitor()
+        mon_thread.start()
     bg_thread = threads.BgTaskHost()
     bg_thread.start()
     time.sleep(1)
@@ -235,6 +238,6 @@ def start_background_task_host():
 
 
 if __name__ == "__main__":
-    start_background_task_host()
+    start_background_tasks()
     DBooru.run(host=settings_file.web_ip,
                port=settings_file.web_port)
