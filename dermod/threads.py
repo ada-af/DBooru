@@ -13,18 +13,27 @@ class BgTaskHost(Thread):
         self.port = 0
         
     def run(self):
-        self.background_host()
+        while True:
+            try:
+                self.background_host()
+            except Exception:
+                pass
 
     def background_host(self):
         import main
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.bind(('127.0.0.1', 0))
+        sock.bind(('127.0.0.1', self.port))
         self.port = sock.getsockname()[1]
         while True:
             data, addr = sock.recvfrom(4)
             if data == b"UPDT":
-                main.update_db()
-                os.remove('update.lck')
+                try:
+                    main.update_db()
+                except Exception:
+                    sock.close()
+                    del sock
+                finally:
+                    os.remove('update.lck')
         
 class Settings_monitor(Thread):
     def __init__(self):
