@@ -68,14 +68,16 @@ def fill_db(file=settings_file.ids_file):
         k = i[6]
         k = str(k).strip("[]").replace('" ', '"').replace(
             ' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO images VALUES ('{}.{}', '{}', '{}', '{}', '{}', '{}', '{}', {})".format(
-            i[0], i[1], k, i[3], i[4], i[5], i[2], i[7], i[0])
+        j = "INSERT OR REPLACE INTO images VALUES ('{}.{}', '{}', '{}', '{}', '{}', '{}', '{}', {})".format(
+            i[0], i[1], k, i[3], i[4], i[5], i[2], i[7], i[0]).replace('\\', '')
         cursor.execute(j)
         if cnt == 10:
             conn.commit()
             cnt = 0
     conn.commit()
     cursor.execute("delete from images where rowid not in (select min(rowid) from images group by fname)")
+    conn.commit()
+    conn.execute("VACUUM")
     conn.commit()
 
 
