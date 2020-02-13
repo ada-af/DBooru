@@ -3,3 +3,8 @@ pysocks
 idna
 cryptography
 pillow
+flask
+werkzeug
+markupsafe
+click
+itsdangerous

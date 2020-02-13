@@ -1,0 +1,56 @@
+body {
+    background-color: #000 !important;
+}
+
+#inp {
+    background-color: rgba(82, 82, 82, 0.5);
+    border: #000;
+}
+
+.btn,
+.btn-lg,
+.btn-primary {
+    background-image: linear-gradient(#393939, #393939 6%, #393939);
+    border: #393939;
+}
+
+.btn:focus,
+.btn:hover,
+.btn {
+    background-color: #393939;
+    border-color: #393939;
+}
+
+.cont {
+    border-color: #333;
+}
+
+* {
+    color: #fff;
+    box-shadow: none !important;
+}
+
+h3>a {
+    color: #007bff;
+}
+
+li>a {
+    background-color: #393939;
+    color: #fff;
+}
+
+.page-link {
+    color: #fff;
+    border: #333;
+    background-color: #393939;
+}
+
+.page-link:hover {
+    color: #fff;
+    border: #444;
+    background-color: #444;
+}
+
+li.disabled a {
+    background-color: #191919 !important;
+}

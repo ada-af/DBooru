@@ -1,30 +1,53 @@
 from threading import Thread
+import importlib
 import time
+import socket
+import main
+import settings_file
+import os
 
 
-class Error(Exception):
-    pass
-
-
-class Timeouted(Error):
+class BgTaskHost(Thread):
     def __init__(self):
-        pass
-
-
-class Timer(Thread):
-    def __init__(self, to):
         Thread.__init__(self)
-        self.time = to
-        self.done = 0
+        self.port = 0
+        
+    def run(self):
+        while True:
+            try:
+                self.background_host()
+            except Exception:
+                pass
+
+    def background_host(self):
+        import main
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.bind(('127.0.0.1', self.port))
+        self.port = sock.getsockname()[1]
+        while True:
+            data, addr = sock.recvfrom(4)
+            if data == b"UPDT":
+                try:
+                    main.update_db()
+                except Exception:
+                    sock.close()
+                    del sock
+                finally:
+                    os.remove('update.lck')
+        
+class Settings_monitor(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.file = "settings_file.py"
+        self.time = os.stat(self.file).st_mtime
 
     def run(self):
-        time.sleep(self.time)
-        if self.done == 0:
-            raise Timeouted
-
-    def stop(self):
-        self.done = 1
-
+        while True:
+            if self.time != os.stat(self.file).st_mtime:
+                print("Settings changed, reloading")
+                self.time = os.stat(self.file).st_mtime
+                importlib.reload(settings_file)
+            time.sleep(settings_file.polling_time)
 
 class ThreadController(Thread):
     @staticmethod
@@ -47,7 +70,7 @@ class ThreadController(Thread):
             p = 0
             for i in self.threads:
                 if i.readiness == 1:
-                    self.threads.remove(i)
                     i.join()
+                    self.threads.remove(i)
                     del i
                     p = p + 1

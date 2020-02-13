@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8" />
+  <title>DBooru</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}" />
+  <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+  <script>
+    function check_night() {
+      cookies = document.cookie.split(";")
+      succ = false;
+      cookie_val = "off";
+      for (i = 0; i < cookies.length; i++) {
+        if (cookies[i].startsWith("DBooru_night")) {
+          succ = true;
+          cookie_val = cookies[i].split("=")[1];
+          break;
+        }
+      }
+      if (succ == false) {
+        document.cookie = "DBooru_night=off; expires=Thu, 01 Jan 2070 00:00:00 UTC; path=/;";
+      } else {
+        if (cookie_val == "on") {
+          $("head").append('<link rel="stylesheet" id="night_mode" type="text/css" href="/static/night.css">')
+        } else {
+          $("#night_mode").remove()
+        }
+      }
+    }
+    check_night()
+  </script>
+  {% block imports %}{% endblock imports %} {% block style %}{% endblock style %}
+</head>
+{% block content %}{% endblock content %}
+{% block scripts %}{% endblock scripts %}
+<script>
+
+  function rand_img() {
+    if (document.getElementById("inp").value == ""){
+        window.location = '/random'
+    } else {
+      window.location = '/random/' + document.getElementById("inp").value
+    }
+  }
+
+  function update_datalist() {
+    document.getElementById('search').innerHTML = '';
+    phrase = this.value;
+    phrase = phrase.split(",");
+    prev = phrase.slice(0, phrase.length - 1)
+    phrase = phrase[phrase.length - 1].trim();
+    if (phrase.length >= 2) {
+      xhr = new XMLHttpRequest();
+      xhr.open("GET", '/predict?phrase=' + phrase, true);
+      xhr.send();
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4 && xhr.status === 200) {
+          JSON.parse(xhr.response).forEach(element => {
+            if (String(prev).trim().length == 0) {
+              tmp = element
+            } else {
+              tmp = prev
+              tmp += ", " + element;
+            }
+            document.getElementById('search').innerHTML += "<option value='" + tmp + "'>" + tmp + "</option>";
+          });
+        }
+      };
+    } else {
+      i = 0;
+    }
+  }
+  document.getElementById('inp').addEventListener('input', update_datalist)
+
+  function set_light() {
+    document.cookie = "DBooru_night=off; expires=Thu, 01 Jan 2070 00:00:00 UTC; path=/;";
+    check_night();
+  }
+
+  function set_night() {
+    document.cookie = "DBooru_night=on; expires=Thu, 01 Jan 2070 00:00:00 UTC; path=/;";
+    check_night();
+  }
+
+</script>
+
+</html>

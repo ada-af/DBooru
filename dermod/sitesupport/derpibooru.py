@@ -2,46 +2,53 @@ query = "my:faves" # "my:upvotes"
 api_key = "API-KEY GOES HERE"
 
 # Do not change values below line 4
-
 domain = 'https://derpibooru.org'
-endpoint = "/search.json?q={}".format(query)
+endpoint = "/api/v1/json/search/images?q={}".format(query)
 paginator = "&page={}"
 # Must be regexp
-empty_page = '\{"search":\[\],"'
+empty_page = '\{"images":\[\],"'
 slp = 0.2 # Defines delay between requests
-params = "&key={}".format(api_key)
+params = "&per_page=50&key={}".format(api_key)
 
 class Module:
+    import html
+    import urllib.parse
+
     def __init__(self):
         self.tags = []
         self.ids = []
-        self.img_links = []
-        self.format = []
+        self.links = []
+        self.form = []
         self.height = []
         self.width = []
 
-    def parse(self, string):
+    def parse(self, string, pg_num):
+        string = self.html.unescape(self.urllib.parse.unquote(string))
         string = string.split('interactions":[{"')[0]
-        string = string.split('"id":')[1:]
-        self.ids = []
-        self.form = []
-        self.links = []
-        self.tags = []
-        self.height = []
-        self.width = []
+        string = string.split('"format":')[1:]
+        j = 0
         for i in string:
-            self.ids.append(i.split(',"created_at"')[0])
-            k = i.split('"width":')[1]
-            k = k.split(',')[0]
-            self.width.append(k)
-            k = i.split('"height":')[1]
-            k = k.split(',')[0]
-            self.height.append(k)
-            k = i.split('original_format')[1]
-            k = k.split('":"')[1].split('","')[0]
-            self.form.append(k)
-            k = i.split('","full":"')[1]
-            k = k.split('","webm":"')[0]
-            k = k.split('"},"is_rendered"')[0].replace("//", "https://")
-            self.links.append(k)
-            self.tags.append(i.split('"tags":"')[1].split('"')[0])
+            try:
+                width = i.split('"width":')[1]
+                width = width.split(',')[0]
+                height = i.split('"height":')[1]
+                height = height.split(',')[0]
+                form = i.split(',')[0].lower().strip('"')
+                url = i.split('"full":"')[1]
+                url = url.split('"')[0]
+                if '"tags":null' in i:
+                    e = "Tag parsing error. Refer to github.com/mcilya/DBooru/issues/29"
+                else:
+                    e = i.split('"tags":')[1]
+                    e = e.split('],')[0].replace('\'', '').replace('\\"', '')+"]"
+                    e = ",,".join(eval(e))
+            except Exception:
+                print("Derpibooru JSON API problem. Entry {} on page {} left unprocessed          ".format(j, pg_num))
+            else:
+                self.ids.append(i.split('"id":')[1].split(',')[0])
+                self.width.append(width)
+                self.height.append(height)
+                self.form.append(form)
+                self.links.append(url)
+                self.tags.append(e)    
+            j += 1

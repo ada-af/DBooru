@@ -104,6 +104,7 @@ types = {
     'vcf': 'text/x-vcard',
     'wav': 'audio/x-wav',
     'webm': 'video/webm',
+    'webp': 'image/webp',
     'wiz': 'application/msword',
     'wsdl': 'application/xml',
     'xbm': 'image/x-xbitmap',

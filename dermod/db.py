@@ -7,40 +7,19 @@ import logging
 from dermod import input_parser as ip
 import settings_file
 
+if settings_file.suppress_errors:
+    logging.raiseExceptions = False
 
 def precomp():
     global tag_col, tag_col_full, tag_col_serv
-    tag_col = 'fname, '
-    h = 'tag{}, '
-    for i in range(1, settings_file.tag_amount+1):
-        tag_col += h.format(i)
-    tag_col = tag_col[:-2]
-    tag_col_full = tag_col + ', height, width, ratio, source_link, prefix, id'
+    tag_col = 'tags'
+    tag_col_full = 'fname, tags, height, width, ratio, source_link, prefix, id'
     tag_col_serv = 'height, width, ratio, source_link, prefix, id'
     init_db()
-    try:
-        cursor.execute("alter table images add column source_link")
-        cursor.execute("alter table images add column prefix")
-        cursor.execute("alter table images add column id")
-        conn.commit()
-    except Exception:
-        pass
-    t = True
-    for i in cursor.execute("select * from sqlite_master").fetchall():
-        if settings_file.table_name in i:
-            t = False
-    if t is True:
-        mkdb(settings_file.table_name)
-
-
-def suppress_errs(supp):
-    if supp is True:
-        logging.raiseExceptions = False
-
-
-def errors_init():
-    suppress_errs(settings_file.suppressor)
-
+    t = [x[1] for x in cursor.execute("select * from sqlite_master").fetchall()]
+    if "images" not in t:
+        mkdb("images")
+            
 
 def init_db():
     global cursor
@@ -51,23 +30,27 @@ def init_db():
 
 def total_found():
     init_db()
-    print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM {} WHERE {}".format(
-        settings_file.table_name, settings_file.columns[0])).fetchone()[0])
+    print("Images in DataBase =>", cursor.execute("SELECT count(*) FROM images where fname").fetchone()[0])
 
 
 def get_all_entries():
     init_db()
     result = list(cursor.execute(
-        "SELECT * from {}".format(settings_file.table_name)))
+        "SELECT tags from images"))
     return result
 
 
 def mkdb(table_name):
     init_db()
     cursor.execute('drop table IF EXISTS {}'.format(table_name))
-
     sample = """CREATE TABLE {}({} INT)""".format(table_name, tag_col_full)
+    cursor.execute(sample)
+    conn.commit()
 
+def mk_tdb(table_name):
+    init_db()
+    cursor.execute('drop table IF EXISTS {}'.format(table_name))
+    sample = """CREATE TEMP TABLE {}({} INT)""".format(table_name, tag_col_full)
     cursor.execute(sample)
     conn.commit()
 
@@ -81,33 +64,27 @@ def fill_db(file=settings_file.ids_file):
     for i in halfparsed:
         i = i.replace('" ', '"').replace(' "', '"').replace(
             '\' ', '\'').replace(' \'', '\'').replace("'", '').replace("\"", "").replace(r"\xc3\xa9", "e")
-        i = i.split(",,,")
-        k = i[6].split(",")
-        if len(k) < settings_file.tag_amount:
-            k += ["None"] * (settings_file.tag_amount - len(k))
-        elif len(k) == settings_file.tag_amount:
-            pass
-        elif len(k) > settings_file.tag_amount:
-            k = k[:settings_file.tag_amount]
+        i = i.split(";;;")
+        k = i[6]
         k = str(k).strip("[]").replace('" ', '"').replace(
             ' "', '"').replace('\' ', '\'').replace(' \'', '\'')
-        j = "INSERT INTO {} VALUES ('{}.{}', {}, '{}', '{}', '{}', '{}', '{}', {})".format(
-            settings_file.table_name, i[0], i[1], k, i[3], i[4], i[5], i[2], i[7], i[0])
+        j = "INSERT OR REPLACE INTO images VALUES ('{}.{}', '{}', '{}', '{}', '{}', '{}', '{}', {})".format(
+            i[0], i[1], k, i[3], i[4], i[5], i[2], i[7], i[0]).replace('\\', '')
         cursor.execute(j)
         if cnt == 10:
             conn.commit()
             cnt = 0
     conn.commit()
-    cursor.execute("delete from {table_name} where rowid not in (select min(rowid) from {table_name} group by fname)".format(
-        table_name=settings_file.table_name))
+    cursor.execute("delete from images where rowid not in (select min(rowid) from images group by fname)")
+    conn.commit()
+    conn.execute("VACUUM")
     conn.commit()
 
 
 def count_tag(tag_to_count):
     init_db()
 
-    sample = """select count(*) FROM {} where '{}' in ({})""".format(
-        settings_file.table_name, tag_to_count, tag_col)
+    sample = """select count(*) FROM images where tags like '%,,{},,%'""".format(tag_to_count)
     output = list(cursor.execute(sample))
     print(str(output[0]).strip("()").replace(",", "") +
           " images tagged {}".format(tag_to_count))
@@ -115,133 +92,118 @@ def count_tag(tag_to_count):
 
 def search(list_search, list_remove, page=0):
     init_db()
-    special_fields = []
+
+    # Handle special tags
+    specials = []
+    spec = []
     for i in list_search:
-        if 'ratio' in i or "height" in i or "width" in i:
-            if ">" in i or "<" in i or "=" in i:
-                special_fields.append(i)
-                list_search.remove(i)
+        if ('ratio' in i or "height" in i or "width" in i) and (">" in i or "<" in i or "=" in i or "!" in i):
+            spec.append(i)
 
-    if len(list_search) != 0:
-        mkdb('temp1')
-        sample = "INSERT INTO temp1 SELECT * FROM {} WHERE '{}' in ({})".format(
-            settings_file.table_name, list_search[0], tag_col)
-        cursor.execute(sample)
-        cursor.execute(
-            "delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
-        results = list(cursor.execute(
-            "SELECT * FROM temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
-            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
-        total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
-        conn.commit()
+    for i in spec:
+        list_search.remove(i)
+        for j in ['<=', '>=', '<>', '==', "!=", '=', '>', '<']:
+            if len(i.split(j)) == 2:
+                sign = j
+                splitted = i.strip().split(j)
+                splitted[0] = splitted[0].strip()
+                splitted[1] = eval(splitted[1].strip().replace(":", "/"))
+                specials.append("CAST({} AS REAL){}{}".format(splitted[0], sign, splitted[1]))
+                break
+    del spec
+    if len(specials) > 0:
+        specials = " where " + (" and ".join(specials))
     else:
-        mkdb('temp1')
-        sample = "INSERT INTO temp1 SELECT * FROM {}".format(
-            settings_file.table_name)
-        cursor.execute(sample)
-        cursor.execute(
-            "delete from temp1 where rowid not in (select min(rowid) from temp1 group by fname)")
-        results = list(cursor.execute(
-            "SELECT * FROM temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
-            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
-        total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
-        conn.commit()
+        specials = ""
 
-    for i in list_search[1:]:
-        mkdb('temp')
-        smp = "INSERT INTO temp SELECT * FROM temp1 where '{}' in ({})".format(
-            i, tag_col)
-        cursor.execute(smp)
-        conn.commit()
-        mkdb('temp1')
-        cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute(
-            "select * from temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
-            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
-        total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
-        conn.commit()
-    #results = ip.results_parser(results)
+    mk_tdb('temp1')
+   
+    if len(list_search) != 0:
+        autogen_template = "tags like '%,,{},,%'"
+        queries = []
+
+        for i in list_search:
+            i = i.replace("*", "%")
+            # or queries generator
+            if i.startswith("(") and i.endswith(")"):
+                or_list = i.strip("()").split("|")
+                or_query = "(" + " or ".join([autogen_template.format(x.strip()) for x in or_list]) + ")"
+                queries.append(or_query)
+                del or_list, or_query
+            # and queries generator
+            else:
+                queries.append(autogen_template.format(i))
+           
+        autogen_query = "SELECT * from images where {}".format(" and ".join(queries))
+        query = "INSERT INTO temp1 SELECT DISTINCT * from ({})".format(autogen_query)
+        cursor.execute(query)
+    else:
+        sample = "INSERT INTO temp1 SELECT DISTINCT * FROM images"
+        cursor.execute(sample)
+
 
     if len(list_remove) == 0:
         pass
     else:
         for i in list_remove:
             cursor.execute(
-                "DELETE FROM temp1 WHERE '{}' in ({})".format(i, tag_col))
+                "DELETE FROM temp1 WHERE {} like '%,,{},,%'".format(tag_col, i.replace("*", "%")))
             conn.commit()
-        results = list(cursor.execute(
-            "select * from temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
-            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
-        total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
-        #results = ip.results_parser(results)
-        conn.commit()
 
-    if len(special_fields) == 0:
-        pass
-    else:
-        results, total = special_f(special_fields, page)
-        #results = ip.results_parser(results)
-    return results, total
+    final_autogen = "SELECT * from temp1 {specials} order by id DESC limit {imgs_amount} offset {offset}".format(
+        imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page, specials=specials)
+    results = list(cursor.execute(final_autogen))
 
+    total = cursor.execute("SELECT COUNT(*) FROM temp1 {}".format(specials)).fetchone()
+    conn.commit()
 
-def special_f(specials, page):
-
-    def src(value, field, sym):
-        mkdb('temp')
-        smp = "INSERT INTO temp SELECT * FROM temp1 where cast({} as REAL) {} {}".format(
-            field, sym, value)
-        cursor.execute(smp)
-        conn.commit()
-        mkdb('temp1')
-        cursor.execute("INSERT INTO temp1 SELECT * FROM temp")
-        results = list(cursor.execute(
-            "select * from temp1 order by CAST(id as INTEGER) DESC limit {imgs_amount} offset {offset}"
-            .format(imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page)))
-        conn.commit()
-        total = cursor.execute("SELECT COUNT(*) FROM temp1").fetchone()
-        return results, total
-
-    for i in specials:
-        i = i.replace("*", '%')
-        splitter = ""
-        for k in i:
-            if k == "=" or k == "<" or k == ">":
-                splitter += str(k)
-        i = i.split(splitter)
-        if i[0] == 'height':
-            results, total = src(i[1], i[0], splitter)
-            conn.commit()
-        elif i[0] == 'width':
-            results, total = src(i[1], i[0], splitter)
-            conn.commit()
-        elif i[0] == 'ratio' or i[0] == 'aspect_ratio':
-            evaluated = eval(i[1].replace(":", "/").replace("(", ''))
-            results, total = src(evaluated, 'ratio', splitter)
-            conn.commit()
-    if len(results) == 0:
-        results = []
     return results, total
 
 
 def search_by_id(img_id, prefix="%"):
     init_db()
-    sql = "SELECT * FROM {} WHERE id = {} and prefix like '{}_'".format(settings_file.table_name, img_id, prefix)
+    sql = "SELECT * FROM images WHERE id = {} and prefix like '{}_'".format(img_id, prefix)
     result = list(cursor.execute(sql))
-
-    return result
+    if len(result) != 0:
+        return result[0]
+    else:
+        return []
 
 
 def random_img():
     init_db()
     result = list(cursor.execute(
-        "SELECT * FROM {} ORDER BY RANDOM() LIMIT 1".format(settings_file.table_name)))
+        "SELECT * FROM images ORDER BY RANDOM() LIMIT 1"))
     return result
 
 
 def tagged_random(tag):
     init_db()
-    result = list(cursor.execute("SELECT * FROM {}  WHERE '{tag}' in ({tag_col})  ORDER BY RANDOM() LIMIT 1"
-    .format(settings_file.table_name, tag=tag, tag_col=tag_col)))
+    search(tag['search'], tag['remove'])
+    result = cursor.execute("select * from temp1 order by random() Limit 1").fetchone()
+
+    return result
+
+def get_prev(id):
+    init_db()
+    result = list(cursor.execute("select * from images where (id<{}) order by id desc limit 1".format(int(id))).fetchall())[0]
+    return result
+
+def get_next(id):
+    init_db()
+    result = list(cursor.execute("select * from images where (id>{}) order by id asc limit 1".format(int(id))).fetchall())[0]
+    return result
+
+def tagged_get_prev(id, tag):
+    init_db()
+    search(tag['search'], tag['remove'])
+    result = list(cursor.execute("select * from temp1 where (id<{}) order by id desc limit 1".format(int(id))).fetchall())[0]
+    return result
+
+def tagged_get_next(id, tag):
+    init_db()
+    search(tag['search'], tag['remove'])
+    result = list(cursor.execute("select * from temp1 where (id>{}) order by id asc limit 1".format(int(id))).fetchall())[0]
     return result
 
 precomp()
