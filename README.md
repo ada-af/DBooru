@@ -175,10 +175,20 @@ Module must contain:
     >> paginator = "&p={}"
     >> paginator = "/{}"
 
+    In case of overly specific pagination can be implemented as class (check gelbooru module)
+    >> class paginator:
+    >>    def format(page):
+    >>        return "/pg/{}".format(page*25)
+
     Empty page delimiter (Varies depending on site)
     > RegExp matching page with no images
     >> empty_page = "\[\]$"
     >> empty_page = "{images:\[\]"
+
+    Sleep time (to get rid of rate limiting)
+    > Value must be int or float
+    >> slp = 1
+    >> slp = 0.5
 
     Additional params
     > Such as api keys
@@ -190,7 +200,33 @@ Module must contain:
     >> hard_limit = 750 [notice, this time we're not using quotes]
 
     Parser Configuration
-    > No time to explain
+    May use whatever python functions/packages you want to use (check gelbooru module)
+    MUST start with and MUST contain parse(self, string) method
+    >> class Module:
+    >>    def __init__(self):
+    >>        self.tags = []
+    >>        self.ids = []
+    >>        self.img_links = []
+    >>        self.format = []
+    >>        self.height = []
+    >>        self.width = []  
+
+
+    Parse() method
+    Response from server passed with string argument
+    If page number required `pg_num` added to input arguments
+      Note: pg_num receives raw page number (1, 2, 3, ...)
+    >>    def parse(self, string): 
+    >>    # here goes parsing
+    >>    # ...
+    >>    # parsed values must be added to lists
+    >>    for i in parsed_values:
+    >>      self.tags.append(i[0]) # tags MUST be delimited by `,,`
+    >>      self.ids.append(i[4])
+    >>      self.img_links.append(i[3])
+    >>      self.format.append(i[5])
+    >>      self.height.append(i[2])
+    >>      self.width.append(i[1])
 
 ## Commands and Web-endpoints
 
@@ -235,7 +271,7 @@ Enter this commands if prompt starts with `Search@DB>`
 |        "/predict"         |  GET   | phrase=**search_query**         | Tries to predict search query                     | Plain text data                                                                                          |
 |      "/next/**str**"      |  GET   |                                 | Tries to get id of next (newer) image             | Redirect (302) to /image/\*                                                                              |
 |    "/previous/**str**     |  GET   |                                 | Tries to get id of previous(older) image          | Redirect (302) to /image/\*                                                                              |
-| "/thumbnail/**filename**" |  GET   |                                 | Makes thumbnail (500px) of image                  | Image                                                                                                    |
+| "/thumbnail/**filename**" |  GET   |                                 | Makes thumbnail (500px) of image (returns full image if thumbnailer disabled)                  | Image                                                                                                    |
 |      "/json/search"       |  GET   | q=**query** page=**int**        | Searches images and returns json result of search | JSON                                                                                                     |
 |         "/random"         |  GET   |                                 | Redirects to random image                         | Redirect (302) to /image/\*                                                                              |
 |     "/random/**tags**     |  GET   |                                 | Redirects to random image tagged with **tags**    | Redirect (302) to /image/\*                                                                              |
@@ -245,9 +281,9 @@ Enter this commands if prompt starts with `Search@DB>`
 
 ### Basic search rules
 
-1. Wildcard through **`%`** (percent symbol)
+1. Wildcard through **`*`** (asterisk)
 
->Example: "ti`%`" will return images where at least one tag starts with `ti`
+>Example: "ti`*`" will return images where at least one tag starts with `ti`
 2. Tags must be separated by **`,`** (comma)
 >Example: "safe`,` princess luna"
 3. Tags are not case sensitive
@@ -269,11 +305,11 @@ Enter this commands if prompt starts with `Search@DB>`
 
 >Works only for filtering searches
 >
->Example: `width=100` Works, while `-width=100` Doesn't work)
+>Example: `width=100` works, while `-width=100` doesn't work
 
 1. `height`
 2. `width`
-3. `ratio` or `aspect_ratio`
+3. `ratio`
 
 #### Syntax
 

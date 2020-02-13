@@ -97,12 +97,12 @@ def search(list_search, list_remove, page=0):
     specials = []
     spec = []
     for i in list_search:
-        if ('ratio' in i or "height" in i or "width" in i) and (">" in i or "<" in i or "=" in i):
+        if ('ratio' in i or "height" in i or "width" in i) and (">" in i or "<" in i or "=" in i or "!" in i):
             spec.append(i)
 
     for i in spec:
         list_search.remove(i)
-        for j in ['<=', '>=', '==', '=', '>', '<']:
+        for j in ['<=', '>=', '<>', '==', "!=", '=', '>', '<']:
             if len(i.split(j)) == 2:
                 sign = j
                 splitted = i.strip().split(j)
@@ -123,6 +123,7 @@ def search(list_search, list_remove, page=0):
         queries = []
 
         for i in list_search:
+            i = i.replace("*", "%")
             # or queries generator
             if i.startswith("(") and i.endswith(")"):
                 or_list = i.strip("()").split("|")
@@ -146,7 +147,7 @@ def search(list_search, list_remove, page=0):
     else:
         for i in list_remove:
             cursor.execute(
-                "DELETE FROM temp1 WHERE {} like '%,,{},,%'".format(tag_col, i))
+                "DELETE FROM temp1 WHERE {} like '%,,{},,%'".format(tag_col, i.replace("*", "%")))
             conn.commit()
 
     final_autogen = "SELECT * from temp1 {specials} order by id DESC limit {imgs_amount} offset {offset}".format(
