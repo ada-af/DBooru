@@ -80,5 +80,5 @@ class Image(Thread):
         self.form = json[0]['image'].split(".")[-1]
         self.height = str(json[0]['height'])
         self.width = str(json[0]['width'])
-        self.tags = str(json[0]['tags'])
+        self.tags = ",,".join(x.replace("_", " ") for x in str(json[0]['tags']).split(" "))
         self.ready = True
