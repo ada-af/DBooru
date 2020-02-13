@@ -70,7 +70,7 @@ class ThreadController(Thread):
             p = 0
             for i in self.threads:
                 if i.readiness == 1:
-                    self.threads.remove(i)
                     i.join()
+                    self.threads.remove(i)
                     del i
                     p = p + 1

@@ -55,6 +55,9 @@ class Checker(Thread):
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
         if self.raw_data.status_code >= 400:
             is_error_code = True
+        tmp = re.match(self.module.empty_page, self.raw_data.text)
+        if tmp is not None:
+            raise GeneratorExit
         try:
             self.raw_data = self.raw_data.content.decode("unicode_escape")
         except UnicodeEncodeError:
@@ -90,21 +93,26 @@ class Checker(Thread):
             len(f.read())
 
     def run(self):
-        self.get_data()
-        if re.match("{}".format(self.module.empty_page), self.raw_data) is not None:
-            global empties
-            empties = 1
-        self.parse_data()
-        self.compile()
-        self.writer()
-        with open('tmp/{}.txt'.format(self.page), 'r') as f:
-            tmp = f.read()
-        if len(tmp) == 0 and re.match("{}".format(self.module.empty_page), self.raw_data) is None:
-            global is_error_code
-            if is_error_code == False:
-                self.run()
-        self.readiness = 1
-        quit()
+        try:
+            self.get_data()
+        except:
+            self.readiness = 1
+            quit()
+        else:
+            if re.match("{}".format(self.module.empty_page), self.raw_data) is not None:
+                global empties
+                empties = 1
+            self.parse_data()
+            self.compile()
+            self.writer()
+        # with open('tmp/{}.txt'.format(self.page), 'r') as f:
+        #     tmp = f.read()
+        # if len(tmp) == 0 and re.match("{}".format(self.module.empty_page), self.raw_data) is None:
+        #     global is_error_code
+        #     if is_error_code == False:
+        #         self.run()
+            self.readiness = 1
+            quit()
 
 
 def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):
@@ -188,7 +196,7 @@ def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):
         gc.collect()
         print("Waiting {} thread(s) to end routine".format(
             len(tc.threads)) + " " * 32, flush=True, end=endwith)
-        if c >= 15 and len(tc.threads) < 10:
+        if c >= 60 and len(tc.threads) < 10:
             tc.threads = []
         else:
             time.sleep(1)
