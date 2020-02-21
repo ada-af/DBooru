@@ -79,6 +79,14 @@ class Image(Thread):
         self.links = json[0]['file_url']
         self.form = json[0]['image'].split(".")[-1]
         self.height = str(json[0]['height'])
+        r = json[0]['rating']
+        if r == "e":
+            r = "explicit"
+        elif r == "q":
+            r = "questionable"
+        elif r == "s":
+            r = "safe"    
         self.width = str(json[0]['width'])
         self.tags = ",,".join(x.replace("_", " ") for x in str(json[0]['tags']).split(" "))
+        self.tags = self.tags + ',,' + r
         self.ready = True
