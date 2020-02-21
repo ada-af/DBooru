@@ -51,5 +51,5 @@ class Module:
                 self.height.append(height)
                 self.form.append(form)
                 self.links.append(url)
-                self.tags.append(e)    
+                self.tags.append(tags)    
             j += 1
