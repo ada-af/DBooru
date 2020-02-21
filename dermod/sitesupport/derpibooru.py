@@ -30,18 +30,19 @@ class Module:
         for i in string:
             try:
                 width = i.split('"width":')[1]
-                width = width.split(',')[0]
+                width = width.split(',')[0].strip("}{][")
                 height = i.split('"height":')[1]
-                height = height.split(',')[0]
+                height = height.split(',')[0].strip("}{][")
                 form = i.split(',')[0].lower().strip('"')
                 url = i.split('"full":"')[1]
-                url = url.split('"')[0]
+                url = url.split('"')[0].strip("}{][")
                 if '"tags":null' in i:
                     e = "Tag parsing error. Refer to github.com/mcilya/DBooru/issues/29"
                 else:
-                    e = i.split('"tags":')[1]
-                    e = e.split('],')[0].replace('\'', '').replace('\\"', '')+"]"
-                    e = ",,".join(eval(e))
+                    e = i.split('"tags":[')[1]
+                    e = e.split('],')[0]
+                    f = [x.strip('"\'') for x in e.split(',')]
+                    tags = ",,".join(f)
             except Exception:
                 print("Derpibooru JSON API problem. Entry {} on page {} left unprocessed          ".format(j, pg_num))
             else:
