@@ -206,8 +206,8 @@ Module must contain:
     >>    def __init__(self):
     >>        self.tags = []
     >>        self.ids = []
-    >>        self.img_links = []
-    >>        self.format = []
+    >>        self.links = []
+    >>        self.form = []
     >>        self.height = []
     >>        self.width = []  
 
@@ -223,8 +223,8 @@ Module must contain:
     >>    for i in parsed_values:
     >>      self.tags.append(i[0]) # tags MUST be delimited by `,,`
     >>      self.ids.append(i[4])
-    >>      self.img_links.append(i[3])
-    >>      self.format.append(i[5])
+    >>      self.links.append(i[3])
+    >>      self.form.append(i[5])
     >>      self.height.append(i[2])
     >>      self.width.append(i[1])
 
