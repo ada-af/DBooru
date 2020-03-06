@@ -4,36 +4,31 @@ username = "YOUR USERNAME GOES HERE"
 
 domain = 'https://e621.net'
 query = "fav:{}".format(username)
-endpoint = "/post/index.json?tags={}".format(query)
+endpoint = "/posts.json?tags={}".format(query)
 paginator = "&page={}"
-empty_page = '\[\]$' # Must be regexp
+empty_page = '\{"posts":\[\]\}' # Must be regexp
 slp = 1 # Defines delay between requests
-params = '' # Additional API params
+params = '&limit=320' # Additional API params
 hard_limit = 750 # Max available page
 
 class Module:
+    import html
+    import urllib.parse
+
     def __init__(self):
         self.tags = []
         self.ids = []
-        self.img_links = []
-        self.format = []
+        self.links = []
+        self.form = []
         self.height = []
         self.width = []
 
     def parse(self, string):
-        string = string.split('"id":')[1:]
-        self.ids = []
-        self.form = []
-        self.links = []
-        self.tags = []
-        self.height = []
-        self.width = []
-        for i in string:
-            self.ids.append(i.split(',"')[0])
-            k = i.split('"artist":[')[1]
-            j = k.split(']')[0]
-            j = str([str("artist:"+x.strip(' " ')) for x in j.split(',')]).strip("[]").replace(r"\'", "")
-            j = j.replace('_', ' ').replace(", ", ",,")
+        string = self.html.unescape(self.urllib.parse.unquote(string))
+        string = string.split('"posts":')[1]
+
+        for i in string.split("},{"):
+            self.ids.append(i.split('"id":')[1].split(',')[0])
             r = i.split('"rating":"')[1][0]
             if r == "e":
                 r = "explicit"
@@ -41,21 +36,39 @@ class Module:
                 r = "questionable"
             elif r == "s":
                 r = "safe"
-            k = i.split('"tags":"')[1]
-            k = k.split('",')[0]
-            k = k.replace(" ", ',,')
-            k = k.replace('_', ' ')
-            k = j + ",," + r + ",," + k 
+
+            tags = []
+
+            t_tags = i.split('"tags":')[1].split("}")[0].split("],")
+            for j in t_tags:
+                if j.startswith('"artist"'):
+                    j = ["artist:"+x.replace("_", " ") for x in j.split(":[")[1].strip('"').split('","')]
+                else:
+                    j = [x.replace("_", " ") for x in j.split(":[")[1].strip('"').split('","')]
+                if j != [''] and j != [']']:
+                    tags += j
+
+            k = r + ",," + ",,".join(sorted(tags))
             self.tags.append(k)
-            k = i.split('"width":')[1]
-            k = k.split(',')[0]
-            self.width.append(k)
-            k = i.split('"height":')[1]
-            k = k.split(',')[0]
-            self.height.append(k)
-            k = i.split('","file_ext":"')[1]
-            k = k.split('","preview_url')[0].split('","')[0]
-            self.form.append(k)
-            k = i.split('"file_url":"')[1]
-            k = k.split('","file_ext":"')[0]
-            self.links.append(k)
+
+            k = i.split('"file":')[1]
+
+            j = k.split('"width":')[1]
+            j = j.split(',')[0]
+            self.width.append(j)
+            j = k.split('"height":')[1]
+            j = j.split(',')[0]
+            self.height.append(j)
+            ext = k.split('ext":"')[1]
+            ext = ext.split('"')[0]
+            self.form.append(ext)
+            try:
+                j = k.split('"url":"')[1]
+                j = j.split('"')[0]
+            except: 
+                # Either they broke everything or they won't show links for some images for some reason
+                # Whatever it is im generating urls by myself ¯\_(ツ)_/¯ 
+                j = k.split('"md5":"')[1]
+                j = j.split('"')[0]
+                j = "https://static1.e621.net/data/{st}/{nd}/{md5}.{form}".format(st=j[0:2], nd=j[2:4], md5=j, form=ext)
+            self.links.append(j)
