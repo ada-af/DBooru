@@ -25,15 +25,14 @@ class Module:
     def parse(self, string, pg_num):
         string = self.html.unescape(self.urllib.parse.unquote(string))
         string = string.split('interactions":[{"')[0]
-        string = string.split('"format":')[1:]
         j = 0
-        for i in string:
+        for i in string.split("},{"):
             try:
                 width = i.split('"width":')[1]
                 width = width.split(',')[0].strip("}{][")
                 height = i.split('"height":')[1]
                 height = height.split(',')[0].strip("}{][")
-                form = i.split(',')[0].lower().strip('"')
+                form = i.split('"format":')[1].split(",")[0].lower().strip('"')
                 url = i.split('"full":"')[1]
                 url = url.split('"')[0].strip("}{][")
                 if '"tags":null' in i:
