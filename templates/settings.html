@@ -43,15 +43,15 @@
                 </div>
                 <div class="card-body container-fluid">
                     {% for j in i.options.keys() %}
-                    <form action="/settings/{{i.name}}/{{j}}" method="POST" id="{{i.name}}_form">
+                    <form action="/settings/{{i.name}}/{{j}}" method="POST" id="{{i.name}}_{{j}}_form">
                         <div class="form-group mb-2">
                             <input type="text" readonly class="form-control-plaintext" id="key" value="{{j}}">
 
                             <input type="text" class="form-control" name='{{j}}_new_opt'
-                                value="{{i.options[j].strip("\"''")}}" oninput="show_button('#{{i.name}}_button')"
-                                onchange="show_button('#{{i.name}}_button')">
+                                value="{{i.options[j].strip("\"''")}}" oninput="show_button('#{{i.name}}_{{j}}_button')"
+                                onchange="show_button('#{{i.name}}_{{j}}_button')">
 
-                            <button id="{{i.name}}_button" type="submit" class="btn btn-primary form-control"
+                            <button id="{{i.name}}_{{j}}_button" type="submit" class="btn btn-primary form-control"
                                 hidden>Save</button>
                         </div>
                     </form>
