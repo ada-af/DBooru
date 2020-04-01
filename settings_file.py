@@ -2,7 +2,6 @@
 # NEVER DELETE/SET TO WRONG FORMAT OR LEAVE VARIABLES EMPTY! OTHER WAY EVERYTHING WILL FUCK UP!
 import os
 
-
 # Define modules to work with
 # Module name is case sensetive
 # Available modules placed in dermod/sitesupport
@@ -11,23 +10,28 @@ import os
 # Example: (modules = ['derpibooru', 'e621'])
 modules = ['derpibooru']
 
-# Output Errors
-# There will be over 9000 errors. Do not set False unless you are developer or someone who know programming
-# Format: suppress_errors = bool # Example: (suppress_errors = True)
+# Hide Errors
+# There will be over 9000 errors. 
+# Do not set False unless you are developer or someone who knows programming
+# Options: [True, False]
+# Format: suppress_errors = bool 
+# Example: (suppress_errors = True)
 suppress_errors = True
 
 # Disable requests verifying
 # Useful when connecting to derpibooru through tor
 # Format: ssl_verify = bool or string
+# Require example
 # Example: Enable verification (ssl_verify = True)
 # Example: Disable verification (ssl_verify = False)
-# Example: Use custom CA Cert (ssl_verify = 'cacert.pem')
+# Example: Use custom CA Cert (ssl_verify = '/etc/cacert.pem')
 ssl_verify = True
 
 # Proxy Settings
 # Useful if connection to derpibooru is blocked by anything
 
 # Enable proxy for connections
+# Options: [True, False]
 # Format: enable_proxy = bool
 # Example: (enable_proxy = True)
 enable_proxy = False
@@ -35,11 +39,14 @@ enable_proxy = False
 
 # Proxy IP/Port Settings
 
-# You know what to do. I guess...
+# IP address of proxy server
 # Format: socks5_proxy_ip = string
-# Example: (socks5_proxy_ip = "127.0.0.1")
+# Require example
+# Example: Without auth (socks5_proxy_ip = "127.0.0.1")
+# Example: With auth (socks5_proxy_ip = "user@passwd:127.0.0.1")
 socks5_proxy_ip = "127.0.0.1"
 
+# Port used by proxy server
 # Format: socks5_proxy_port = string
 # Example: (socks5_proxy_port = "9050")
 socks5_proxy_port = "9050"
@@ -47,13 +54,12 @@ socks5_proxy_port = "9050"
 
 # WEB interface
 
-# Define the application directory
-BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-
 # Application threads. A common general assumption is
 # using 2 per available processor cores - to handle
 # incoming requests using one and performing background
 # operations using the other.
+# Format: THREADS_PER_PAGE = int
+# Example: THREADS_PER_PAGE = 4
 THREADS_PER_PAGE = 2
 
 # Defines ip where to bind webUI
@@ -68,11 +74,12 @@ web_port = 9000
 
 # Defines tool to make thumbnails
 # Can be "disabled", "ffmpeg" or "PIL"
+# Options: ["disabled", "ffmpeg", "PIL"]
 # Format: thumbnailer = string
 # Example: thumbnailer = "PIL"
 thumbnailer = "ffmpeg"
 
-# FFMPEG SETTINGS
+# Ffmpeg settings
 
 # Format to use when generating thumbnail for images
 # Can be any format supported by ffmpeg
@@ -91,19 +98,22 @@ ffmpeg_args = "-loglevel quiet"
 
 # Should gif thumbnails be converted to webp
 # Only works if thumbnailer set to "ffmpeg"
+# Options: [True, False]
 # Format: gif_to_webp = Bool
 # Example: gif_to_webp = True
 gif_to_webp = False
 
 # Defines whether tag prediction should be disabled in webUI
+# Options: [True, False]
 # Format: disable_mobile = Bool
-# Exmaple: disable_mobile = True
+# Example: disable_mobile = True
 disable_mobile = False
 
 # Defines how many tags to show when predicting
 # Format: predict_tags = int
 # Example: predict_tags = 50
 predict_tags = 20
+
 
 # Database specific settings
 
@@ -123,14 +133,16 @@ showing_tags = 15
 # Defines path where to store downloaded images
 # Supports relative and full paths
 # Format: images_path = string
-# Example_windows: (images_path = "./images/" or image_path = "C:/User/Images/")
-# Example_linux: (images_path = "./images/" or image_path = "/home/vasyan/images/")
+# Require example
+# Example: (images_path = "./images/" or image_path = "C:/User/Images/")
+# Example: (images_path = "./images/" or image_path = "/home/vasyan/images/")
 images_path = "./images/"
 
 # Defines path where images should be exported to
 # Format: export_path = string
-# Example_windows: (export_path = "./images_exp/" or export_path = "C:/User/Images_exp/")
-# Example_linux: (export_path = "./images_exp/" or export_path = "/home/vasyan/images_exp/")
+# Require example
+# Example: (export_path = "./images_exp/" or export_path = "C:/User/Images_exp/")
+# Example: (export_path = "./images_exp/" or export_path = "/home/vasyan/images_exp/")
 export_path = "./exported/"
 
 # Defines thread lifespan
@@ -140,15 +152,18 @@ time_wait = 60
 
 # Defines name (or path and name) for temporary file
 # Format: ids_file = string
-# Example_windows: (ids_file = "img_ids.txt" or ids_file = "C:/User/Temp/Filename.dat")
-# Example_linux: (ids_file = "img_ids.txt" or ids_file = "/home/vasyan/img_ids.txt")
+# Require example
+# Example: (ids_file = "img_ids.txt" or ids_file = "C:/User/Temp/Filename.dat")
+# Example: (ids_file = "img_ids.txt" or ids_file = "/home/vasyan/img_ids.txt")
 ids_file = "img_ids.txt"
 
 # Defines name (or path and name) for database file
 # Format: db_name = string
-# Example_windows: (db_name = "sqlite.db" or db_name = "C:/User/sqlite.db")
-# Example_linux: (db_name = "sqlite.db" or db_name = "/home/vasyan/sqlite.db")
+# Require example
+# Example: (db_name = "sqlite.db" or db_name = "C:/User/sqlite.db")
+# Example: (db_name = "sqlite.db" or db_name = "/home/vasyan/sqlite.db")
 db_name = "sqlite.db"
+
 
 # Threading
 
@@ -162,12 +177,24 @@ thread_cap = 50
 # Example: (sleep_time = 5) # Will wait 5 seconds before creating new thread
 sleep_time = 5
 
-# Enables/disables checks for changes in this file
+# Enables/disables checks for changes in settings_file.py
+# Options: [True, False]
 # Format: polling_time = bool
 # Example: polling_time = False
 enable_polling = False
 
-# Defines time (in seconds) between checks for changes in this file
+
+# Defines time (in seconds) between checks for changes in settings_file.py
 # Format: polling_time = int
 # Example: polling_time = 60
 polling_time = 10
+
+
+# First run
+
+# Show /settings page on next start 
+# Automatically disabled after start
+# Options: [True, False]
+# Format: first_run = bool
+# Example: first_run = False
+first_run = True

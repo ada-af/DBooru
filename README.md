@@ -31,6 +31,9 @@
     - [Special tags](#special-tags)
       - [Syntax](#syntax)
   - [Settings_file.py](#settingsfilepy)
+    - [/settings autogeneration](#settings-autogeneration)
+      - [Keywords](#keywords)
+      - [Examples](#examples-1)
   - [dermod/aliases.py](#dermodaliasespy)
     - [Syntax](#syntax-1)
 
@@ -103,6 +106,11 @@
 
 ### Configuration
 
+1. Run `python DBooru_web.py` or `pypy3 DBooru_web.py`
+2. Change default settings
+
+or
+
 1. Set modules (line 11) in settings_file.py
 2. Configure modules (placed in dermod/sitesupport)
 3. (Optionally) Change other settings (View [Settings_file.py](#settings_filepy))
@@ -158,6 +166,8 @@ Module must contain:
     Configurable options
     >> username = "NAME GOES HERE"
     >> apikey = "KEY"
+
+  Must have `# Do not change values` after user-configurable options
 
     Site Domain
     >> domain = "https://example.com"
@@ -261,21 +271,24 @@ Enter this commands if prompt starts with `Search@DB>`
 
 ### Web
 
-|         Endpoint          | Method | Parameters (Body for POST)      | Description                                       | Returns                                                                                                  |
-| :-----------------------: | :----: | ------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-|            "/"            |  GET   |                                 | Main page                                         | HTML-page                                                                                                |
-|         "/search"         |  GET   | q=**search_query** page=**int** | Search images                                     | HTML-page                                                                                                |
-|     "/image/**str**"      |  GET   |                                 | View image with tags                              | HTML-page                                                                                                |
-|    "/dl/**filename**"     |  GET   |                                 | Browser-friendly download method                  | Image                                                                                                    |
-|    "/raw/**filename**"    |  GET   |                                 | Raw image data                                    | Image                                                                                                    |
-|        "/predict"         |  GET   | phrase=**search_query**         | Tries to predict search query                     | Plain text data                                                                                          |
-|      "/next/**str**"      |  GET   |                                 | Tries to get id of next (newer) image             | Redirect (302) to /image/\*                                                                              |
-|    "/previous/**str**     |  GET   |                                 | Tries to get id of previous(older) image          | Redirect (302) to /image/\*                                                                              |
-| "/thumbnail/**filename**" |  GET   |                                 | Makes thumbnail (500px) of image (returns full image if thumbnailer disabled)                  | Image                                                                                                    |
-|      "/json/search"       |  GET   | q=**query** page=**int**        | Searches images and returns json result of search | JSON                                                                                                     |
-|         "/random"         |  GET   |                                 | Redirects to random image                         | Redirect (302) to /image/\*                                                                              |
-|     "/random/**tags**     |  GET   |                                 | Redirects to random image tagged with **tags**    | Redirect (302) to /image/\*                                                                              |
-|         "/update"         |  GET   |                                 | Updates DB (Same as CLI: get images)              | Returns 200 code when update started successfully or 409 in case when there's already update in progress |
+|              Endpoint               | Method | Parameters (Body for POST)                             | Description                                                                   | Returns                                                                                                  |
+| :---------------------------------: | :----: | ------------------------------------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+|                 "/"                 |  GET   |                                                        | Main page                                                                     | HTML-page                                                                                                |
+|              "/search"              |  GET   | q=**search_query** page=**int**                        | Search images                                                                 | HTML-page                                                                                                |
+|          "/image/**str**"           |  GET   |                                                        | View image with tags                                                          | HTML-page                                                                                                |
+|         "/dl/**filename**"          |  GET   |                                                        | Browser-friendly download method                                              | Image                                                                                                    |
+|         "/raw/**filename**"         |  GET   |                                                        | Raw image data                                                                | Image                                                                                                    |
+|             "/predict"              |  GET   | phrase=**search_query**                                | Tries to predict search query                                                 | Plain text data                                                                                          |
+|           "/next/**str**"           |  GET   |                                                        | Tries to get id of next (newer) image                                         | Redirect (302) to /image/\*                                                                              |
+|         "/previous/**str**          |  GET   |                                                        | Tries to get id of previous(older) image                                      | Redirect (302) to /image/\*                                                                              |
+|      "/thumbnail/**filename**"      |  GET   |                                                        | Makes thumbnail (500px) of image (returns full image if thumbnailer disabled) | Image                                                                                                    |
+|           "/json/search"            |  GET   | q=**query** page=**int**                               | Searches images and returns json result of search                             | JSON                                                                                                     |
+|              "/random"              |  GET   |                                                        | Redirects to random image                                                     | Redirect (302) to /image/\*                                                                              |
+|          "/random/**tags**          |  GET   |                                                        | Redirects to random image tagged with **tags**                                | Redirect (302) to /image/\*                                                                              |
+|              "/update"              |  GET   |                                                        | Updates DB (Same as CLI: get images)                                          | Returns 200 code when update started successfully or 409 in case when there's already update in progress |
+|             "/settings"             |  GET   |                                                        | Settings page                                                                 | HTML-page                                                                                                |
+|        "/settings/\<option>"        |  POST  | opt_type=**variable_type**&\<option>_new_opt=**value** | Endpoint for changing settings_file.py variables                              | Redirect (302) to /settings#\<option>\_form                                                              |
+| "/settings/\<modulename>/\<option>" |  POST  | \<option>_new_opt=**value**                            | Endpoint for changing module's variables                                      | Redirect (302) to /settings#\<modulename>\_form                                                          |
 
 ## Search basics and syntax
 
@@ -352,6 +365,59 @@ Enter this commands if prompt starts with `Search@DB>`
 | sleep_time        | Integer (seconds)                           | Defines time to wait before creating new thread after thread cap is reached |
 | enable_polling    | Bool                                        | Setting for enabling/disabling polling for changes in settings_file.py      |
 | polling_time      | Integer (seconds)                           | Defines time (in seconds) between checks for changes in settings_file.py    |
+| first_run         | Bool                                        | Defines if settings page should be opened on first run                      |
+
+### /settings autogeneration
+
+DBooru can automatically generate /settings entries for variables in settings_file.py
+
+Options blocks must start with two newlines and block title on the third
+
+Every text line must start with `#`, except for variable declaration
+
+Lines with no keywords will be interpreted as description
+
+By default examples are NOT shown on page
+
+#### Keywords
+
+Keywords must be followed by  `:` , except for `# Require example`
+
+| Keyword | Description | Notes |
+|-|-| - |
+| Example | Defines example  | Can be used more than once |
+| Format | Defines variable type | Should be one of `string`, `bool`, `int`. Defaults to `string`.
+| Options | Defines available options for variable | Must be formatted as Python list
+| Require example | Requires examples to be shown on /settings page | May or may not end with `:` |
+
+#### Examples
+
+```python
+# Will show examples and dropdown with options
+# Require example
+# Example: var = "something"
+# ExaMplE: var = "nothing"
+# Format: var = string
+# Options: ['module', 'thing', 'more things']
+var = "done"
+
+# Example block
+
+# Won't show example
+# Input field will be provided
+# description line
+# description line
+# Format: test_vat = string
+# Example: test_var = "test"
+# description line
+test_var = "test passed"
+
+# var2 desc
+# does thing
+# Format: var2 = bool
+# ...
+var2 = True
+```
 
 ## dermod/aliases.py
 

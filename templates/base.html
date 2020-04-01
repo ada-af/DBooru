@@ -6,6 +6,13 @@
   <meta charset="UTF-8" />
   <title>DBooru</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap.min.css') }}" />
+  <style>
+    body {
+      background-color: #faffd5;
+    }
+  </style>
+  
+  {% block scripts_head %}{% endblock scripts_head %}
   <script src="{{ url_for('static', filename='jquery.min.js') }}"></script>
   <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
   <script>

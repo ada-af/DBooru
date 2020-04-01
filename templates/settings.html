@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<body>
+    <div class=" container">
+        <h2>General settings</h2>
+        <div class="card" id='{{c[1].name}}_form'>
+            <div class="card-header">
+                {{c[1].name.replace("_", " ")}}
+            </div>
+            <div class="card-body container-fluid">
+                <div class="row">
+                    <div class='col-md'>
+                        <p class=" font-weight-bold">Description</p>
+                        {% for j in c[1].description %}
+                        <span>{{j}}</span><br>
+                        {%endfor%}
+                    </div>
+
+                    <div class='col-md'>
+                        <form method="POST" action="/settings/{{c[1].name}}">
+                            <div class="form-group form-check">
+                                {%for i in modules%}
+                                <input type="checkbox" class="form-check-input" name="{{i}}" id="{{i}}"
+                                    {% if i in eval(c[1].value_now) %} checked {%else%} {%endif%}
+                                    onchange="show_button('#{{c[1].name}}_button')">
+                                <label class="form-check-label" for="{{i}}">{{i}}</label><br>
+                                {%endfor%}
+                            </div>
+                            <button id="{{c[1].name}}_button" type="submit" class="btn btn-primary" hidden>Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {%for i in modules_settings%}
+        <div class="card">
+            <div class="card">
+                <div class="card-header">
+                    {{i.name.replace("_", " ")}} module options
+                </div>
+                <div class="card-body container-fluid">
+                    {% for j in i.options.keys() %}
+                    <form action="/settings/{{i.name}}/{{j}}" method="POST" id="{{i.name}}_form">
+                        <div class="form-group mb-2">
+                            <input type="text" readonly class="form-control-plaintext" id="key" value="{{j}}">
+
+                            <input type="text" class="form-control" name='{{j}}_new_opt'
+                                value="{{i.options[j].strip("\"''")}}" oninput="show_button('#{{i.name}}_button')"
+                                onchange="show_button('#{{i.name}}_button')">
+
+                            <button id="{{i.name}}_button" type="submit" class="btn btn-primary form-control"
+                                hidden>Save</button>
+                        </div>
+                    </form>
+                    {%endfor%}
+                </div>
+            </div>
+        </div>
+        {%endfor%}
+
+        {%for i in c[2:]%}
+        {%if i.isblock %}
+        <h2>{{i.name}}</h2>
+        {%else%}
+        <div class="card" id="{{i.name}}_form">
+            <div class="card-header">
+                {{i.name.replace("_", " ")}}
+            </div>
+
+            <div class="card-body container-fluid">
+                <div class="row">
+                    <div class="col-md">
+                        <p class=" font-weight-bold">Description</p>
+                        {% for j in i.description %}
+                        <span>{{j}}</span><br>
+                        {%endfor%}
+                        {% if i.require_example %}
+                        <br>
+                        <p class=" font-weight-bold">Examples</p>
+                        {% for j in i.examples %}
+                        <span>{{j.split(":", maxsplit=1)[1]}}</span><br>
+                        {%endfor%}
+                        {%endif%}
+                    </div>
+
+                    <div class=" col-md">
+                        <form action="/settings/{{i.name}}" method="POST">
+                            <div class="form-group">
+                                <input type="hidden" name="opt_type" value="{{i.format}}" />
+
+                                {%if i.options != [] %}
+                                <select class="form-control" name='{{i.name}}_new_opt'
+                                    onchange="show_button('#{{i.name}}_button')">
+                                    {% for j in eval(i.options) %}
+                                    <option value='{{j}}' {% if str(i.value_now.strip('"')) == str(j) %} selected
+                                        {%else%} {%endif%}>
+                                        {{j}}
+                                    </option>
+                                    {%endfor%}
+                                </select>
+                                {% else %}
+                                <input type="text" class="form-control" name='{{i.name}}_new_opt'
+                                    value="{{i.value_now.strip('\"')}}" oninput="show_button('#{{i.name}}_button')"
+                                    onchange="show_button('#{{i.name}}_button')">
+                                {%endif%}
+                                <button id="{{i.name}}_button" type="submit" class="btn btn-primary form-control"
+                                    hidden>Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%endif%}
+        {%endfor%}
+    </div>
+</body>
+{% endblock %}
+
+{% block scripts_head %}
+<script>
+    window.onload = function () {
+        for (var i in document.forms) {
+            document.forms[i].reset()
+        }
+    }
+
+    function show_button(form_id) {
+        $(form_id).removeAttr("hidden")
+    }
+</script>
+{% endblock %}

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import imghdr
+from termcolor import colored
 import json
 import math
 import os
@@ -7,7 +8,10 @@ import subprocess
 import sys
 import socket
 import time
+import string
 import tempfile
+import re
+import webbrowser
 from importlib import reload
 from multiprocessing import Process
 from threading import Thread
@@ -22,6 +26,7 @@ from dermod import db, threads
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
 from dermod import predict
+from dermod.helpers import Option, Module_Options
 
 try:
     import PIL.Image as Image
@@ -33,8 +38,12 @@ try:
 except Exception:
     pass
 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DBooru = Flask(__name__)
 DBooru.config.from_pyfile("settings_file.py", silent=True)
+
+DBooru.logger.disabled = settings_file.suppress_errors
+
 
 @DBooru.route('/predict', methods=['GET'])
 def predict_tag():
@@ -191,6 +200,74 @@ def previous(id):
     return Response(data+"?q={}".format(query), status=code)
 
 
+@DBooru.route("/settings", methods=["GET"])
+def settings():
+    modules = list(set([x.split(".py")[0] for x in os.listdir("dermod/sitesupport")]) - set(["__init__", "__pycache__"]))
+    modules.sort()
+    modules_settings = []
+    for i in modules:
+        with open(f"dermod/sitesupport/{i}.py", 'r+') as f:
+            modules_settings.append(Module_Options(f.read().split("# Do not change values")[0].splitlines(), i))
+    with open("settings_file.py") as f:
+        contents = f.read()
+    contents = contents.split("\n\n")
+    contents = [Option(x.split("\n")) for x in contents]
+    return render_template("settings.html", c=contents, modules_settings=modules_settings, modules=modules, eval=eval, bool=bool, str=str)
+
+
+@DBooru.route("/settings/<string:option>", methods=["POST"])
+def update_settings(option):
+    if option == "modules":
+        update = []
+        for i in list(set([x.split(".py")[0] for x in os.listdir("dermod/sitesupport")]) - set(["__init__", "__pycache__"])):
+            if request.form.get(i) is not None:
+                update.append(i)
+    else:
+        got = request.form.get(f'{option}_new_opt').strip("\"'")
+        vartype = request.form.get('opt_type')
+        if vartype.lower() == 'bool':
+            if got.lower() == 'true':
+                update = True
+            else:
+                update = False
+        elif vartype.lower() == 'int':
+            update = ""
+            for i in got:
+                if i in string.digits:
+                    update += i
+            update = int(update)
+        else:
+            update = f'"{got}"'
+    update_line(option, update)
+    return redirect(f"/settings#{option}_form")
+
+@DBooru.route("/settings/<string:module>/<string:option>", methods=["POST"])
+def update_mod_settings(module, option):
+    got = request.form.get(f'{option}_new_opt').strip("\"'")
+    update = f'"{got}"'
+    update_line(option, update, f"dermod/sitesupport/{module}.py")
+    return redirect(f"/settings#{module}_form")
+
+
+def update_line(option, update, file="settings_file.py"):
+    with open(file, 'r+') as f:
+        new = ""
+        for i in f.readlines():
+            new += re.sub(f"^{option} = .*$", f"{option} = {update}", i, count=1)
+        f.seek(0)
+        f.truncate(0)
+        f.write(new)
+        f.flush()
+
+
+def first_run():
+    try:
+        webbrowser.open(f"http://127.0.0.1:{settings_file.web_port}/settings")
+    except:
+        print(colored("Unable to start browser\nSettings page http://127.0.0.1:{settings_file.web_port}/settings", 'red'))
+    update_line("first_run", False)
+
+
 @DBooru.route("/json/search")
 def api_search():
     page = request.args.get('page', default=1, type=int)
@@ -239,5 +316,7 @@ def start_background_tasks():
 
 if __name__ == "__main__":
     start_background_tasks()
+    if settings_file.first_run:
+        first_run()
     DBooru.run(host=settings_file.web_ip,
                port=settings_file.web_port)
