@@ -371,7 +371,7 @@ Enter this commands if prompt starts with `Search@DB>`
 
 DBooru can automatically generate /settings entries for variables in settings_file.py
 
-Options blocks must start with two newlines and block title on the third
+Options block must start with two newlines and block title on the third
 
 Every text line must start with `#`, except for variable declaration
 
@@ -400,6 +400,7 @@ Keywords must be followed by  `:` , except for `# Require example`
 # Format: var = string
 # Options: ['module', 'thing', 'more things']
 var = "done"
+
 
 # Example block
 
