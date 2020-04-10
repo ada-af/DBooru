@@ -8,3 +8,4 @@ werkzeug
 markupsafe
 click
 itsdangerous
+termcolor
