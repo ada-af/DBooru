@@ -49,7 +49,7 @@ class Module:
                     tags += j
 
             k = r + ",," + ",,".join(sorted(tags))
-            self.tags.append(k)
+            self.tags.append(k.replace('[', '').replace(']', ''))
 
             k = i.split('"file":')[1]
 

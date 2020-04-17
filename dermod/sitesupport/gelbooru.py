@@ -87,6 +87,6 @@ class Image(Thread):
         elif r == "s":
             r = "safe"    
         self.width = str(json[0]['width'])
-        self.tags = ",,".join(x.replace("_", " ") for x in str(json[0]['tags']).split(" "))
+        self.tags = ",,".join(x.replace("_", " ").replace('[', '').replace(']', '') for x in str(json[0]['tags']).split(" "))
         self.tags = self.tags + ',,' + r
         self.ready = True
