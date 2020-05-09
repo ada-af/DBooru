@@ -71,9 +71,9 @@ class Image(Thread):
                 raw_data = s.get(
                     "https://gelbooru.com/index.php?page=dapi&s=post&q=index&json=1&id={id}".format(id=self.id),
                     proxies=dict(
-                        https='socks5://{}:{}'.format(
-                            self.settings_file.socks5_proxy_ip, self.settings_file.socks5_proxy_port),
-                        http='socks5://{}:{}'.format(self.settings_file.socks5_proxy_ip, self.settings_file.socks5_proxy_port)),
+                        https='{}://{}:{}'.format(
+                            self.settings_file.proxy_type, self.settings_file.proxy_ip, self.settings_file.proxy_port),
+                        http='{}://{}:{}'.format(self.settings_file.proxy_type, self.settings_file.proxy_ip, self.settings_file.proxy_port)),
                     verify=self.settings_file.ssl_verify, timeout=self.settings_file.time_wait)
         json = self.json.loads(raw_data.text)
         self.links = json[0]['file_url']

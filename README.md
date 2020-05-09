@@ -337,35 +337,36 @@ Enter this commands if prompt starts with `Search@DB>`
 
 ## Settings_file.py
 
-| Option            | Format                                      | Description                                                                 |
-| ----------------- | ------------------------------------------- | --------------------------------------------------------------------------- |
-| modules           | List (['String', 'String'])                 | Enables modules                                                             |
-| suppress_errors   | Bool (True/False)                           | Prints errors and stacktrace in case of happening                           |
-| ssl_verify        | Bool (True/False) or String ("Path")        | Enable/Disable ssl verification or set custom CA Cert                       |
-| enable_proxy      | Bool (True/False)                           | Enables/Disables proxy for requests                                         |
-| socks5_proxy_ip   | String (IP)                                 | Sets proxy IP                                                               |
-| socks5_proxy_port | String (Port)                               | Sets proxy port                                                             |
-| BASE_DIR          | Function                                    | Magic for flask to work                                                     |
-| web_ip            | String (IP)                                 | Set IP to bind Web interface                                                |
-| web_port          | Integer (port)                              | Sets port to bind Web interface                                             |
-| thumbnailer       | String (One of "ffmpeg", "PIL", "disabled") | Defines tool to make thumbnails or not to make them at all                  |
-| conv_format       | String (ffmpeg output format)               | Format to use when making thumbnails                                        |
-| ffmpeg_args       | String (ffmpeg parameters)                  | For situations when you think that default settings suck                    |
-| gif_to_webp       | Bool (True/False)                           | Creates webp thumbnails for gifs                                            |
-| disable_mobile    | Bool (True/False)                           | Should tag prediction be disabled on mobile                                 |
-| predict_tags      | Integer (number)                            | How many tags to show when predicting input                                 |
-| showing_imgs      | Integer (number)                            | How many images to show per page                                            |
-| showing_tags      | Integer (number)                            | How many tags to **show** per image (CLI-only)                              |
-| images_path       | String (Path)                               | Where to store loaded images                                                |
-| export_path       | String (Path)                               | Where to store exported images                                              |
-| time_wait         | Integer (seconds)                           | How long thread can stay alive                                              |
-| ids_file          | String (Path/Filename)                      | Name for tempfile (No need to change)                                       |
-| db_name           | String (Path/Filename)                      | Where to store DB file                                                      |
-| thread_cap        | Integer (number)                            | Defines maximum running threads before blocking creating new threads        |
-| sleep_time        | Integer (seconds)                           | Defines time to wait before creating new thread after thread cap is reached |
-| enable_polling    | Bool                                        | Setting for enabling/disabling polling for changes in settings_file.py      |
-| polling_time      | Integer (seconds)                           | Defines time (in seconds) between checks for changes in settings_file.py    |
-| first_run         | Bool                                        | Defines if settings page should be opened on first run                      |
+| Option          | Format                                      | Description                                                                 |
+| --------------- | ------------------------------------------- | --------------------------------------------------------------------------- |
+| modules         | List (['String', 'String'])                 | Enables modules                                                             |
+| suppress_errors | Bool (True/False)                           | Prints errors and stacktrace in case of happening                           |
+| ssl_verify      | Bool (True/False) or String ("Path")        | Enable/Disable ssl verification or set custom CA Cert                       |
+| enable_proxy    | Bool (True/False)                           | Enables/Disables proxy for requests                                         |
+| proxy_type      | String                                      | Sets proxy type                                                             |
+| proxy_ip        | String (IP)                                 | Sets proxy IP                                                               |
+| proxy_port      | String (Port)                               | Sets proxy port                                                             |
+| BASE_DIR        | Function                                    | Magic for flask to work                                                     |
+| web_ip          | String (IP)                                 | Set IP to bind Web interface                                                |
+| web_port        | Integer (port)                              | Sets port to bind Web interface                                             |
+| thumbnailer     | String (One of "ffmpeg", "PIL", "disabled") | Defines tool to make thumbnails or not to make them at all                  |
+| conv_format     | String (ffmpeg output format)               | Format to use when making thumbnails                                        |
+| ffmpeg_args     | String (ffmpeg parameters)                  | For situations when you think that default settings suck                    |
+| gif_to_webp     | Bool (True/False)                           | Creates webp thumbnails for gifs                                            |
+| disable_mobile  | Bool (True/False)                           | Should tag prediction be disabled on mobile                                 |
+| predict_tags    | Integer (number)                            | How many tags to show when predicting input                                 |
+| showing_imgs    | Integer (number)                            | How many images to show per page                                            |
+| showing_tags    | Integer (number)                            | How many tags to **show** per image (CLI-only)                              |
+| images_path     | String (Path)                               | Where to store loaded images                                                |
+| export_path     | String (Path)                               | Where to store exported images                                              |
+| time_wait       | Integer (seconds)                           | How long thread can stay alive                                              |
+| ids_file        | String (Path/Filename)                      | Name for tempfile (No need to change)                                       |
+| db_name         | String (Path/Filename)                      | Where to store DB file                                                      |
+| thread_cap      | Integer (number)                            | Defines maximum running threads before blocking creating new threads        |
+| sleep_time      | Integer (seconds)                           | Defines time to wait before creating new thread after thread cap is reached |
+| enable_polling  | Bool                                        | Setting for enabling/disabling polling for changes in settings_file.py      |
+| polling_time    | Integer (seconds)                           | Defines time (in seconds) between checks for changes in settings_file.py    |
+| first_run       | Bool                                        | Defines if settings page should be opened on first run                      |
 
 ### /settings autogeneration
 
@@ -383,12 +384,12 @@ By default examples are NOT shown on page
 
 Keywords must be followed by  `:` , except for `# Require example`
 
-| Keyword | Description | Notes |
-|-|-| - |
-| Example | Defines example  | Can be used more than once |
-| Format | Defines variable type | Should be one of `string`, `bool`, `int`. Defaults to `string`.
-| Options | Defines available options for variable | Must be formatted as Python list
-| Require example | Requires examples to be shown on /settings page | May or may not end with `:` |
+| Keyword         | Description                                     | Notes                                                           |
+| --------------- | ----------------------------------------------- | --------------------------------------------------------------- |
+| Example         | Defines example                                 | Can be used more than once                                      |
+| Format          | Defines variable type                           | Should be one of `string`, `bool`, `int`. Defaults to `string`. |
+| Options         | Defines available options for variable          | Must be formatted as Python list                                |
+| Require example | Requires examples to be shown on /settings page | May or may not end with `:`                                     |
 
 #### Examples
 

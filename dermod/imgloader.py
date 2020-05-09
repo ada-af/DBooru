@@ -49,8 +49,8 @@ class Loader(Thread):
             else:
                 self.tmp = s.get(
                     "{}".format(self.url),
-                    proxies=dict(https='socks5://{}:{}'.format(self.ip, self.port), 
-                    http='socks5://{}:{}'.format(self.ip, self.port)), verify=settings_file.ssl_verify)
+                    proxies=dict(https='{}://{}:{}'.format(settings_file.proxy_type, self.ip, self.port), 
+                    http='{}://{}:{}'.format(settings_file.proxy_type, self.ip, self.port)), verify=settings_file.ssl_verify)
             if self.tmp.status_code >= 400:
                 global is_error_code
                 is_error_code = True
@@ -101,8 +101,8 @@ def run(module, file, check_files=True, check_local=True, endwith="\r"):
                            str(parsed[i][7] + parsed[i][0]),
                            parsed[i][1],
                            settings_file.enable_proxy,
-                           settings_file.socks5_proxy_ip,
-                           settings_file.socks5_proxy_port)
+                           settings_file.proxy_ip,
+                           settings_file.proxy_port)
                 t.start()
                 tc.threads.append(t)
                 time.sleep(slp)
@@ -122,8 +122,8 @@ def run(module, file, check_files=True, check_local=True, endwith="\r"):
                        str(parsed[i][7] + parsed[i][0]),
                        parsed[i][1],
                        settings_file.enable_proxy,
-                       settings_file.socks5_proxy_ip,
-                       settings_file.socks5_proxy_port)
+                       settings_file.proxy_ip,
+                       settings_file.proxy_port)
             t.start()
             tc.threads.append(t)
             time.sleep(module.slp)

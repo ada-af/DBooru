@@ -49,9 +49,9 @@ class Checker(Thread):
                                                                    params=self.module.params,
                                                                    paginator=self.module.paginator.format(self.page)),
                     proxies=dict(
-                        https='socks5://{}:{}'.format(
-                            settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port),
-                        http='socks5://{}:{}'.format(settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port)),
+                        https='{}://{}:{}'.format(
+                            settings_file.proxy_type, settings_file.proxy_ip, settings_file.proxy_port),
+                        http='{}://{}:{}'.format(settings_file.proxy_type, settings_file.proxy_ip, settings_file.proxy_port)),
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
         if self.raw_data.status_code >= 400:
             is_error_code = True
@@ -140,9 +140,9 @@ def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):
                                                                    params=module.params,
                                                                    paginator=module.paginator.format(pages_num)),
                     proxies=dict(
-                        https='socks5://{}:{}'.format(
-                            settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port),
-                        http='socks5://{}:{}'.format(settings_file.socks5_proxy_ip, settings_file.socks5_proxy_port)),
+                        https='{}://{}:{}'.format(
+                            settings_file.proxy_type, settings_file.proxy_ip, settings_file.proxy_port),
+                        http='{}://{}:{}'.format(settings_file.proxy_type, settings_file.proxy_ip, settings_file.proxy_port)),
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
             else:
                 dat = s.get(

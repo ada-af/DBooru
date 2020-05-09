@@ -39,17 +39,22 @@ enable_proxy = False
 
 # Proxy IP/Port Settings
 
+# Proxy server type
+# Format: proxy_type = string
+# Options: ['http', 'socks4', 'socks5', 'socks5t']
+proxy_type = 'http'
+
 # IP address of proxy server
-# Format: socks5_proxy_ip = string
+# Format: proxy_ip = string
 # Require example
-# Example: Without auth (socks5_proxy_ip = "127.0.0.1")
-# Example: With auth (socks5_proxy_ip = "user@passwd:127.0.0.1")
-socks5_proxy_ip = "127.0.0.1"
+# Example: Without auth (proxy_ip = "127.0.0.1")
+# Example: With auth (proxy_ip = "user@passwd:127.0.0.1")
+proxy_ip = "127.0.0.1"
 
 # Port used by proxy server
-# Format: socks5_proxy_port = string
-# Example: (socks5_proxy_port = "9050")
-socks5_proxy_port = "9050"
+# Format: proxy_port = string
+# Example: (proxy_port = "9050")
+proxy_port = "9050"
 
 
 # WEB interface
@@ -197,4 +202,4 @@ polling_time = 10
 # Options: [True, False]
 # Format: first_run = bool
 # Example: first_run = False
-first_run = True
+first_run = False
