@@ -41,7 +41,7 @@ enable_proxy = False
 
 # Proxy server type
 # Format: proxy_type = string
-# Options: ['http', 'socks4', 'socks5', 'socks5t']
+# Options: ['http', 'socks4', 'socks5', 'socks5h']
 proxy_type = 'http'
 
 # IP address of proxy server
