@@ -33,6 +33,12 @@ try:
 except ImportError:
     pass
 
+if settings_file.keep_thumbs:
+    try:
+        os.makedirs(settings_file.thumbs_path)
+    except FileExistsError:
+        pass
+
 try:
     os.remove("update.lck")
 except Exception:
@@ -154,7 +160,10 @@ def thumbnail(fname):
         tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
         tf.close()
     if settings_file.thumbnailer.lower() == 'ffmpeg':
-        encode_FFMPEG(fname, tf)
+        if os.path.isfile(tf.name):
+            return send_file(tf.name)
+        else:
+            encode_FFMPEG(fname, tf)
     elif settings_file.thumbnailer.lower() == 'pil':
         encode_PIL(fname, tf)
     else:

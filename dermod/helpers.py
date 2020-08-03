@@ -12,10 +12,11 @@ class Module_Options:
             if i:
                 self.options[i.split('=')[0].strip()] = i.split('=')[1].split('#')[0].strip()
 
+
 class ThumbFile:
     def __init__(self, fname):
-        self.name = f"thumb_{fname}"
-        open(settings_file.thumbs_path+self.name, "wb").close()
+        self.name = settings_file.thumbs_path+f"/thumb_{fname}"
+
 
 class Option:
 
