@@ -160,7 +160,7 @@ def thumbnail(fname):
         tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
         tf.close()
     if settings_file.thumbnailer.lower() == 'ffmpeg':
-        if os.path.isfile(tf.name):
+        if os.path.isfile(tf.name) and settings_file.keep_thumbs:
             return send_file(tf.name)
         else:
             encode_FFMPEG(fname, tf)
