@@ -10,6 +10,8 @@ import os
 # Example: (modules = ['derpibooru', 'e621'])
 modules = ['derpibooru']
 
+# General settings
+
 # Hide Errors
 # There will be over 9000 errors. 
 # Do not set False unless you are developer or someone who knows programming
@@ -17,6 +19,14 @@ modules = ['derpibooru']
 # Format: suppress_errors = bool 
 # Example: (suppress_errors = True)
 suppress_errors = True
+
+# Application threads. A common general assumption is
+# using 2 per available processor cores - to handle
+# incoming requests using one and performing background
+# operations using the other.
+# Format: THREADS_PER_PAGE = int
+# Example: THREADS_PER_PAGE = 4
+THREADS_PER_PAGE = 2
 
 # Disable requests verifying
 # Useful when connecting to derpibooru through tor
@@ -36,31 +46,25 @@ ssl_verify = True
 # Example: (enable_proxy = True)
 enable_proxy = False
 
-
-# Proxy IP/Port Settings
+# Proxy server type
+# Format: proxy_type = string
+# Options: ['http', 'socks4', 'socks5', 'socks5h']
+proxy_type = 'http'
 
 # IP address of proxy server
-# Format: socks5_proxy_ip = string
+# Format: proxy_ip = string
 # Require example
-# Example: Without auth (socks5_proxy_ip = "127.0.0.1")
-# Example: With auth (socks5_proxy_ip = "user@passwd:127.0.0.1")
-socks5_proxy_ip = "127.0.0.1"
+# Example: Without auth (proxy_ip = "127.0.0.1")
+# Example: With auth (proxy_ip = "user@passwd:127.0.0.1")
+proxy_ip = "127.0.0.1"
 
 # Port used by proxy server
-# Format: socks5_proxy_port = string
-# Example: (socks5_proxy_port = "9050")
-socks5_proxy_port = "9050"
+# Format: proxy_port = string
+# Example: (proxy_port = "9050")
+proxy_port = "9050"
 
 
 # WEB interface
-
-# Application threads. A common general assumption is
-# using 2 per available processor cores - to handle
-# incoming requests using one and performing background
-# operations using the other.
-# Format: THREADS_PER_PAGE = int
-# Example: THREADS_PER_PAGE = 4
-THREADS_PER_PAGE = 2
 
 # Defines ip where to bind webUI
 # Format: web_ip = string
@@ -72,12 +76,31 @@ web_ip = "0.0.0.0"
 # Example: web_port = 1337
 web_port = 9000
 
+# Defines whether tag prediction should be disabled in webUI
+# Options: [True, False]
+# Format: disable_mobile = Bool
+# Example: disable_mobile = True
+disable_mobile = False
+
+# Defines how many tags to show when predicting
+# Format: predict_tags = int
+# Example: predict_tags = 50
+predict_tags = 20
+
+# Defines if thumbnails must be kept
+# Only works with ffmpeg thumbnailer
+# Options: [True, False]
+# Format: keep_thumbs = bool
+# Example: keep_thumbs = True
+keep_thumbs = False
+
 # Defines tool to make thumbnails
 # Can be "disabled", "ffmpeg" or "PIL"
 # Options: ["disabled", "ffmpeg", "PIL"]
 # Format: thumbnailer = string
 # Example: thumbnailer = "PIL"
 thumbnailer = "ffmpeg"
+
 
 # Ffmpeg settings
 
@@ -103,17 +126,6 @@ ffmpeg_args = "-loglevel quiet"
 # Example: gif_to_webp = True
 gif_to_webp = False
 
-# Defines whether tag prediction should be disabled in webUI
-# Options: [True, False]
-# Format: disable_mobile = Bool
-# Example: disable_mobile = True
-disable_mobile = False
-
-# Defines how many tags to show when predicting
-# Format: predict_tags = int
-# Example: predict_tags = 50
-predict_tags = 20
-
 
 # Database specific settings
 
@@ -123,6 +135,7 @@ predict_tags = 20
 showing_imgs = 20
 
 # Defines maximum amount of tags to show in search query
+# Does nothing for web version
 # Format: showing_tags = int
 # Example: (showing_tags = 14)
 showing_tags = 15
@@ -145,11 +158,6 @@ images_path = "./images/"
 # Example: (export_path = "./images_exp/" or export_path = "/home/vasyan/images_exp/")
 export_path = "./exported/"
 
-# Defines thread lifespan
-# Format: wait_time = int
-# Example: (time_wait = 10)
-time_wait = 60
-
 # Defines name (or path and name) for temporary file
 # Format: ids_file = string
 # Require example
@@ -164,8 +172,20 @@ ids_file = "img_ids.txt"
 # Example: (db_name = "sqlite.db" or db_name = "/home/vasyan/sqlite.db")
 db_name = "sqlite.db"
 
+# Defines path where thumbnails will be stored
+# Format: thumbs_path = string
+# Require example
+# Example: (thumbs_path = "./thumbs/" or thumbs_path = "C:/User/vasyan/thumbs/")
+# Example: (thumbs_path = "./thumbs/" or thumbs_path = "/home/vasyan/thumbs/")
+thumbs_path = "./thumbs/"
+
 
 # Threading
+
+# Defines thread lifespan
+# Format: wait_time = int
+# Example: (time_wait = 10)
+time_wait = 60
 
 # Defines maximum running threads before waiting before creating new threads
 # Format: thread_cap = int

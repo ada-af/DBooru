@@ -26,12 +26,18 @@ from dermod import db, threads
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
 from dermod import predict
-from dermod.helpers import Option, Module_Options
+from dermod.helpers import Option, Module_Options, ThumbFile
 
 try:
     import PIL.Image as Image
 except ImportError:
     pass
+
+if settings_file.keep_thumbs:
+    try:
+        os.makedirs(settings_file.thumbs_path)
+    except FileExistsError:
+        pass
 
 try:
     os.remove("update.lck")
@@ -148,10 +154,16 @@ def encode_FFMPEG(fname, tf):
 
 @DBooru.route("/thumbnail/<string:fname>")
 def thumbnail(fname):
-    tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
-    tf.close()
+    if settings_file.thumbnailer == "ffmpeg" and settings_file.keep_thumbs:
+        tf = ThumbFile(fname)
+    else:
+        tf = tempfile.NamedTemporaryFile(mode="wb+", delete=False)
+        tf.close()
     if settings_file.thumbnailer.lower() == 'ffmpeg':
-        encode_FFMPEG(fname, tf)
+        if os.path.isfile(tf.name) and settings_file.keep_thumbs:
+            return send_file(tf.name)
+        else:
+            encode_FFMPEG(fname, tf)
     elif settings_file.thumbnailer.lower() == 'pil':
         encode_PIL(fname, tf)
     else:
