@@ -28,6 +28,12 @@ suppress_errors = True
 # Example: THREADS_PER_PAGE = 4
 THREADS_PER_PAGE = 2
 
+# Enable debugging
+# Options: [True, False]
+# Format: debugging = bool
+# Example: (debugging = True)
+debugging = False
+
 # Disable requests verifying
 # Useful when connecting to derpibooru through tor
 # Format: ssl_verify = bool or string

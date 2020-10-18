@@ -19,9 +19,10 @@
           </span>
           <input type="text" name="q" class="form-control" id="inp" autocomplete="off" list="search" value="{{query}}"
             placeholder="Search something" />
-          <span class="input-group-append bg-t-360 hide_on_phone">
+          <span class="input-group-append">
             <button type="button" class="btn btn-submit btn-primary" onclick="rand_img()">
-              Random image
+              <img src="{{url_for('static', filename='shuffle.svg')}}" style="height: 1rem; width: 1rem;">
+              <span class='bg-t-360 hide_on_phone'>Random image</span>
             </button>
           </span>
           <span class="input-group-append">

@@ -331,4 +331,5 @@ if __name__ == "__main__":
     if settings_file.first_run:
         first_run()
     DBooru.run(host=settings_file.web_ip,
-               port=settings_file.web_port)
+               port=settings_file.web_port,
+               debug=settings_file.debugging)
