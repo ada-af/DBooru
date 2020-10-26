@@ -33,9 +33,9 @@ class Loader(Thread):
             logging.raiseExceptions = False
 
     def run(self):
-        print(f"Receiving {self.id}") if self.format == '' else pass
+        print(f"Receiving {self.id}") if self.format == '' else ''
         self.get_raw_image()
-        print(f"Wiritng {self.id}") if self.format == '' else pass
+        print(f"Wiritng {self.id}") if self.format == '' else ''
         self.writer()
         self.readiness = 1
         del self.raw_data
