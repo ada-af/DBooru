@@ -30,7 +30,7 @@
     - [Basic search rules](#basic-search-rules)
     - [Special tags](#special-tags)
       - [Syntax](#syntax)
-  - [Settings_file.py](#settingsfilepy)
+  - [Settings_file.py](#settings_filepy)
     - [/settings autogeneration](#settings-autogeneration)
       - [Keywords](#keywords)
       - [Examples](#examples-1)
@@ -101,6 +101,7 @@
 >- markupsafe
 >- click
 >- itsdangerous
+>- termcolor
 >
 >Or you can just type `pip install --user -r requirements.txt` in terminal
 
@@ -286,6 +287,8 @@ Enter this commands if prompt starts with `Search@DB>`
 |              "/random"              |  GET   |                                                        | Redirects to random image                                                     | Redirect (302) to /image/\*                                                                              |
 |          "/random/**tags**          |  GET   |                                                        | Redirects to random image tagged with **tags**                                | Redirect (302) to /image/\*                                                                              |
 |              "/update"              |  GET   |                                                        | Updates DB (Same as CLI: get images)                                          | Returns 200 code when update started successfully or 409 in case when there's already update in progress |
+|       "/remove/**prefix_id**"       | DELETE |                                                        | Used to remove image and its DB entry                                         |                                                                                                          |
+|       "/reload/**prefix_id**"       | PATCH  |                                                        | Triggers image redownloading                                                  |                                                                                                          |
 |             "/settings"             |  GET   |                                                        | Settings page                                                                 | HTML-page                                                                                                |
 |        "/settings/\<option>"        |  POST  | opt_type=**variable_type**&\<option>_new_opt=**value** | Endpoint for changing settings_file.py variables                              | Redirect (302) to /settings#\<option>\_form                                                              |
 | "/settings/\<modulename>/\<option>" |  POST  | \<option>_new_opt=**value**                            | Endpoint for changing module's variables                                      | Redirect (302) to /settings#\<modulename>\_form                                                          |

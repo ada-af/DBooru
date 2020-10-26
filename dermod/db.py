@@ -206,4 +206,12 @@ def tagged_get_next(id, tag):
     result = list(cursor.execute("select * from temp1 where (id>{}) order by id asc limit 1".format(int(id))).fetchall())[0]
     return result
 
+def remove_entry(imgid, prefix):
+    init_db()
+    sql = f"delete from images where (id = {int(imgid)}) and (prefix = '{prefix}')"
+    print(sql)
+    cursor.execute(sql)
+    conn.commit()
+    conn.close()
+
 precomp()

@@ -26,7 +26,8 @@ from dermod import db, threads
 from dermod import input_parser as ip
 from dermod import mime_types as mimes
 from dermod import predict
-from dermod.helpers import Option, Module_Options, ThumbFile
+from dermod.imgloader import Loader
+from dermod.helpers import Option, Module_Options, ThumbFile, DBImage
 
 try:
     import PIL.Image as Image
@@ -279,6 +280,30 @@ def first_run():
         print(colored("Unable to start browser\nSettings page http://127.0.0.1:{settings_file.web_port}/settings", 'red'))
     update_line("first_run", False)
 
+
+@DBooru.route("/reload/<string:imgid>", methods=["PATCH"])
+def image_reload(imgid):
+    if request.method != "PATCH":
+        return
+    image_data = DBImage(db.search_by_id(*reversed(imgid.split("_"))))
+    print(f"Reloading {image_data.prefix + image_data.no_p_fname}")
+    try:
+        os.remove(settings_file.images_path + "/" + image_data.prefix + image_data.no_p_fname)
+    except:
+        pass
+    l = Loader(image_data.link, image_data.prefix + image_data.no_p_fname)
+    l.start()
+    return Response(status=200)
+
+@DBooru.route("/remove/<string:imgid>", methods=["DELETE"])
+def remove_image(imgid):
+    image_data = DBImage(db.search_by_id(*reversed(imgid.split("_"))))
+    db.remove_entry(image_data.id, image_data.prefix)
+    try:
+        os.remove(settings_file.images_path + "/" + image_data.prefix + image_data.no_p_fname)
+    except:
+        pass
+    return Response(status=200)
 
 @DBooru.route("/json/search")
 def api_search():
