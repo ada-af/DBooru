@@ -56,3 +56,28 @@ class Option:
                     self.description.append(i[1:].strip())
             self.name = data[-1].split('=')[0].strip()
             self.value_now = data[-1].split('=', maxsplit=1)[1].strip()
+
+
+class DBImage:
+    def __init__(self, data=None):
+        if isinstance(data, list) or isinstance(data, tuple):
+            self.no_p_fname = data[0]
+            self.tags = set(data[1].split(',,'))
+            self.width = data[2]
+            self.height = data[3]
+            self.ratio = data[4]
+            self.link = data[5]
+            self.prefix = data[6]
+            self.id = data[7]
+        else:
+            self.no_p_fname
+            self.tags
+            self.width
+            self.height
+            self.ratio
+            self.link
+            self.prefix
+            self.id
+        
+    def __repr__(self):
+        return f"<Image {self.prefix}{self.id}>"

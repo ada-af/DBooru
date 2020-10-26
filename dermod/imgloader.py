@@ -18,16 +18,16 @@ is_error_code = False
 
 
 class Loader(Thread):
-    def __init__(self, url, fileid, fileform, is_proxy, proxy_ip, proxy_port):
+    def __init__(self, url, fileid, fileform=''):
         Thread.__init__(self)
         self.readiness = 0
         self.url = url
         self.id = fileid
         self.format = fileform
         self.raw_data = b''
-        self.proxy = is_proxy
-        self.ip = proxy_ip
-        self.port = proxy_port
+        self.proxy = settings_file.enable_proxy
+        self.ip = settings_file.proxy_ip
+        self.port = settings_file.proxy_port
         self.tmp = None
         if settings_file.suppress_errors is True:
             logging.raiseExceptions = False
@@ -60,10 +60,9 @@ class Loader(Thread):
 
     def writer(self):
         try:
-            open(settings_file.images_path + self.id +
-                 '.' + self.format, 'rb').close()
+            open(settings_file.images_path + self.id + (('.' + self.format) if self.format != '' else ''), 'rb').close()
         except FileNotFoundError:
-            with open(settings_file.images_path + self.id + '.' + self.format, 'wb') as file:
+            with open(settings_file.images_path + self.id + (('.' + self.format) if self.format != '' else ''), 'wb') as file:
                 file.write(self.raw_data)
                 file.flush()
 
@@ -99,10 +98,7 @@ def run(module, file, check_files=True, check_local=True, endwith="\r"):
                     break
                 t = Loader(parsed[i][2],
                            str(parsed[i][7] + parsed[i][0]),
-                           parsed[i][1],
-                           settings_file.enable_proxy,
-                           settings_file.proxy_ip,
-                           settings_file.proxy_port)
+                           parsed[i][1])
                 t.start()
                 tc.threads.append(t)
                 time.sleep(slp)
@@ -112,18 +108,12 @@ def run(module, file, check_files=True, check_local=True, endwith="\r"):
                     time.sleep(settings_file.sleep_time)
     else:
         for i in range(chk):
-            print(
-                "Loading image {} of {} ({}% done) (Running threads {})".format(
-                    i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
-                flush=True, end=endwith)
+            print(f"Loading image {i} of {chk} ({format(((i/chk)*100), '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 32, flush=True, end=endwith)
             if is_error_code == True:
                 break
             t = Loader(parsed[i][2],
                        str(parsed[i][7] + parsed[i][0]),
-                       parsed[i][1],
-                       settings_file.enable_proxy,
-                       settings_file.proxy_ip,
-                       settings_file.proxy_port)
+                       parsed[i][1])
             t.start()
             tc.threads.append(t)
             time.sleep(module.slp)
