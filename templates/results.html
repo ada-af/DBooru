@@ -31,16 +31,16 @@
         <div class="row">
             <div class="col-lg-12">
                 {% for i in results %}
-                {% if i[0].endswith('.webm') %}
+                {% if i.no_p_fname.endswith('.webm') %}
                 <div class="cont">
                     <div class='g-item'>
-                        <video class="img-fluid g-item" preload='auto' muted onclick="sclick('{{i[-2]+str(i[-1])}}')">
-                            <source src="/raw/{{i[-2]+i[0]}}" />
+                        <video class="img-fluid g-item" preload='auto' muted onclick="sclick('{{i.prefix}}{{i.id}}')">
+                            <source src="/raw/{{i.fname}}" />
                         </video></div>
                 </div>
                 {% else %}
                 <div class="cont">
-                    <div class='g-item'><img src="/thumbnail/{{i[-2]+i[0]}}" onclick="sclick('{{i[-2]+str(i[-1])}}')"
+                    <div class='g-item'><img src="/thumbnail/{{i.fname}}" onclick="sclick('{{i.prefix}}{{i.id}}')"
                             class="img-fluid g-item"></abbr></div>
                 </div>
                 {% endif %}
