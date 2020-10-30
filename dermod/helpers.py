@@ -62,13 +62,15 @@ class DBImage:
     def __init__(self, data=None):
         if isinstance(data, list) or isinstance(data, tuple):
             self.no_p_fname = data[0]
-            self.tags = set(data[1].split(',,'))
+            self.tags = list(sorted(set([x for x in data[1].split(',,') if x != '' and x != ' '])))
             self.width = data[2]
             self.height = data[3]
             self.ratio = data[4]
             self.link = data[5]
             self.prefix = data[6]
             self.id = data[7]
+            self.fformat = self.no_p_fname.split('.')[-1]
+            self.fname = self.prefix + self.no_p_fname
         else:
             self.no_p_fname
             self.tags
@@ -78,6 +80,8 @@ class DBImage:
             self.link
             self.prefix
             self.id
+            self.fformat = self.no_p_fname.split('.')[-1]
+            self.fname = self.prefix + self.no_p_fname
         
     def __repr__(self):
         return f"<Image {self.prefix}{self.id}>"

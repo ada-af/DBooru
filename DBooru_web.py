@@ -72,6 +72,7 @@ def search():
     try:
         results, total = db.search(db_search_list['search'],
                                    db_search_list['remove'], page=page-1)
+        results = [DBImage(x) for x in results]
     except (IndexError, KeyError):
         pass
     return render_template('results.html', search=query, page=page,
@@ -83,6 +84,7 @@ def search():
 def image(img_id):
     prefix, img_id = img_id.split("_")
     image = db.search_by_id(img_id, prefix=prefix)
+    image = DBImage(image)
     query = request.args.get('q')
     if query is None:
         query = ""
