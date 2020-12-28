@@ -86,6 +86,7 @@ def mkdb(table_name):
 
 def fill_db(file=settings_file.ids_file):
     print("\nFilling DB")
+    open('db.lck', 'w')
     init_db()
     unparsed = open(file).read()
     halfparsed = unparsed.strip("\n").split("\n")
@@ -114,6 +115,7 @@ def fill_db(file=settings_file.ids_file):
         conn.commit()
         conn.execute("VACUUM")
         conn.commit()
+    os.remove('db.lck')
 
 
 def count_tag(tag_to_count):
