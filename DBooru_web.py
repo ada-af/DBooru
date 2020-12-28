@@ -72,7 +72,7 @@ def index():
 @DBooru.route('/search', methods=['GET'])
 def search():
     if 'db.lck' in os.listdir():
-        return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
+        return Response('Writing to DB. Please wait.', status=423, headers={"Refresh": f"5; url={request.url}"})
     page = request.args.get('page', default=1, type=int)
     query = request.args.get('q', default='', type=str)
     db_search_list = ip.parser(query)
@@ -90,7 +90,7 @@ def search():
 @DBooru.route('/image/<string:img_id>')
 def image(img_id):
     if 'db.lck' in os.listdir():
-        return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
+        return Response('Writing to DB. Please wait.', status=423, headers={"Refresh": f"5; url={request.url}"})
     prefix, img_id = img_id.split("_")
     image = db.search_by_id(img_id, prefix=prefix)
     image = DBImage(image)
@@ -125,7 +125,7 @@ def update():
 @DBooru.route("/random")
 def random():
     if 'db.lck' in os.listdir():
-        return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
+        return Response('Writing to DB. Please wait.', status=423, headers={"Refresh": f"5; url={request.url}"})
     img = db.random_img()[0]
     result = str("/image/"+img[-2]+str(img[-1]))
     return redirect(result)
@@ -134,7 +134,7 @@ def random():
 @DBooru.route("/random/<string:tags>")
 def tagged_rand(tags):
     if 'db.lck' in os.listdir():
-        return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
+        return Response('Writing to DB. Please wait.', status=423, headers={"Refresh": f"5; url={request.url}"})
     tags_list = ip.parser(tags)
     result = db.tagged_random(tags_list)
     return redirect("/image/"+result[-2]+str(result[-1])+"?q="+tags)
@@ -191,7 +191,7 @@ def thumbnail(fname):
 @DBooru.route("/next/<string:id>")
 def next(id):
     if 'db.lck' in os.listdir():
-        return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
+        return Response('Writing to DB. Please wait.', status=423, headers={"Refresh": f"5; url={request.url}"})
     starting = int(id.split('_')[1])
     query = request.args.get('q')
     if query is None or query == "":
@@ -213,7 +213,7 @@ def next(id):
 @DBooru.route("/previous/<string:id>")
 def previous(id):
     if 'db.lck' in os.listdir():
-        return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
+        return Response('Writing to DB. Please wait.', status=423, headers={"Refresh": f"5; url={request.url}"})
     starting = int(id.split('_')[1])
     query = request.args.get('q')
     if query is None or query == "":
