@@ -364,7 +364,10 @@ Enter this commands if prompt starts with `Search@DB>`
 | export_path     | String (Path)                               | Where to store exported images                                              |
 | time_wait       | Integer (seconds)                           | How long thread can stay alive                                              |
 | ids_file        | String (Path/Filename)                      | Name for tempfile (No need to change)                                       |
-| db_name         | String (Path/Filename)                      | Where to store DB file                                                      |
+| db_name         | String                                      | Defines name for database file In case of using mysql defines schema name   |
+| use_mysql       | Bool (True/False)                           | Defines if mysql connection should be used                                  |
+| mysql_user      | String                                      | Defines mysql user                                                          |
+| mysql_password  | String                                      | Defines mysql password                                                      |
 | thread_cap      | Integer (number)                            | Defines maximum running threads before blocking creating new threads        |
 | sleep_time      | Integer (seconds)                           | Defines time to wait before creating new thread after thread cap is reached |
 | enable_polling  | Bool                                        | Setting for enabling/disabling polling for changes in settings_file.py      |
