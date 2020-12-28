@@ -71,7 +71,7 @@ def index():
 
 @DBooru.route('/search', methods=['GET'])
 def search():
-    if os.stat('db.lck'):
+    if 'db.lck' in os.listdir():
         return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
     page = request.args.get('page', default=1, type=int)
     query = request.args.get('q', default='', type=str)
@@ -89,7 +89,7 @@ def search():
 
 @DBooru.route('/image/<string:img_id>')
 def image(img_id):
-    if os.stat('db.lck'):
+    if 'db.lck' in os.listdir():
         return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
     prefix, img_id = img_id.split("_")
     image = db.search_by_id(img_id, prefix=prefix)
@@ -124,7 +124,7 @@ def update():
 
 @DBooru.route("/random")
 def random():
-    if os.stat('db.lck'):
+    if 'db.lck' in os.listdir():
         return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
     img = db.random_img()[0]
     result = str("/image/"+img[-2]+str(img[-1]))
@@ -133,7 +133,7 @@ def random():
 
 @DBooru.route("/random/<string:tags>")
 def tagged_rand(tags):
-    if os.stat('db.lck'):
+    if 'db.lck' in os.listdir():
         return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
     tags_list = ip.parser(tags)
     result = db.tagged_random(tags_list)
@@ -190,7 +190,7 @@ def thumbnail(fname):
 
 @DBooru.route("/next/<string:id>")
 def next(id):
-    if os.stat('db.lck'):
+    if 'db.lck' in os.listdir():
         return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
     starting = int(id.split('_')[1])
     query = request.args.get('q')
@@ -212,7 +212,7 @@ def next(id):
 
 @DBooru.route("/previous/<string:id>")
 def previous(id):
-    if os.stat('db.lck'):
+    if 'db.lck' in os.listdir():
         return Response('base.html', status=423, headers={"Refresh": f"5; url={request.location.href}"})
     starting = int(id.split('_')[1])
     query = request.args.get('q')
@@ -326,7 +326,7 @@ def remove_image(imgid):
 
 @DBooru.route("/json/search")
 def api_search():
-    if os.stat('db.lck'):
+    if 'db.lck' in os.listdir():
         return Response('[]', status=423)
     page = request.args.get('page', default=1, type=int)
     query = request.args.get('q', default='', type=str)
