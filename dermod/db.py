@@ -185,10 +185,13 @@ def search(list_search, list_remove, page=0, return_query=False):
         else:
             autogen_query = autogen_query + " where " + remove_autogen
 
-    final_autogen = "{autogen_query} {specials} order by id DESC limit {imgs_amount} offset {offset}".format(
-        autogen_query=autogen_query, imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page, specials=specials)
     if return_query:
+        final_autogen = "{autogen_query} {specials}".format(
+            autogen_query=autogen_query, specials=specials)
         return final_autogen
+    else:
+        final_autogen = "{autogen_query} {specials} order by id DESC limit {imgs_amount} offset {offset}".format(
+            autogen_query=autogen_query, imgs_amount=settings_file.showing_imgs, offset=settings_file.showing_imgs*page, specials=specials)
     cursor.execute(final_autogen)
     results = list(cursor.fetchall())
 
