@@ -107,6 +107,10 @@ keep_thumbs = False
 # Example: thumbnailer = "PIL"
 thumbnailer = "ffmpeg"
 
+# Defines how many pictures must be shown in output
+# Format: showing_imgs = int
+# Example: showing_imgs = 5
+showing_imgs = 20
 
 # Ffmpeg settings
 
@@ -135,10 +139,30 @@ gif_to_webp = False
 
 # Database specific settings
 
-# Defines how many pictures must be shown in output
-# Format: showing_imgs = int
-# Example: showing_imgs = 5
-showing_imgs = 20
+# Defines if mysql connection should be used
+# Format: use_mysql = bool
+# Options: [True, False]
+# Example: use_mysql = True
+use_mysql = False
+
+# Defines mysql user
+# Format: mysql_user = string
+# Example: mysql_user = "someuser"
+mysql_user = "user"
+
+# Defines mysql password
+# Format: mysql_password = string
+# Example: mysql_password = "123456"
+mysql_password = "hunter2"
+
+# Defines name (or path and name) for database file
+# Format: db_name = string
+# Require example
+# Example: (db_name = "sqlite.db" or db_name = "C:/User/sqlite.db")
+# Example: (db_name = "sqlite.db" or db_name = "/home/vasyan/sqlite.db")
+# In case of using mysql defines schema name
+# Example: (db_name = "images")
+db_name = "sqlite.db"
 
 # Defines maximum amount of tags to show in search query
 # Does nothing for web version
@@ -170,13 +194,6 @@ export_path = "./exported/"
 # Example: (ids_file = "img_ids.txt" or ids_file = "C:/User/Temp/Filename.dat")
 # Example: (ids_file = "img_ids.txt" or ids_file = "/home/vasyan/img_ids.txt")
 ids_file = "img_ids.txt"
-
-# Defines name (or path and name) for database file
-# Format: db_name = string
-# Require example
-# Example: (db_name = "sqlite.db" or db_name = "C:/User/sqlite.db")
-# Example: (db_name = "sqlite.db" or db_name = "/home/vasyan/sqlite.db")
-db_name = "sqlite.db"
 
 # Defines path where thumbnails will be stored
 # Format: thumbs_path = string
@@ -223,4 +240,4 @@ polling_time = 10
 # Options: [True, False]
 # Format: first_run = bool
 # Example: first_run = False
-first_run = True
+first_run = False

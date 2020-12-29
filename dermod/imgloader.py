@@ -38,12 +38,12 @@ class Loader(Thread):
             self.get_raw_image()
         except:
             self.readiness = 1
-            quit(0)
+            return
         print(f"Wiritng {self.id}") if self.format == '' else ''
         self.writer()
         self.readiness = 1
         del self.raw_data
-        quit(0)
+        return
 
     def get_raw_image(self):
         with requests.Session() as s:
@@ -60,7 +60,7 @@ class Loader(Thread):
             if self.tmp.status_code >= 400:
                 global is_error_code
                 is_error_code = True
-                quit(1)
+                return
             else:
                 self.raw_data = self.tmp.content
 

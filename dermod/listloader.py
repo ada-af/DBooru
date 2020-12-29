@@ -32,7 +32,7 @@ class Checker(Thread):
         global is_error_code
         with requests.Session() as s:
             if is_error_code is True:
-                quit(1)
+                return
             s.headers = {
                 'User-Agent': 'DBooru/2.0 (Api checker module)(github.com/mcilya/DBooru)'}
             if settings_file.enable_proxy is False:
@@ -97,7 +97,7 @@ class Checker(Thread):
             self.get_data()
         except:
             self.readiness = 1
-            quit()
+            return
         else:
             if re.match("{}".format(self.module.empty_page), self.raw_data) is not None:
                 global empties
@@ -112,7 +112,7 @@ class Checker(Thread):
         #     if is_error_code == False:
         #         self.run()
             self.readiness = 1
-            quit()
+            return
 
 
 def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):

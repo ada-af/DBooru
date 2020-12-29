@@ -9,3 +9,4 @@ markupsafe
 click
 itsdangerous
 termcolor
+mysql-connector-python
