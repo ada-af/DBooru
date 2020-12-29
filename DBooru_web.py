@@ -309,8 +309,6 @@ def remove_image(imgid):
 
 @DBooru.route("/json/search")
 def api_search():
-    if 'db.lck' in os.listdir():
-        return Response('[]', status=423)
     page = request.args.get('page', default=1, type=int)
     query = request.args.get('q', default='', type=str)
     db_search_list = ip.parser(query)
