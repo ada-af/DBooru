@@ -7,7 +7,6 @@ import logging
 
 from dermod import input_parser as ip
 import settings_file
-from settings_file import use_mysql
 
 try:
     import mysql.connector
@@ -41,8 +40,7 @@ def precomp():
             del cur
         conn.close()
         del conn
-    
-    init_db()
+    conn, cursor = init_db()
     if settings_file.use_mysql:
         cursor.execute("SHOW TABLES")
         t = [x[0] for x in cursor.fetchall()]
@@ -53,30 +51,29 @@ def precomp():
             
 
 def init_db():
-    global cursor
-    global conn
     if settings_file.use_mysql:
         conn = mysql.connector.connect(user=settings_file.mysql_user, password=settings_file.mysql_password, db=settings_file.db_name)
     else:
         conn = sqlite3.connect(settings_file.db_name)
     cursor = conn.cursor()
+    return conn, cursor
 
 
 def total_found():
-    init_db()
+    conn, cursor = init_db()
     cursor.execute("SELECT count(*) FROM images where fname")
     print("Images in DataBase =>", cursor.fetchone()[0])
 
 
 def get_all_entries():
-    init_db()
+    conn, cursor = init_db()
     cursor.execute("SELECT tags from images")
     result = list(cursor.fetchall())
     return result
 
 
 def mkdb(table_name):
-    init_db()
+    conn, cursor = init_db()
     cursor.execute('drop table IF EXISTS {}'.format(table_name))
     sample = """CREATE TABLE {}({}, PRIMARY KEY (prefix, id))""".format(table_name, tag_col_full)
     cursor.execute(sample)
@@ -86,8 +83,7 @@ def mkdb(table_name):
 
 def fill_db(file=settings_file.ids_file):
     print("\nFilling DB")
-    open('db.lck', 'w')
-    init_db()
+    conn, cursor = init_db()
     unparsed = open(file).read()
     halfparsed = unparsed.strip("\n").split("\n")
     cnt = 0
@@ -115,11 +111,10 @@ def fill_db(file=settings_file.ids_file):
         conn.commit()
         conn.execute("VACUUM")
         conn.commit()
-    os.remove('db.lck')
 
 
 def count_tag(tag_to_count):
-    init_db()
+    conn, cursor = init_db()
 
     sample = """select count(*) FROM images where tags like '%,,{},,%'""".format(tag_to_count)
     output = list(cursor.execute(sample))
@@ -128,7 +123,7 @@ def count_tag(tag_to_count):
 
 
 def search(list_search, list_remove, page=0, return_query=False):
-    init_db()
+    conn, cursor = init_db()
 
     # Handle special tags
     specials = []
@@ -206,7 +201,7 @@ def search(list_search, list_remove, page=0, return_query=False):
 
 
 def search_by_id(img_id, prefix="%"):
-    init_db()
+    conn, cursor = init_db()
     sql = "SELECT * FROM images WHERE id = {} and prefix like '{}_'".format(img_id, prefix)
     cursor.execute(sql)
     result = list(cursor.fetchall())
@@ -217,47 +212,47 @@ def search_by_id(img_id, prefix="%"):
 
 
 def random_img():
-    init_db()
+    conn, cursor = init_db()
     cursor.execute("SELECT * FROM images ORDER BY {rand} LIMIT 1".format(rand=rand_func))
     result = list(cursor.fetchall())
     return result
 
 
 def tagged_random(tag):
-    init_db()
+    conn, cursor = init_db()
     query = search(tag['search'], tag['remove'], return_query=True)
     cursor.execute("select * from ({}) as T order by {rand} Limit 1".format(query, rand=rand_func))
     result = cursor.fetchone()
     return result
 
 def get_prev(id):
-    init_db()
+    conn, cursor = init_db()
     cursor.execute("select * from images where (id<{}) order by id desc limit 1".format(int(id)))
     result = list(cursor.fetchall())[0]
     return result
 
 def get_next(id):
-    init_db()
+    conn, cursor = init_db()
     cursor.execute("select * from images where (id>{}) order by id asc limit 1".format(int(id)))
     result = list(cursor.fetchall())[0]
     return result
 
 def tagged_get_prev(id, tag):
-    init_db()
+    conn, cursor = init_db()
     query = search(tag['search'], tag['remove'], return_query=True)
     cursor.execute("select * from ({}) as T where (id<{}) order by id desc limit 1".format(query, int(id)))
     result = list(cursor.fetchall())[0]
     return result
 
 def tagged_get_next(id, tag):
-    init_db()
+    conn, cursor = init_db()
     query = search(tag['search'], tag['remove'], return_query=True)
     cursor.execute("select * from ({}) as T where (id>{}) order by id asc limit 1".format(query, int(id)))
     result = list(cursor.fetchall())[0]
     return result
 
 def remove_entry(imgid, prefix):
-    init_db()
+    conn, cursor = init_db()
     sql = f"delete from images where (id = {int(imgid)}) and (prefix = '{prefix}')"
     print(sql)
     cursor.execute(sql)
