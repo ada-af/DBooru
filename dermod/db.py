@@ -31,9 +31,9 @@ def precomp():
     
     if settings_file.use_mysql:
         try:
-            conn = mysql.connector.connect(user=settings_file.mysql_user, password=settings_file.mysql_password, db=settings_file.db_name)
+            conn = mysql.connector.connect(user=settings_file.mysql_user, password=settings_file.mysql_password, db=settings_file.db_name, host=settings_file.mysql_host, port=settings_file.mysql_port)
         except:
-            conn = mysql.connector.connect(user=settings_file.mysql_user, password=settings_file.mysql_password)
+            conn = mysql.connector.connect(user=settings_file.mysql_user, password=settings_file.mysql_password, host=settings_file.mysql_host, port=settings_file.mysql_port)
             cur = conn.cursor()
             cur.execute("create schema `{}`".format(settings_file.db_name))
             conn.commit()
@@ -52,7 +52,7 @@ def precomp():
 
 def init_db():
     if settings_file.use_mysql:
-        conn = mysql.connector.connect(user=settings_file.mysql_user, password=settings_file.mysql_password, db=settings_file.db_name)
+        conn = mysql.connector.connect(user=settings_file.mysql_user, password=settings_file.mysql_password, db=settings_file.db_name, host=settings_file.mysql_host, port=settings_file.mysql_port)
     else:
         conn = sqlite3.connect(settings_file.db_name)
     cursor = conn.cursor()
