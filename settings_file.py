@@ -155,6 +155,16 @@ mysql_user = "user"
 # Example: mysql_password = "123456"
 mysql_password = "hunter2"
 
+# Defines mysql host
+# Format: mysql_host = string
+# Example: mysql_host = "192.168.1.1"
+mysql_host = "127.0.0.1"
+
+# Defines mysql port
+# Format: mysql_port = int
+# Example: mysql_host = 1337
+mysql_host = 3306
+
 # Defines name (or path and name) for database file
 # Format: db_name = string
 # Require example
