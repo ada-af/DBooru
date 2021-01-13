@@ -162,8 +162,8 @@ mysql_host = "127.0.0.1"
 
 # Defines mysql port
 # Format: mysql_port = int
-# Example: mysql_host = 1337
-mysql_host = 3306
+# Example: mysql_port = 1337
+mysql_port = 3306
 
 # Defines name (or path and name) for database file
 # Format: db_name = string
