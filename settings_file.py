@@ -112,6 +112,13 @@ thumbnailer = "ffmpeg"
 # Example: showing_imgs = 5
 showing_imgs = 20
 
+# Enables swipe controls on touchscreens
+# Options: [True, False]
+# Format: touch_controls = Bool
+# Example: touch_controls = False
+touch_controls = True
+
+
 # Ffmpeg settings
 
 # Format to use when generating thumbnail for images
@@ -236,7 +243,6 @@ sleep_time = 5
 # Example: polling_time = False
 enable_polling = False
 
-
 # Defines time (in seconds) between checks for changes in settings_file.py
 # Format: polling_time = int
 # Example: polling_time = 60
@@ -250,4 +256,4 @@ polling_time = 10
 # Options: [True, False]
 # Format: first_run = bool
 # Example: first_run = False
-first_run = False
+first_run = True

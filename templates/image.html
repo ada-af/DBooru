@@ -102,7 +102,9 @@
       </div>
     </div>
   </div>
-
+  <div hidden='true' id='random_arrow'><img src='/static/shuffle.svg' style="height:15%; width: 15%; position: fixed; top: -10px; left: 0; right: 0;margin-left: auto; margin-right: auto;  z-index: 10;"></div>
+  <div hidden='true' id='prev_arrow'><img src='/static/arrow.svg' style="height:15%; width: 15%; position: fixed; top: 45%; right: 0; z-index: 10"></div>
+  <div hidden='true' id='next_arrow'><img src='/static/arrow.svg' style="height:15%; width: 15%; position: fixed; top: 45%; ; z-index: 10; transform: rotate(180deg)"></div>
 </body>
 {% endblock content %}
 
@@ -157,28 +159,99 @@
     img.classList.toggle("ft");
   }
 
+  function next_img() {
+    xhr = new XMLHttpRequest();
+    body = String(window.location.pathname).split("/");
+    body = body[body.length - 1] + "?q=" + document.getElementById("inp").value
+    xhr.open("GET", "/next/" + body, true);
+    xhr.send();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
+        window.location = "/image/" + xhr.responseText;
+      } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
+        i = 1;
+      }
+    };
+  }
+
+  function prev_img() {
+    xhr = new XMLHttpRequest();
+    body = String(window.location.pathname).split("/");
+    body = body[body.length - 1] + "?q=" + document.getElementById("inp").value
+    xhr.open("GET", "/previous/" + body, true);
+    xhr.send();
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
+        window.location = "/image/" + xhr.responseText;
+      } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
+        i = 1;
+      }
+    };
+  }
+
   document.onkeydown = function (e) {
     if ((e.keyCode === 39 || e.keyCode === 37) && e.target.className != "form-control") {
-      xhr = new XMLHttpRequest();
-      body = String(window.location.pathname).split("/");
-      body = body[body.length - 1] + "?q=" + document.getElementById("inp").value
       if (e.keyCode === 39 && e.target.className != "form-control") {
-        xhr.open("GET", "/previous/" + body, true);
+        prev_img()
       } else if (e.keyCode === 37 && e.target.className != "form-control") {
-        xhr.open("GET", "/next/" + body, true);
+        next_img()
       }
-      xhr.send();
-      xhr.onreadystatechange = function () {
-        if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 200) {
-          window.location = "/image/" + xhr.responseText;
-        } else if (xhr.readyState === XMLHttpRequest.DONE && xhr.status == 404) {
-          i = 1;
-        }
-      };
     }
     if (e.keyCode === 82 && e.target.className != "form-control" && e.target.id != 'inp') {
       rand_img();
     }
   };
+
+  touch_evts = ''
+
+  function touchhandler_start(evt) {
+    console.log(evt)
+    touch_evts = evt
+  }
+
+  function touchhandler_move(evt) {
+    if (((evt.changedTouches[0].pageY - touch_evts.changedTouches[0].pageY) >= screen.height * 0.1) && touch_evts.changedTouches[0].pageY < screen.height) {
+      document.getElementById('random_arrow').hidden = false
+      return
+    } else {
+      document.getElementById('random_arrow').hidden = true
+    }
+
+    if ((evt.changedTouches[0].clientX - touch_evts.changedTouches[0].clientX) >= screen.width * 0.2) {
+      document.getElementById('next_arrow').hidden = false
+      return
+    } else {
+      document.getElementById('next_arrow').hidden = true
+    }
+
+    if ((touch_evts.changedTouches[0].clientX - evt.changedTouches[0].clientX) >= screen.width * 0.2) {
+      document.getElementById('prev_arrow').hidden = false
+      return
+    } else {
+      document.getElementById('prev_arrow').hidden = true
+    }
+  }
+
+  function touchhandler_end(evt) {
+    console.log(evt)
+    document.getElementById('random_arrow').hidden = true
+    document.getElementById('next_arrow').hidden = true
+    document.getElementById('prev_arrow').hidden = true
+    if (((evt.changedTouches[0].pageY - touch_evts.changedTouches[0].pageY) >= screen.height * 0.1) && touch_evts.changedTouches[0].pageY < screen.height) {
+      rand_img()
+      return
+    } else if ((evt.changedTouches[0].clientX - touch_evts.changedTouches[0].clientX) >= screen.width * 0.2) {
+      next_img()
+      return
+    } else if ((touch_evts.changedTouches[0].clientX - evt.changedTouches[0].clientX) >= screen.width * 0.2) {
+      prev_img()
+      return
+    }
+  }
+{%if touch_controls%}
+  document.addEventListener('touchstart', touchhandler_start)
+  document.addEventListener('touchmove', touchhandler_move)
+  document.addEventListener('touchend', touchhandler_end)
+{%endif%}
 </script>
 {% endblock scripts %}

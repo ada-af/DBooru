@@ -376,6 +376,7 @@ Enter this commands if prompt starts with `Search@DB>`
 | enable_polling  | Bool                                        | Setting for enabling/disabling polling for changes in settings_file.py      |
 | polling_time    | Integer (seconds)                           | Defines time (in seconds) between checks for changes in settings_file.py    |
 | first_run       | Bool                                        | Defines if settings page should be opened on first run                      |
+| touch_controls  | Bool                                        | Enables swipe controls on touchscreens                                      |
 
 ### /settings autogeneration
 
