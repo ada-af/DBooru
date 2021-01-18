@@ -88,7 +88,7 @@ def image(img_id):
     query = request.args.get('q')
     if query is None:
         query = ""
-    return render_template('image.html', image=image, query=query)
+    return render_template('image.html', image=image, query=query, touch_controls=settings_file.touch_controls)
 
 
 @DBooru.route("/raw/<string:fname>")

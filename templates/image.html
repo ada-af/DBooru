@@ -248,9 +248,10 @@
       return
     }
   }
-
+{%if touch_controls%}
   document.addEventListener('touchstart', touchhandler_start)
   document.addEventListener('touchmove', touchhandler_move)
   document.addEventListener('touchend', touchhandler_end)
+{%endif%}
 </script>
 {% endblock scripts %}
