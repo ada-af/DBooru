@@ -1,7 +1,3 @@
-from time import sleep
-import dermod
-
-
 username = "YOUR USERNAME GOES HERE"
 
 # Do not change values below this line (aka line 3)
