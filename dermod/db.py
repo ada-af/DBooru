@@ -89,7 +89,7 @@ def fill_db(file=settings_file.ids_file):
     cnt = 0
     for i in halfparsed:
         i = i.replace('" ', '"').replace(' "', '"').replace(
-            '\' ', '\'').replace(' \'', '\'').replace("'", '').replace("\"", "").replace(r"\xc3\xa9", "e")
+            '\' ', '\'').replace(' \'', '\'').replace("'", '').replace("\"", "")
         i = i.split(";;;")
         k = i[6]
         k = str(k).strip("[]").replace('" ', '"').replace(

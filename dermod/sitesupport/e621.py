@@ -48,18 +48,6 @@ class Module:
 
             tags = []
 
-            t_tags = i.split('"tags":')[1].split("}")[0].split("],")
-            for j in t_tags:
-                if j.startswith('"artist"'):
-                    j = ["artist:"+x.replace("_", " ") for x in j.split(":[")[1].strip('"').split('","')]
-                else:
-                    j = [x.replace("_", " ") for x in j.split(":[")[1].strip('"').split('","')]
-                if j != [''] and j != [']']:
-                    tags += j
-
-            k = r + ",," + ",,".join(sorted(tags))
-            self.tags.append(k.replace('[', '').replace(']', ''))
-
             if (len((pools := i.split('"pools":[')[1].split('],')[0].split(','))) > 0) and pools != ['']:
                 for j in pools:
                     if (pool_name := self.check_pool(j)) is False:
@@ -74,7 +62,20 @@ class Module:
                         while pool_name == "":
                             pool_name = self.check_pool(j)
                             time.sleep(0.5)
-                    self.tags.append(f"pool:{pool_name}")
+                    tags.append(f"pool:{pool_name}")
+
+            t_tags = i.split('"tags":')[1].split("}")[0].split("],")
+            for j in t_tags:
+                if j.startswith('"artist"'):
+                    j = ["artist:"+x.replace("_", " ") for x in j.split(":[")[1].strip('"').split('","')]
+                else:
+                    j = [x.replace("_", " ") for x in j.split(":[")[1].strip('"').split('","')]
+                if j != [''] and j != [']']:
+                    tags += j
+
+            k = r + ",," + ",,".join(sorted(tags))
+            self.tags.append(k.replace('[', '').replace(']', ''))
+
                         
 
             k = i.split('"file":')[1]
