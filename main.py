@@ -115,6 +115,7 @@ def update_db(endwith="\r"):
         shutil.rmtree('tmp')
         os.remove(settings_file.ids_file)
         print("Image index is up-to-date\n")
+    return
 
 
 def main_cycle():

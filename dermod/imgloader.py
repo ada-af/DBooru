@@ -10,7 +10,7 @@ import requests
 
 import settings_file
 
-from . import input_parser as ip
+from . import input_parser as ip, logger
 from . import threads as TC
 
 global is_error_code
@@ -94,7 +94,7 @@ def run(module, file, check_files=True, check_local=True, endwith="\r"):
         for i in range(chk):
             print(
                 "Loading image {} of {} ({}% done) (Running threads {})".format(
-                    i, chk, format(((i/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
+                    i+1, chk, format((((i+1)/chk)*100), '.4g'), len(tc.threads)) + " " * 32,
                 flush=True, end=endwith)
             try:
                 open(settings_file.images_path +
@@ -114,7 +114,7 @@ def run(module, file, check_files=True, check_local=True, endwith="\r"):
                     time.sleep(settings_file.sleep_time)
     else:
         for i in range(chk):
-            print(f"Loading image {i} of {chk} ({format(((i/chk)*100), '.4g')}% done) (Running threads {len(tc.threads)})" + " " * 32, flush=True, end=endwith)
+            print(f"Loading image {i+1} of {chk} ({format(((i/chk)*100), '.4g')}% done) (Running threads {len(tc.threads)+1})" + " " * 32, flush=True, end=endwith)
             if is_error_code == True:
                 break
             t = Loader(parsed[i][2],
