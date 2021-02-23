@@ -221,7 +221,6 @@ def settings():
     modules = list(set([x.split(".py")[0] for x in os.listdir("dermod/sitesupport")]) - set(["__init__", "__pycache__", "helpers"]))
     modules.sort()
     modules_settings = []
-    print(modules)
     for i in modules:
         with open(f"dermod/sitesupport/{i}.py", 'r+') as f:
             modules_settings.append(Module_Options(f.read().split("# Do not change values")[0].splitlines(), i))
