@@ -359,7 +359,6 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
     rotating_file_handler = RotatingFileHandler(filename="log.log")
     rotating_file_handler.setLevel(logging.INFO)
-    logger.addHandler(rotating_file_handler)
     if settings_file.first_run:
         first_run()
     DBooru.run(host=settings_file.web_ip,
