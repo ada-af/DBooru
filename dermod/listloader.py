@@ -59,7 +59,7 @@ class Checker(Thread):
         if tmp is not None:
             raise GeneratorExit
         try:
-            self.raw_data = self.raw_data.content.decode("unicode_escape")
+            self.raw_data = self.raw_data.content.decode("utf-8")
         except UnicodeEncodeError:
             self.raw_data = self.raw_data.content.decode()
 
@@ -153,7 +153,7 @@ def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):
                     verify=settings_file.ssl_verify, timeout=settings_file.time_wait)
         if dat.status_code >= 400:
             break
-        if re.search("{}".format(module.empty_page), dat.content.decode()) is not None:
+        if re.search("{}".format(module.empty_page), dat.content.decode('utf-8')) is not None:
             k = True
         try:
             if pages_num >= hard_limit:
@@ -174,14 +174,17 @@ def run(module, pages_num=0, file=settings_file.ids_file, endwith="\r"):
                 pass
     tc = TC.ThreadController()
     tc.start()
-    if "PyPy" in sys.version:
-        slp = 0.1
-    else:
-        slp = 0.2
+    try:
+        mc = module.max_checkers
+    except:
+        mc = None
     for i in range(1, pages_num+1):
+        if mc and len(tc.threads) >= mc:
+            while len(tc.threads) >= mc:
+                time.sleep(1)
         gc.collect()
         print("Checking page {} of {} ({}% done)(Running threads {})          ".format(
-            i, pages_num, format(((i/pages_num)*100), '.4g'), len(tc.threads)), flush=True, end=endwith)
+            i+1, pages_num, format((((i+1)/pages_num)*100), '.4g'), len(tc.threads)+1), flush=True, end=endwith)
         if is_error_code is True:
             break
         t = Checker(page=i,

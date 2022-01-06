@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 import imghdr
+import threading
+import logging
+from logging.handlers import RotatingFileHandler
 from termcolor import colored
 import json
 import math
@@ -98,11 +101,9 @@ def raw(fname):
 
 @DBooru.route("/update")
 def update():
-    global THREAD_PORT
-    # Socket for thread communication
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     if os.path.exists("update.lck") is False:
-        sock.sendto(b"UPDT", ('127.0.0.1', THREAD_PORT))
+        update_thr = threading.Thread(target=main.update_db, daemon=True)
+        update_thr.start()
         open("update.lck", 'w').write('1')
         j = "DB Update started in background."
         stat = 200
@@ -217,7 +218,7 @@ def previous(id):
 
 @DBooru.route("/settings", methods=["GET"])
 def settings():
-    modules = list(set([x.split(".py")[0] for x in os.listdir("dermod/sitesupport")]) - set(["__init__", "__pycache__"]))
+    modules = list(set([x.split(".py")[0] for x in os.listdir("dermod/sitesupport")]) - set(["__init__", "__pycache__", "helpers"]))
     modules.sort()
     modules_settings = []
     for i in modules:
@@ -354,7 +355,6 @@ def start_background_tasks():
 
 
 if __name__ == "__main__":
-    start_background_tasks()
     if settings_file.first_run:
         first_run()
     DBooru.run(host=settings_file.web_ip,
