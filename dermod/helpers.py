@@ -10,7 +10,8 @@ class Module_Options:
     def _disassemble(self, data):
         for i in data:
             if i:
-                self.options[i.split('=')[0].strip()] = i.split('=')[1].split('#')[0].strip()
+                self.options[i.split('=')[0].strip()] = i.split('=')[
+                    1].split('#')[0].strip()
 
 
 class ThumbFile:
@@ -62,7 +63,8 @@ class DBImage:
     def __init__(self, data=None):
         if isinstance(data, list) or isinstance(data, tuple):
             self.no_p_fname = data[0]
-            self.tags = list(sorted(set([x for x in data[1].split(',,') if x != '' and x != ' '])))
+            self.tags = list(
+                sorted(set([x for x in data[1].split(',,') if x != '' and x != ' '])))
             self.width = data[2]
             self.height = data[3]
             self.ratio = data[4]
@@ -82,6 +84,6 @@ class DBImage:
             self.id
             self.fformat = self.no_p_fname.split('.')[-1]
             self.fname = self.prefix + self.no_p_fname
-        
+
     def __repr__(self):
         return f"<Image {self.prefix}{self.id}>"
